@@ -58,3 +58,23 @@ def test_vad_silence_returns_empty(tmp_path):
 def test_vad_missing_file(tmp_path):
     with pytest.raises(FileNotFoundError):
         detect_speech_intervals(tmp_path / "missing.wav")
+
+
+def test_vad_adapts_to_quiet_recordings(tmp_path):
+    """A recording ~40 dB quieter than usual is still segmented correctly by the adaptive threshold."""
+    import math, struct, wave
+    path = tmp_path / "quiet.wav"
+    rate = 16000
+    frames = bytearray()
+    for i in range(3 * rate):
+        t = i / rate
+        on = 1.0 <= t < 2.0
+        # speech ~ -46 dBFS, background noise ~ -80 dBFS
+        v = 160 * math.sin(2 * math.pi * 440 * t) if on else 3 * math.sin(2 * math.pi * 97 * t)
+        frames += struct.pack("<h", int(v))
+    with wave.open(str(path), "wb") as wf:
+        wf.setnchannels(1); wf.setsampwidth(2); wf.setframerate(rate); wf.writeframes(bytes(frames))
+
+    assert detect_speech_intervals(path, threshold_dbfs=-40.0) == []  # old fixed threshold misses it
+    [(s, e)] = detect_speech_intervals(path)
+    assert s == pytest.approx(1.0, abs=0.05) and e == pytest.approx(2.0, abs=0.05)
