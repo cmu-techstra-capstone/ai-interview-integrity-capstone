@@ -67,9 +67,11 @@ truth.**
 - Each dataset has its own license and access agreement. Obtain access individually,
   follow its terms (typically research-only, no redistribution), and **never commit
   these files to the repository**.
-- Placeholders: put local copies under `data/raw/<dataset_name>/` (gitignored) and write
-  a small adapter that emits one metadata JSON per clip (see
-  `examples/public_dataset_metadata.json`).
+- Storage: raw files live in shared Drive under `datasets/<dataset_name>/`. Where each
+  file lives is tracked in `manifests/files/<dataset_name>.csv` (see
+  [data-storage.md](data-storage.md)). Access status is in `manifests/datasets.json`.
+- The Michigan dataset has **no speaker IDs**. Clips from the same trial may share a
+  speaker. Until speakers are annotated, treat any Michigan split as potentially leaky.
 
 ## 4. Labels are independent axes
 

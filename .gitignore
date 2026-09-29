@@ -21,15 +21,54 @@ data/processed/*
 !data/interim/.gitkeep
 !data/processed/.gitkeep
 
+# Local temp cache for files pulled from shared storage
+.cache/
+data/cache/
+iic-cache-*/
+
 # Media files anywhere in the repo (tests generate their own fixtures at runtime)
 *.mp4
+*.m4v
 *.mov
 *.mkv
 *.avi
 *.webm
+*.wmv
+*.flv
+*.mpg
+*.mpeg
 *.wav
 *.mp3
 *.m4a
+*.aac
+*.flac
+*.ogg
+*.opus
+
+# Archives and large binary dataset formats
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.h5
+*.hdf5
+*.npy
+*.npz
+*.pkl
+*.parquet
+*.edf
+
+# Cloud credentials (Drive API, rclone, service accounts)
+credentials*.json
+client_secret*.json
+service_account*.json
+token*.json
+rclone.conf
 
 # OS / editors
 .DS_Store

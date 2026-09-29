@@ -35,7 +35,31 @@ rejection, production deployment, Teams/Zoom integration, and the detection mode
 - **Augmented variants** of a recording stay in the same train/val/test partition as the
   original (splits are grouped by participant).
 
-Full details: [docs/data-strategy.md](docs/data-strategy.md). Open choices:
+Full details: [docs/data-strategy.md](docs/data-strategy.md).
+
+## Data storage
+
+Raw datasets live in shared **Google Drive** storage (`AI Interview Integrity Capstone/`),
+not in Git and not permanently on laptops. The repo tracks only manifests
+(`manifests/datasets.json`, `manifests/files/*.csv`) that say where each file lives.
+Processing pulls one file at a time into a temporary cache capped at 500 MB, uploads the
+lightweight outputs back to Drive, and deletes the local copy. See
+[docs/data-storage.md](docs/data-storage.md).
+
+```bash
+interview-integrity datasets status
+interview-integrity storage-init --root "<shared root>"
+interview-integrity datasets acquire michigan_deception --root "<shared root>" --limit 5
+interview-integrity process-remote --dataset michigan_deception --root "<shared root>" --limit 5
+```
+
+| Dataset | Access | Status |
+|---|---|---|
+| UMich Real-life Deception | Public | Manifest built (121 clips); ready to stream into Drive |
+| DOLOS | ROSE Lab Release Agreement | Waiting on manual request |
+| Bag-of-Lies | Institution-signed license | Waiting on manual request |
+| Staged interviews | Team-recorded | Not collected yet |
+ Open choices:
 [docs/decisions.md](docs/decisions.md).
 
 ## Repository layout
@@ -48,8 +72,10 @@ src/interview_integrity/
   features/       linguistic and timing features
   datasets/       schema (InterviewSample), JSONL/CSV I/O, group-aware splits
   llm/            provider-agnostic LLM interface (OpenRouter placeholder)
+  storage/        shared-storage backends, bounded temp cache, manifests, dataset acquisition
   pipeline.py     end-to-end processing of one video
   cli.py          `interview-integrity` command
+manifests/      dataset registry + per-file manifests (no media)
 data/{raw,interim,processed}/   local data only, gitignored
 docs/  examples/  notebooks/  tests/
 ```
@@ -63,7 +89,7 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env          # only needed later for OpenRouter; never commit .env
-pytest                        # 62 tests; media fixtures are generated with ffmpeg
+pytest                        # media fixtures are generated with ffmpeg at test time
 ```
 
 The runtime package uses only the Python standard library plus the ffmpeg binaries.
@@ -146,3 +172,8 @@ All times are in seconds. Values that cannot be measured are `null`, never guess
 - No visual features, augmentation transforms, semantic similarity model, or detection
   model yet.
 - The OpenRouter client is a configuration-only placeholder.
+- No native Google Drive backend yet (decision D6). Shared storage currently works through a
+  mounted folder, such as Drive for Desktop.
+- The Michigan dataset has no speaker IDs, so each clip is treated as its own participant
+  (`unknown:<video_id>`). Participant-grouped splits can't guarantee no speaker overlap
+  until speakers are annotated.
