@@ -1,0 +1,69 @@
+{
+  "drive_root": "AI Interview Integrity Capstone",
+  "verified_on": "2026-09-29",
+  "notes": "Access terms verified from official sources on verified_on. Re-check before acquiring. assistance_label is always UNKNOWN for the three public deception datasets.",
+  "datasets": {
+    "michigan_deception": {
+      "display_name": "Real-life Deception Detection (University of Michigan)",
+      "source_dataset": "real_life_deception",
+      "official_source_url": "https://web.eecs.umich.edu/~mihalcea/downloads.html",
+      "download_url": "https://web.eecs.umich.edu/~mihalcea/downloads/RealLifeDeceptionDetection.2016.zip",
+      "access": "public",
+      "license_short": "No license file in archive or on page; released by the authors for research. Cite Perez-Rosas et al. ICMI 2015.",
+      "citation": "Veronica Perez-Rosas, Mohamed Abouelenien, Rada Mihalcea, Mihai Burzo. Deception Detection using Real-life Trial Data. ICMI 2015.",
+      "approx_size_bytes": 248760721,
+      "contents": "121 courtroom trial clips (61 deceptive, 60 truthful, ~260 MB uncompressed), per-clip transcripts (.txt), gesture annotation CSV.",
+      "known_limitations": "No speaker/participant IDs; clips from the same trial may share a speaker, so group-aware splitting needs manual speaker annotation.",
+      "drive_folder": "datasets/michigan_deception",
+      "status": "AVAILABLE_AT_SOURCE",
+      "manual_steps": []
+    },
+    "dolos": {
+      "display_name": "DOLOS (ROSE Lab, NTU)",
+      "source_dataset": "dolos",
+      "official_source_url": "https://rose1.ntu.edu.sg/dataset/DOLOS/",
+      "code_repository": "https://github.com/NMS05/Audio-Visual-Deception-Detection-DOLOS-Dataset-and-Parameter-Efficient-Crossmodal-Learning",
+      "access": "restricted",
+      "license_short": "ROSE Lab Release Agreement: academic, non-commercial research only; no redistribution or derived datasets without permission.",
+      "approx_size_bytes": null,
+      "contents": "Deception clips from a reality game show, with MUMIN behavior annotations.",
+      "drive_folder": "datasets/dolos",
+      "status": "ACCESS_PENDING",
+      "manual_steps": [
+        "Create a ROSE Lab account with your CMU email at https://rose1.ntu.edu.sg/",
+        "Open https://rose1.ntu.edu.sg/dataset/DOLOS/, click Request, and accept the Release Agreement",
+        "Wait for approval; download only via the channel ROSE Lab provides (do not use the GitHub YouTube downloader as a substitute for approval)"
+      ]
+    },
+    "bag_of_lies": {
+      "display_name": "Bag-of-Lies (IIIT-Delhi)",
+      "source_dataset": "bag_of_lies",
+      "official_source_url": "http://iab-rubric.org/index.php/bag-of-lies",
+      "access": "restricted",
+      "license_short": "Signed license agreement required (research/educational, non-commercial). User_12 data must not appear in publications. Cite the paper.",
+      "approx_size_bytes": 6590000000,
+      "approx_size_note": "Reported as 6.14 GB on the official page.",
+      "contents": "Multimodal (video, audio, EEG, gaze) deception recordings.",
+      "drive_folder": "datasets/bag_of_lies",
+      "status": "ACCESS_PENDING",
+      "manual_steps": [
+        "Download the license agreement from http://iab-rubric.org/index.php/bag-of-lies",
+        "Have it signed by someone with legal authority for CMU (e.g. via your advisor and CMU Office of Sponsored Programs); student/faculty signatures alone are rejected",
+        "Email it to databases@iab-rubric.org with subject 'License agreement for Bag-of-Lies Database'",
+        "They reply with the password for the Google Drive download; the archive (6.14 GB) exceeds the 500 MB local limit, so transfer it Drive-to-Drive (e.g. 'Make a copy'/shortcut or a Colab notebook), not via the laptop"
+      ]
+    },
+    "staged_interviews": {
+      "display_name": "Staged mock interviews (team-recorded)",
+      "source_dataset": "staged",
+      "official_source_url": "",
+      "access": "internal",
+      "license_short": "Team-collected; governed by participant consent / IRB protocol. Never share outside the team.",
+      "approx_size_bytes": null,
+      "contents": "Controlled answers labeled HUMAN_UNASSISTED / AI_ASSISTED / AI_VERBATIM / AI_PERSONALIZED.",
+      "drive_folder": "datasets/staged_interviews",
+      "status": "NOT_COLLECTED",
+      "manual_steps": ["Record under the approved protocol; upload directly to Drive; add rows to manifests/files/staged_interviews.csv"]
+    }
+  }
+}
