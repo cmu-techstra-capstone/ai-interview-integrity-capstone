@@ -1,7 +1,10 @@
-"""Process one manifest entry: shared storage -> bounded temp cache -> features -> shared storage.
+"""Process one manifest entry: storage -> bounded temp cache -> features -> output storage.
 
-    remote raw video (+ transcript) -> TemporaryCache -> process_video
-      -> upload transcript + feature JSON to processed/ -> cache deleted
+    raw video (+ transcript) from ``storage`` -> TemporaryCache -> process_video
+      -> transcript + feature JSON written to ``output_storage`` under processed/ -> cache deleted
+
+``storage`` can be shared Drive storage or the official source archive itself
+(``ArchiveSourceStorage``); ``output_storage`` defaults to ``storage``.
 """
 
 from __future__ import annotations
@@ -57,9 +60,11 @@ def process_manifest_entry(
     entry: ManifestEntry,
     storage: RemoteStorage,
     *,
+    output_storage: RemoteStorage | None = None,
     cache_root: str | Path | None = None,
     max_cache_bytes: int = DEFAULT_MAX_BYTES,
 ) -> InterviewSample:
+    output_storage = output_storage or storage
     if not storage.exists(entry.drive_location):
         entry.file_status = FileStatus.MISSING.value
         raise FileNotFoundError(f"{entry.video_id}: raw file not in shared storage: {entry.drive_location}")
@@ -78,8 +83,8 @@ def process_manifest_entry(
             config=PipelineConfig(interim_dir=cache.path("interim")),
         )
         row = sample.to_row()
-        # Local cache paths are meaningless once the cache is gone; point at shared storage instead.
-        row.update(video_path=entry.drive_location, audio_path=None)
+        # Local cache paths are meaningless once the cache is gone; point at the source instead.
+        row.update(video_path=storage.reference(entry.drive_location), audio_path=None)
         paths = processed_paths(entry)
         row["transcript_path"] = paths["transcript"] if transcriber else None
 
@@ -88,9 +93,9 @@ def process_manifest_entry(
         for kind, payload in outputs.items():
             out = cache.path(f"{kind}.json")
             out.write_text(json.dumps(payload, indent=2))
-            storage.upload(out, paths[kind])
+            output_storage.upload(out, paths[kind])
         if sample.transcript_path:
-            storage.upload(Path(sample.transcript_path), paths["transcript"])
+            output_storage.upload(Path(sample.transcript_path), paths["transcript"])
 
     entry.local_cache_path = ""
     entry.file_status = FileStatus.PROCESSED.value

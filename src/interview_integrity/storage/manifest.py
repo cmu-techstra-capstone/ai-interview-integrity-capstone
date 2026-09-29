@@ -26,7 +26,7 @@ class FileStatus(str, enum.Enum):
     AVAILABLE_AT_SOURCE = "AVAILABLE_AT_SOURCE"  # public, not yet copied to shared storage
     ACCESS_PENDING = "ACCESS_PENDING"  # needs license/approval before it can be obtained
     IN_DRIVE = "IN_DRIVE"  # raw file present in shared storage
-    PROCESSED = "PROCESSED"  # processed outputs uploaded to shared storage
+    PROCESSED = "PROCESSED"  # processed outputs (transcript/features) saved
     MISSING = "MISSING"  # expected but not found
     ERROR = "ERROR"
 

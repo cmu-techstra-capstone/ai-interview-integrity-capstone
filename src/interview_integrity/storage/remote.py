@@ -64,6 +64,10 @@ class RemoteStorage(abc.ABC):
     def list(self, prefix: str = "") -> list[str]:
         """Recursively list file paths under ``prefix``."""
 
+    def reference(self, remote_path: str) -> str:
+        """Human-readable pointer to a file, recorded in dataset rows."""
+        return _clean(remote_path)
+
     def ensure_layout(self, layout: tuple[str, ...] = PROJECT_LAYOUT) -> list[str]:
         """Create missing project folders. Never deletes or overwrites. Returns folders created."""
         created = []
