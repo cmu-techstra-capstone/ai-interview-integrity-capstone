@@ -47,3 +47,19 @@ support the "likelihood/confidence score" explanation. This needs a team decisio
 Energy VAD cannot tell the interviewer and candidate apart. Options: record separate
 audio tracks per speaker (simplest for staged data), annotate answer windows in metadata
 (current approach), or diarization (WhisperX/pyannote).
+
+## D6. Google Drive access backend (interface: `storage.remote.RemoteStorage`)
+
+`LocalFolderStorage` works today with any mounted folder. Choose how teammates and scripts
+reach Drive:
+
+| Option | Pros | Cons |
+|---|---|---|
+| **rclone remote** (`rclone config` → Drive, OAuth in browser) | CLI-friendly; `rcat` streams uploads with no temp files; each teammate authorizes their own account | CMU Workspace may block rclone's shared OAuth client, so we might need our own GCP client ID |
+| **Google Drive for Desktop** (streaming mode) + `LocalFolderStorage` | Zero code; works now | The app manages its own cache (hard to bound); uploads still pass through the laptop; not usable in Colab/CI |
+| **Drive API** (Python client, OAuth or service account) | Fully programmatic; file IDs in `remote_reference`; works in Colab | Adds dependencies and a GCP project; a service account needs a Shared Drive |
+
+Also decide: **My Drive vs a CMU Shared Drive** for the root folder. A Shared Drive is
+recommended so the team, not one student account, owns the data.
+
+Recommendation: rclone backend plus a CMU Shared Drive.
