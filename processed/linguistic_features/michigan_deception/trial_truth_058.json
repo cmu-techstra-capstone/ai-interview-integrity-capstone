@@ -1,0 +1,21 @@
+{
+  "interview_id": "trial_truth_058",
+  "participant_id": "unknown:trial_truth_058",
+  "question_id": "Q_NA",
+  "recording_id": "trial_truth_058",
+  "source_dataset": "real_life_deception",
+  "assistance_label": "UNKNOWN",
+  "deception_label": "TRUTHFUL",
+  "avg_sentence_length": 28.5,
+  "discourse_marker_count": 2,
+  "filler_rate_per_100_words": 7.0175,
+  "filler_word_count": 4,
+  "mattr": 0.695,
+  "qa_content_word_overlap": null,
+  "qa_semantic_similarity": null,
+  "repetition_count": 0,
+  "self_correction_count": 0,
+  "sentence_count": 2,
+  "type_token_ratio": 0.6316,
+  "word_count": 57
+}
