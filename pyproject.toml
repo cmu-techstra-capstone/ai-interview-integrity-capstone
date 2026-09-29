@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "interview-integrity"
+version = "0.1.0"
+description = "Research prototype: explainable signals of possible real-time AI assistance in virtual interviews."
+readme = "README.md"
+requires-python = ">=3.10"
+# Runtime deliberately uses only the standard library (plus the ffmpeg/ffprobe binaries).
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+interview-integrity = "interview_integrity.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
