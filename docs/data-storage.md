@@ -53,7 +53,23 @@ deletes or overwrites existing content.
 Use `--limit N` for a small trial run first. `interview-integrity datasets status` shows
 where each dataset stands.
 
-## On-demand processing
+## Processing straight from the official source (no Drive needed)
+
+For public datasets whose official archive supports HTTP range requests (Michigan):
+
+```bash
+interview-integrity process-source --dataset michigan_deception [--limit N] [--force]
+```
+
+```text
+official zip ──range request──▶ one clip in TemporaryCache ──▶ pipeline ──▶ processed/ (in Git)
+                                        └── deleted after each clip
+```
+
+`ArchiveSourceStorage` presents the archive as read-only storage. Rows record the source
+as `<zip url>#<member>`. Already-processed clips are skipped unless you pass `--force`.
+
+## On-demand processing from shared storage
 
 ```text
 Drive raw video (+ transcript) → TemporaryCache (≤ 500 MB, checked before download)

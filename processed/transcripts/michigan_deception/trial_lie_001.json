@@ -1,0 +1,14 @@
+{
+  "provider": "sidecar:trial_lie_001.txt",
+  "language": null,
+  "text": "No sir I did not. I absolutely did not. No sir I was not. No sir.",
+  "segments": [
+    {
+      "text": "No sir I did not. I absolutely did not. No sir I was not. No sir.",
+      "start": null,
+      "end": null,
+      "speaker": null,
+      "words": []
+    }
+  ]
+}

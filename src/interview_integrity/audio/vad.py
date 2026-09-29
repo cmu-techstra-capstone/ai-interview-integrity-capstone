@@ -3,7 +3,10 @@
 This is a transparent baseline used only when word-level timestamps are not
 available. Known limitations:
 
-* A fixed dBFS threshold is sensitive to microphone gain and background noise.
+* By default the threshold adapts to each recording: frames within ``relative_db``
+  of the recording's loud (95th percentile) frames count as speech. This handles
+  recordings made at very different levels, but loud background noise can still be
+  counted as speech. Pass ``threshold_dbfs`` for a fixed threshold instead.
 * It cannot tell the candidate's voice apart from the interviewer's or from
   other sounds; use metadata answer windows (or future diarization) to restrict
   analysis to the candidate's answer.
@@ -35,11 +38,16 @@ def detect_speech_intervals(
     start: float | None = None,
     end: float | None = None,
     frame_ms: float = 30.0,
-    threshold_dbfs: float = -40.0,
+    threshold_dbfs: float | None = None,
+    relative_db: float = 25.0,
+    floor_dbfs: float = -75.0,
     merge_gap: float = 0.3,
     min_speech: float = 0.1,
 ) -> list[Interval]:
-    """Return ``(start, end)`` second intervals whose frame energy exceeds ``threshold_dbfs``.
+    """Return ``(start, end)`` second intervals whose frame energy exceeds the speech threshold.
+
+    Threshold: ``threshold_dbfs`` if given, else ``max(p95 - relative_db, floor_dbfs)``
+    where ``p95`` is the 95th-percentile frame level (dBFS) of the analyzed audio.
 
     Only 16-bit PCM WAV is supported (the format produced by ``extract_audio``).
     Gaps shorter than ``merge_gap`` are bridged; intervals shorter than
@@ -66,16 +74,23 @@ def detect_speech_intervals(
 
     frame_len = max(1, int(rate * frame_ms / 1000))
     offset = first / rate
-    raw_intervals: list[Interval] = []
+    levels: list[tuple[float, float, float]] = []  # (start, end, dBFS)
     for i in range(0, len(samples), frame_len):
         frame = samples[i : i + frame_len]
         if not frame:
             break
         rms = math.sqrt(sum(s * s for s in frame) / len(frame))
         dbfs = 20 * math.log10(rms / 32768) if rms > 0 else -math.inf
-        if dbfs >= threshold_dbfs:
-            t0 = offset + i / rate
-            raw_intervals.append((t0, t0 + len(frame) / rate))
+        t0 = offset + i / rate
+        levels.append((t0, t0 + len(frame) / rate, dbfs))
+    if not levels:
+        return []
+
+    if threshold_dbfs is None:
+        ranked = sorted(d for _, _, d in levels)
+        p95 = ranked[int(0.95 * (len(ranked) - 1))]
+        threshold_dbfs = max(p95 - relative_db, floor_dbfs)
+    raw_intervals: list[Interval] = [(s, e) for s, e, d in levels if d >= threshold_dbfs]
 
     merged = _merge(raw_intervals, merge_gap)
     return [(round(s, 3), round(e, 3)) for s, e in merged if e - s >= min_speech]

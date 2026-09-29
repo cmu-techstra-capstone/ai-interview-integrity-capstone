@@ -1,0 +1,22 @@
+{
+  "interview_id": "trial_lie_057",
+  "participant_id": "unknown:trial_lie_057",
+  "question_id": "Q_NA",
+  "recording_id": "trial_lie_057",
+  "source_dataset": "real_life_deception",
+  "assistance_label": "UNKNOWN",
+  "deception_label": "DECEPTIVE",
+  "answer_start": 0.0,
+  "answer_end": 18.93,
+  "response_latency": null,
+  "answer_duration": 18.93,
+  "articulation_rate_wpm": 140.411,
+  "max_pause_duration": 1.41,
+  "mean_pause_duration": 1.41,
+  "pause_count": 1,
+  "pause_ratio": 0.074,
+  "speech_duration": 17.52,
+  "speech_rate_wpm": 129.952,
+  "timing_source": "energy_vad",
+  "total_pause_duration": 1.41
+}

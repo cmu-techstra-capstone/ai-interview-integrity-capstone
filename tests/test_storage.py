@@ -250,3 +250,47 @@ def test_process_respects_cache_budget(michigan_info, storage, tmp_path):
     with pytest.raises(CacheBudgetExceeded):
         process_manifest_entry(entries[0], storage, cache_root=tmp_path / "c", max_cache_bytes=100)
     assert list((tmp_path / "c").iterdir()) == []
+
+
+# ------------------------------------------------------------------ process directly from the source archive
+
+@requires_ffmpeg
+def test_archive_source_storage_reads_members(michigan_info, tmp_path):
+    from interview_integrity.storage.source_archive import ArchiveSourceStorage, ReadOnlyStorageError
+
+    entries = michigan_entries(michigan_info)
+    src = ArchiveSourceStorage.from_manifest(michigan_info["download_url"], entries)
+    e = entries[0]
+    assert src.exists(e.drive_location) and src.size(e.drive_location) == int(e.size_bytes)
+    assert not src.exists("datasets/michigan_deception/nope.mp4")
+    out = src.download(e.transcript_location, tmp_path / "t.txt")
+    assert out.read_text().startswith("Um, I was not there")
+    assert src.reference(e.drive_location).endswith("#" + e.archive_member)
+    with pytest.raises(ReadOnlyStorageError):
+        src.upload(out, "processed/x.json")
+
+
+@requires_ffmpeg
+def test_cli_process_source_keeps_only_outputs(michigan_info, tmp_path, monkeypatch):
+    from interview_integrity import cli
+
+    manifest_dir = tmp_path / "manifests"
+    (manifest_dir / "files").mkdir(parents=True)
+    registry = load_registry(REPO / "manifests/datasets.json")
+    registry["datasets"]["michigan_deception"] = michigan_info
+    (manifest_dir / "datasets.json").write_text(json.dumps(registry))
+    save_manifest(michigan_entries(michigan_info), manifest_dir / "files/michigan_deception.csv")
+    out_root, cache = tmp_path / "out", tmp_path / "cache"
+    out_root.mkdir()
+
+    args = ["process-source", "--dataset", "michigan_deception", "--manifest-dir", str(manifest_dir),
+            "--out-root", str(out_root), "--cache-dir", str(cache)]
+    assert cli.main(args) == 0
+    files = sorted(p.relative_to(out_root).as_posix() for p in out_root.rglob("*") if p.is_file())
+    assert "processed/combined_features/michigan_deception.csv" in files
+    assert len([f for f in files if f.startswith("processed/combined_features/michigan_deception/")]) == 2
+    assert not any(f.endswith((".mp4", ".wav", ".txt")) for f in files)  # no raw media kept
+    assert list(cache.iterdir()) == []
+    assert all(e.file_status == "PROCESSED" for e in load_manifest(manifest_dir / "files/michigan_deception.csv"))
+    # Re-running skips clips that already have outputs.
+    assert cli.main(args) == 0

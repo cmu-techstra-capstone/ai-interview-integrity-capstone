@@ -1,0 +1,21 @@
+{
+  "interview_id": "trial_lie_061",
+  "participant_id": "unknown:trial_lie_061",
+  "question_id": "Q_NA",
+  "recording_id": "trial_lie_061",
+  "source_dataset": "real_life_deception",
+  "assistance_label": "UNKNOWN",
+  "deception_label": "DECEPTIVE",
+  "avg_sentence_length": 6.75,
+  "discourse_marker_count": 3,
+  "filler_rate_per_100_words": 1.8519,
+  "filler_word_count": 1,
+  "mattr": 0.8,
+  "qa_content_word_overlap": null,
+  "qa_semantic_similarity": null,
+  "repetition_count": 0,
+  "self_correction_count": 0,
+  "sentence_count": 8,
+  "type_token_ratio": 0.7778,
+  "word_count": 54
+}

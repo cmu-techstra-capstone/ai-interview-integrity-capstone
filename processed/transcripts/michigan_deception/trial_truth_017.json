@@ -1,0 +1,14 @@
+{
+  "provider": "sidecar:trial_truth_017.txt",
+  "language": null,
+  "text": "And I am gonna go forward with this ... because I know I had nothing to do with this crime.",
+  "segments": [
+    {
+      "text": "And I am gonna go forward with this ... because I know I had nothing to do with this crime.",
+      "start": null,
+      "end": null,
+      "speaker": null,
+      "words": []
+    }
+  ]
+}

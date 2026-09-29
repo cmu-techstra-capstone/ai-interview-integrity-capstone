@@ -39,8 +39,17 @@ Full details: [docs/data-strategy.md](docs/data-strategy.md).
 
 ## Data storage
 
-Raw datasets live in shared **Google Drive** storage (`AI Interview Integrity Capstone/`),
-not in Git and not permanently on laptops. The repo tracks only manifests
+**Public datasets are processed straight from their official source.**
+`interview-integrity process-source` streams one clip at a time into a temporary cache,
+extracts features, and deletes the clip. Only the lightweight outputs are committed, in
+[processed/](processed/). No raw video is stored in Git, Drive or on laptops.
+
+```bash
+interview-integrity process-source --dataset michigan_deception   # outputs → processed/
+```
+
+Optional shared storage: raw datasets can also live in **Google Drive**
+(`AI Interview Integrity Capstone/`), not in Git and not permanently on laptops. The repo tracks only manifests
 (`manifests/datasets.json`, `manifests/files/*.csv`) that say where each file lives.
 Processing pulls one file at a time into a temporary cache capped at 500 MB, uploads the
 lightweight outputs back to Drive, and deletes the local copy. See
@@ -55,7 +64,7 @@ interview-integrity process-remote --dataset michigan_deception --root "<shared 
 
 | Dataset | Access | Status |
 |---|---|---|
-| UMich Real-life Deception | Public | Manifest built (121 clips); ready to stream into Drive |
+| UMich Real-life Deception | Public | **Processed: 121 clips → [processed/](processed/)** |
 | DOLOS | ROSE Lab Release Agreement | Waiting on manual request |
 | Bag-of-Lies | Institution-signed license | Waiting on manual request |
 | Staged interviews | Team-recorded | Not collected yet |
@@ -163,8 +172,9 @@ All times are in seconds. Values that cannot be measured are `null`, never guess
 - **No speech-to-text engine yet.** Transcripts must be supplied as files. The provider
   choice is pending ([docs/decisions.md](docs/decisions.md#d1-speech-to-text-provider-interface-transcriptionbasetranscriber)).
   Without a transcript, linguistic features are `null` and timing comes from VAD.
-- **Energy VAD is crude.** It uses a fixed dBFS threshold and cannot separate the
-  interviewer from the candidate. Use metadata answer windows for mixed-speaker audio.
+- **Energy VAD is crude.** Its threshold adapts to each recording's level, but background
+  noise can still count as speech, and it cannot separate the interviewer from the
+  candidate. Use metadata answer windows for mixed-speaker audio.
 - **Filler counts depend on the transcript source.** Many ASR models remove "um"/"uh".
 - **Self-correction detection is heuristic** (repeats and repair phrases like "sorry",
   "I meant").

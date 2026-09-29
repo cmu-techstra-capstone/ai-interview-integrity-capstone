@@ -11,7 +11,9 @@ from .datasets.io import load_jsonl, upsert_jsonl, write_csv, write_jsonl
 from .datasets.splits import assign_splits, find_group_leakage
 from .pipeline import PipelineConfig, process_video
 from .storage.manifest import FileStatus, load_manifest, save_manifest
+from .datasets.schema import InterviewSample
 from .storage.remote import LocalFolderStorage
+from .storage.source_archive import ArchiveSourceStorage
 from .storage.sources import ADAPTERS, AccessRequired, dataset_info, load_registry, require_public
 from .storage.workflow import process_manifest_entry
 from .transcription.sidecar import SidecarTranscriber
@@ -136,6 +138,55 @@ def _cmd_process_remote(args: argparse.Namespace) -> int:
     return 0
 
 
+def _collect_combined_csv(out: LocalFolderStorage, dataset: str) -> int:
+    prefix = f"processed/combined_features/{dataset}"
+    rows = [json.loads((out.root / p).read_text()) for p in out.list(prefix) if p.endswith(".json")]
+    write_csv([InterviewSample.from_row(r) for r in rows], out.root / f"{prefix}.csv")
+    return len(rows)
+
+
+def _cmd_process_source(args: argparse.Namespace) -> int:
+    registry = load_registry(Path(args.manifest_dir) / "datasets.json")
+    info = dataset_info(args.dataset, registry)
+    try:
+        require_public(args.dataset, info)
+    except AccessRequired as exc:
+        print(exc, file=sys.stderr)
+        return 2
+    path = _manifest_path(args, args.dataset)
+    entries = load_manifest(path)
+    source = ArchiveSourceStorage.from_manifest(info["download_url"], entries)
+    out = LocalFolderStorage(args.out_root)
+
+    todo = [e for e in entries if not args.video_id or e.video_id in args.video_id]
+    if not args.force:
+        todo = [e for e in todo if not out.exists(f"processed/combined_features/{e.dataset_name}/{e.video_id}.json")]
+    if args.limit:
+        todo = todo[: args.limit]
+
+    done, failed = 0, []
+    try:
+        for i, e in enumerate(todo, 1):
+            try:
+                process_manifest_entry(
+                    e, source, output_storage=out,
+                    cache_root=args.cache_dir, max_cache_bytes=int(args.max_cache_mb * 2**20),
+                )
+                done += 1
+                print(f"[{i}/{len(todo)}] {e.video_id}", file=sys.stderr)
+            except Exception as exc:  # keep going; record the failure in the manifest
+                e.file_status = FileStatus.ERROR.value
+                e.notes = f"processing error: {exc}"[:300]
+                failed.append(e.video_id)
+                print(f"[{i}/{len(todo)}] {e.video_id} FAILED: {exc}", file=sys.stderr)
+    finally:
+        save_manifest(entries, path)
+        total = _collect_combined_csv(out, args.dataset)
+    print(f"Processed {done}, failed {len(failed)} {failed or ''}; {total} rows in "
+          f"processed/combined_features/{args.dataset}.csv; fetched {source.bytes_fetched / 2**20:.1f} MB from source")
+    return 1 if failed else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="interview-integrity", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -147,7 +198,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--interim-dir", default="data/interim")
     p.add_argument("--out-dir", default="data/processed")
     p.add_argument("--min-pause", type=float, default=0.3, help="Minimum silence (s) counted as a pause")
-    p.add_argument("--vad-threshold-dbfs", type=float, default=-40.0)
+    p.add_argument("--vad-threshold-dbfs", type=float, default=None,
+                   help="Fixed VAD threshold; default adapts to each recording's level")
     p.add_argument("--overwrite", action="store_true", help="Re-extract audio even if it exists")
     p.set_defaults(func=_cmd_process)
 
@@ -185,6 +237,18 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--max-cache-mb", type=float, default=500)
     r.add_argument("--out-dir", default="data/processed")
     r.set_defaults(func=_cmd_process_remote)
+
+    ps = sub.add_parser("process-source",
+                        help="Stream clips one at a time from the official source, process, keep only outputs")
+    ps.add_argument("--dataset", required=True)
+    ps.add_argument("--video-id", nargs="*")
+    ps.add_argument("--limit", type=int)
+    ps.add_argument("--force", action="store_true", help="Reprocess clips that already have outputs")
+    ps.add_argument("--manifest-dir", default="manifests")
+    ps.add_argument("--out-root", default=".", help="Outputs go to <out-root>/processed/... (default: repo root)")
+    ps.add_argument("--cache-dir", help="Parent dir for the temp cache (default: system temp)")
+    ps.add_argument("--max-cache-mb", type=float, default=500)
+    ps.set_defaults(func=_cmd_process_source)
     return parser
 
 

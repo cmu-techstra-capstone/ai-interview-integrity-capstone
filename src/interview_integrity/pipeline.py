@@ -23,7 +23,7 @@ from .transcription.base import Transcriber, Transcript
 class PipelineConfig:
     interim_dir: Path = Path("data/interim")
     min_pause: float = DEFAULT_MIN_PAUSE
-    vad_threshold_dbfs: float = -40.0
+    vad_threshold_dbfs: float | None = None  # None = adaptive per recording
     overwrite: bool = False
 
 

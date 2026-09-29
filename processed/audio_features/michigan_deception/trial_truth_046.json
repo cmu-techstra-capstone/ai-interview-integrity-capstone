@@ -1,0 +1,22 @@
+{
+  "interview_id": "trial_truth_046",
+  "participant_id": "unknown:trial_truth_046",
+  "question_id": "Q_NA",
+  "recording_id": "trial_truth_046",
+  "source_dataset": "real_life_deception",
+  "assistance_label": "UNKNOWN",
+  "deception_label": "TRUTHFUL",
+  "answer_start": 1.38,
+  "answer_end": 36.99,
+  "response_latency": null,
+  "answer_duration": 35.61,
+  "articulation_rate_wpm": 197.887,
+  "max_pause_duration": 1.44,
+  "mean_pause_duration": 0.547,
+  "pause_count": 8,
+  "pause_ratio": 0.123,
+  "speech_duration": 31.23,
+  "speech_rate_wpm": 173.547,
+  "timing_source": "energy_vad",
+  "total_pause_duration": 4.38
+}
