@@ -206,6 +206,16 @@ def _cmd_quality(args: argparse.Namespace) -> int:
     return 1 if failing else 0
 
 
+def _cmd_stt_eval(args: argparse.Namespace) -> int:
+    from .transcription.evaluate import evaluate_directories
+
+    report = evaluate_directories(args.reference, args.hypothesis)
+    if args.report:
+        Path(args.report).write_text(json.dumps(report, indent=2))
+    print(json.dumps({k: v for k, v in report.items() if k != "per_clip"}, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="interview-integrity", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -275,6 +285,12 @@ def build_parser() -> argparse.ArgumentParser:
     qc.add_argument("--fail-on", choices=["error", "warning"], default="error")
     qc.add_argument("-v", "--verbose", action="store_true", help="List every issue")
     qc.set_defaults(func=_cmd_quality)
+
+    ev = sub.add_parser("stt-eval", help="Score STT transcripts against reference transcripts (WER, fillers)")
+    ev.add_argument("--reference", required=True, help="Directory of reference transcripts (.txt/.json)")
+    ev.add_argument("--hypothesis", required=True, help="Directory of STT output, same file stems")
+    ev.add_argument("--report", help="Write the full per-clip report as JSON")
+    ev.set_defaults(func=_cmd_stt_eval)
     return parser
 
 
