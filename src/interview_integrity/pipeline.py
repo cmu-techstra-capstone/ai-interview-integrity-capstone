@@ -1,19 +1,24 @@
 """End-to-end processing of one interview video into structured dataset rows.
 
-    video -> ingest (probe + audio.wav) -> transcript (optional) -> per-question
-    answer window -> linguistic + timing features -> validated InterviewSample(s)
+    video -> ingest (probe, checksum, audio.wav, audio validation) -> transcript (optional)
+      -> per-question answer window -> speech intervals (word timestamps or VAD)
+      -> linguistic + timing + loudness + recording-quality features
+      -> optional plug-in extractors (e.g. future visual features)
+      -> validated InterviewSample(s)
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from .audio.vad import detect_speech_intervals
+from .audio.vad import frame_levels, speech_intervals_from_levels, speech_threshold
 from .datasets.schema import QuestionSpec, RecordingMetadata, SchemaError, InterviewSample
+from .features.base import AnswerContext, FeatureExtractor, run_extractor
 from .features.linguistic import SimilarityScorer, extract_linguistic_features
+from .features.loudness import extract_loudness_features
 from .features.timing import DEFAULT_MIN_PAUSE, compute_timing_features, speech_intervals_from_words
 from .ingestion.video import IngestedVideo, ingest_video
 from .transcription.base import Transcriber, Transcript
@@ -25,6 +30,7 @@ class PipelineConfig:
     min_pause: float = DEFAULT_MIN_PAUSE
     vad_threshold_dbfs: float | None = None  # None = adaptive per recording
     overwrite: bool = False
+    extractors: list[FeatureExtractor] = field(default_factory=list)
 
 
 def _answer_transcript(transcript: Transcript | None, q: QuestionSpec, multi: bool) -> Transcript | None:
@@ -60,20 +66,25 @@ def _process_question(
         )
 
     answer_tr = _answer_transcript(transcript, q, multi)
-    window_start = q.answer_start if q.answer_start is not None else 0.0
+    # Search for the answer after the question ends, so the interviewer's speech is not
+    # mistaken for the start of the answer.
+    if q.answer_start is not None:
+        window_start = q.answer_start
+    elif q.question_end is not None:
+        window_start = q.question_end
+    else:
+        window_start = 0.0
     window_end = q.answer_end if q.answer_end is not None else ingested.audio.duration
+    if answer_tr is not None and q.answer_start is None and q.question_end is not None and answer_tr.has_word_timestamps:
+        answer_tr = answer_tr.window(window_start, window_end if window_end is not None else float("inf"))
 
+    levels = frame_levels(ingested.audio.path, start=window_start, end=window_end)
     if answer_tr is not None and answer_tr.words and answer_tr.has_word_timestamps:
         intervals = speech_intervals_from_words(answer_tr.words, merge_gap=config.min_pause)
         timing_source = "word_timestamps"
     else:
-        intervals = detect_speech_intervals(
-            ingested.audio.path,
-            start=window_start,
-            end=window_end,
-            threshold_dbfs=config.vad_threshold_dbfs,
-            merge_gap=config.min_pause,
-        )
+        threshold = speech_threshold(levels, threshold_dbfs=config.vad_threshold_dbfs)
+        intervals = speech_intervals_from_levels(levels, threshold, merge_gap=config.min_pause)
         timing_source = "energy_vad"
 
     # Explicit metadata wins; otherwise the answer spans first-to-last detected speech.
@@ -93,6 +104,7 @@ def _process_question(
         answer_end=answer_end,
         question_end=q.question_end,
         word_count=linguistic["word_count"],
+        words=answer_tr.words if answer_tr is not None and answer_tr.has_word_timestamps else None,
         min_pause=config.min_pause,
     )
     answer_duration = timing.pop("answer_duration")
@@ -101,9 +113,28 @@ def _process_question(
     features: dict[str, Any] = {
         **linguistic,
         **timing,
+        **extract_loudness_features(levels, intervals),
+        **ingested.audio_quality.to_features(),
         "timing_source": timing_source,
         "transcript_source": answer_tr.provider if answer_tr is not None else None,
     }
+
+    if config.extractors:
+        ctx = AnswerContext(
+            video_path=Path(ingested.video.path),
+            audio_path=Path(ingested.audio.path),
+            recording_id=meta.recording_id,
+            question_id=q.question_id,
+            answer_start=answer_start,
+            answer_end=answer_end,
+            question_start=q.question_start,
+            question_end=q.question_end,
+            transcript=answer_tr,
+            speech_intervals=tuple(intervals),
+        )
+        for extractor in config.extractors:
+            reserved = set(features) | {"interview_id", "participant_id", "question_id"}
+            features.update(run_extractor(extractor, ctx, reserved))
 
     return InterviewSample(
         interview_id=meta.interview_id,
@@ -114,16 +145,22 @@ def _process_question(
         augmentation=meta.augmentation,
         assistance_label=q.assistance_label,
         deception_label=q.deception_label,
-        video_path=ingested.video.path,
-        audio_path=ingested.audio.path,
+        video_reference=ingested.video.path,
+        video_sha256=ingested.video.sha256,
+        audio_reference=ingested.audio.path,
         transcript_path=str(transcript_path) if transcript_path else None,
         question_text=q.question_text,
         transcript=text,
+        question_start=q.question_start,
         question_end=q.question_end,
         answer_start=answer_start,
         answer_end=answer_end,
         response_latency=response_latency,
         answer_duration=answer_duration,
+        ai_model_used=q.ai_model_used,
+        ai_prompt_used=q.ai_prompt_used,
+        generated_ai_answer=q.generated_ai_answer,
+        response_notes=q.response_notes,
         features=features,
     ).validate()
 

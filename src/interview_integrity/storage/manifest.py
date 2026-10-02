@@ -44,6 +44,7 @@ class ManifestEntry:
     assistance_label: str = AssistanceLabel.UNKNOWN.value
     drive_location: str = ""
     transcript_location: str = ""
+    metadata_location: str = ""  # optional recording-metadata JSON (staged interviews)
     remote_reference: str = ""  # backend-specific ID (e.g. Drive file ID), if any
     file_status: str = FileStatus.AVAILABLE_AT_SOURCE.value
     local_cache_path: str = ""  # only set while a file is temporarily cached

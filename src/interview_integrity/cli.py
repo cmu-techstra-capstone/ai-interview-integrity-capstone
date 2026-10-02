@@ -125,7 +125,7 @@ def _cmd_process_remote(args: argparse.Namespace) -> int:
     samples = []
     try:
         for e in todo:
-            samples.append(process_manifest_entry(
+            samples.extend(process_manifest_entry(
                 e, storage, cache_root=args.cache_dir, max_cache_bytes=int(args.max_cache_mb * 2**20)
             ))
             print(f"processed {e.video_id}", file=sys.stderr)
