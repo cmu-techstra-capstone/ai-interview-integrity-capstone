@@ -8,6 +8,10 @@ Conventions
 * ``assistance_label`` (how the answer was produced) and ``deception_label``
   (whether the content was truthful) are independent axes. Public deception
   datasets must never carry an assistance label derived from their deception label.
+* AI-generation metadata (``ai_model_used``, ``ai_prompt_used``,
+  ``generated_ai_answer``) is optional for every label; it is never required for
+  ``HUMAN_UNASSISTED`` answers. Missing metadata on AI-labelled answers is reported
+  by the dataset quality checks rather than rejected here.
 """
 
 from __future__ import annotations
@@ -93,6 +97,18 @@ def _check_label_separation(source: SourceDataset, assistance: AssistanceLabel, 
         )
 
 
+def _opt_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _check_question_window(start: float | None, end: float | None, where: str) -> None:
+    if start is not None and end is not None and end < start:
+        raise SchemaError(f"{where}: question_end ({end}) must not be before question_start ({start})")
+
+
 def _check_window(start: float | None, end: float | None, where: str) -> None:
     if start is not None and end is not None and end <= start:
         raise SchemaError(f"{where}: answer_end ({end}) must be greater than answer_start ({start})")
@@ -104,11 +120,16 @@ class QuestionSpec:
 
     question_id: str
     question_text: str | None = None
+    question_start: float | None = None
     question_end: float | None = None
     answer_start: float | None = None
     answer_end: float | None = None
     assistance_label: AssistanceLabel = AssistanceLabel.UNKNOWN
     deception_label: DeceptionLabel = DeceptionLabel.UNKNOWN
+    ai_model_used: str | None = None
+    ai_prompt_used: str | None = None
+    generated_ai_answer: str | None = None
+    response_notes: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any], defaults: dict[str, Any] | None = None) -> "QuestionSpec":
@@ -116,6 +137,7 @@ class QuestionSpec:
         spec = cls(
             question_id=_require_id(merged.get("question_id"), "question_id"),
             question_text=merged.get("question_text") or None,
+            question_start=_parse_time(merged.get("question_start"), "question_start"),
             question_end=_parse_time(merged.get("question_end"), "question_end"),
             answer_start=_parse_time(merged.get("answer_start"), "answer_start"),
             answer_end=_parse_time(merged.get("answer_end"), "answer_end"),
@@ -125,8 +147,14 @@ class QuestionSpec:
             deception_label=_parse_enum(
                 DeceptionLabel, merged.get("deception_label"), "deception_label", DeceptionLabel.UNKNOWN
             ),
+            ai_model_used=_opt_text(merged.get("ai_model_used")),
+            ai_prompt_used=_opt_text(merged.get("ai_prompt_used")),
+            generated_ai_answer=_opt_text(merged.get("generated_ai_answer")),
+            response_notes=_opt_text(merged.get("response_notes")),
         )
-        _check_window(spec.answer_start, spec.answer_end, f"question {spec.question_id}")
+        where = f"question {spec.question_id}"
+        _check_window(spec.answer_start, spec.answer_end, where)
+        _check_question_window(spec.question_start, spec.question_end, where)
         return spec
 
 
@@ -223,17 +251,26 @@ CORE_COLUMNS: tuple[str, ...] = (
     "split",
     "assistance_label",
     "deception_label",
-    "video_path",
-    "audio_path",
+    "video_reference",
+    "video_sha256",
+    "audio_reference",
     "transcript_path",
     "question_text",
     "transcript",
+    "question_start",
     "question_end",
     "answer_start",
     "answer_end",
     "response_latency",
     "answer_duration",
+    "ai_model_used",
+    "ai_prompt_used",
+    "generated_ai_answer",
+    "response_notes",
 )
+
+# Older column names still accepted when loading rows.
+LEGACY_COLUMNS = {"video_path": "video_reference", "audio_path": "audio_reference"}
 
 
 @dataclass
@@ -249,16 +286,22 @@ class InterviewSample:
     split: str | None = None
     assistance_label: AssistanceLabel = AssistanceLabel.UNKNOWN
     deception_label: DeceptionLabel = DeceptionLabel.UNKNOWN
-    video_path: str | None = None
-    audio_path: str | None = None
+    video_reference: str | None = None  # local path or remote URI of the source video
+    video_sha256: str | None = None
+    audio_reference: str | None = None
     transcript_path: str | None = None
     question_text: str | None = None
     transcript: str | None = None
+    question_start: float | None = None
     question_end: float | None = None
     answer_start: float | None = None
     answer_end: float | None = None
     response_latency: float | None = None
     answer_duration: float | None = None
+    ai_model_used: str | None = None
+    ai_prompt_used: str | None = None
+    generated_ai_answer: str | None = None
+    response_notes: str | None = None
     features: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -275,13 +318,14 @@ class InterviewSample:
         self.deception_label = _parse_enum(
             DeceptionLabel, self.deception_label, "deception_label", DeceptionLabel.UNKNOWN
         )
-        for name in ("question_end", "answer_start", "answer_end", "answer_duration"):
+        for name in ("question_start", "question_end", "answer_start", "answer_end", "answer_duration"):
             setattr(self, name, _parse_time(getattr(self, name), name))
         if self.response_latency is not None:
             # Latency may legitimately be negative (candidate starts before the question ends).
             self.response_latency = float(self.response_latency)
         where = f"sample {self.recording_id}/{self.question_id}"
         _check_window(self.answer_start, self.answer_end, where)
+        _check_question_window(self.question_start, self.question_end, where)
         _check_label_separation(self.source_dataset, self.assistance_label, where)
         collisions = set(self.features) & set(CORE_COLUMNS)
         if collisions:
@@ -300,6 +344,7 @@ class InterviewSample:
 
     @classmethod
     def from_row(cls, row: dict[str, Any]) -> "InterviewSample":
+        row = {LEGACY_COLUMNS.get(k, k): v for k, v in row.items()}
         core = {k: row.get(k) for k in CORE_COLUMNS}
         features = {k: v for k, v in row.items() if k not in CORE_COLUMNS}
         sample = cls(**core, features=features)  # type: ignore[arg-type]
