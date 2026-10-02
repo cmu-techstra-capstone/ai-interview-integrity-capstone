@@ -212,14 +212,14 @@ def test_process_manifest_entry_end_to_end(michigan_info, storage, tmp_path):
     mirror_zip_to_storage(michigan_info, entries, storage)
     cache_root = tmp_path / "cache"
 
-    sample = process_manifest_entry(entries[0], storage, cache_root=cache_root)
+    [sample] = process_manifest_entry(entries[0], storage, cache_root=cache_root)
 
     assert sample.source_dataset.value == "real_life_deception"
     assert sample.deception_label.value == "DECEPTIVE"
     assert sample.assistance_label.value == "UNKNOWN"
     assert sample.participant_id == "unknown:trial_lie_001"
     assert sample.features["word_count"] == 7
-    assert sample.video_path == entries[0].drive_location
+    assert sample.video_reference == entries[0].drive_location
     assert entries[0].file_status == FileStatus.PROCESSED.value
     assert entries[0].local_cache_path == ""
 
@@ -227,7 +227,7 @@ def test_process_manifest_entry_end_to_end(michigan_info, storage, tmp_path):
     for kind in ("transcript", "linguistic", "audio", "combined"):
         assert storage.exists(paths[kind]), kind
     combined = json.loads((storage.root / paths["combined"]).read_text())
-    assert combined["deception_label"] == "DECEPTIVE" and combined["audio_path"] is None
+    assert combined["deception_label"] == "DECEPTIVE" and combined["audio_reference"] is None
     audio = json.loads((storage.root / paths["audio"]).read_text())
     assert "pause_count" in audio and "word_count" not in audio
 

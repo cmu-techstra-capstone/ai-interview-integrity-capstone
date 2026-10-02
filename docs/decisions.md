@@ -5,6 +5,8 @@ can be plugged in behind an existing interface without changes elsewhere.
 
 ## D1. Speech-to-text provider (interface: `transcription.base.Transcriber`)
 
+> Superseded by the fuller comparison in [stt-decision.md](stt-decision.md). Still pending approval.
+
 Currently only `SidecarTranscriber` is implemented. It loads existing JSON/TXT transcripts
 (Whisper-style JSON is supported).
 
@@ -63,3 +65,11 @@ Also decide: **My Drive vs a CMU Shared Drive** for the root folder. A Shared Dr
 recommended so the team, not one student account, owns the data.
 
 Recommendation: rclone backend plus a CMU Shared Drive.
+
+## D7. Numeric dependency for pitch/prosody features
+
+Pitch (F0) features need a numeric library; pure Python is too slow. This is not an ML
+model choice. Options: **numpy** (implement YIN; smallest dependency), **Praat-parselmouth**
+(standard phonetics tool; GPL-licensed Praat underneath), or **librosa** (`pyin`; pulls in
+numpy/scipy/numba). Recommendation: numpy, if pitch features are approved. See
+[audio-features.md](audio-features.md).

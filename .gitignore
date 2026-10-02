@@ -75,3 +75,7 @@ rclone.conf
 .idea/
 .vscode/
 *.ipynb_checkpoints
+
+# Staged-interview outputs contain participant content: never commit them
+processed/**/staged_interviews/
+processed/**/staged_interviews*

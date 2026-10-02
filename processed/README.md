@@ -11,6 +11,7 @@ cache, processed, and deleted.
 | `linguistic_features/<dataset>/<video_id>.json` | Linguistic subset |
 | `audio_features/<dataset>/<video_id>.json` | Timing subset |
 | `transcripts/<dataset>/<video_id>.json` | Transcript in the project's standard format |
+| `quality/<dataset>.json` | Quality report (`interview-integrity quality`): errors/warnings per clip |
 
 ```python
 import pandas as pd
@@ -38,3 +39,10 @@ interview-integrity process-source --dataset michigan_deception --force
   participant-grouped splits cannot prevent the same speaker appearing in two splits.
 - VAD caveat: courtroom background noise can count as speech, so pause counts are
   likely undercounted and speech duration overcounted.
+- Quality report: 0 errors, 15 warnings (6 noisy, 5 clipped, 4 extreme speech rate).
+  Check `quality/michigan_deception.json` before using a clip's timing features.
+- Columns `video_path`/`audio_path` were renamed `video_reference`/`audio_reference`.
+  Loaders still accept the old names.
+
+Only public-dataset outputs belong here. Staged-interview outputs contain participant
+transcripts and must stay in private shared storage (enforced by `.gitignore`).

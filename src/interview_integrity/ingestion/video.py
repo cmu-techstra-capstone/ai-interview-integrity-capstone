@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from ..audio.extract import DEFAULT_SAMPLE_RATE, AudioInfo, extract_audio
+from ..audio.quality import AudioQuality, validate_audio
 from ..datasets.schema import RecordingMetadata
 from ..media import InvalidMediaError, ffprobe, first_stream, to_float
 
@@ -43,6 +44,8 @@ class IngestedVideo:
     metadata: RecordingMetadata
     work_dir: Path
     audio: AudioInfo
+    audio_quality: AudioQuality
+    warnings: list[str]
 
     @property
     def manifest_path(self) -> Path:
@@ -102,7 +105,10 @@ def ingest_video(
     """Ingest one video into ``<interim_root>/<recording_id>[__<augmentation>]/``.
 
     Produces ``audio.wav`` and an ``ingest.json`` manifest describing the source
-    video, extracted audio and recording metadata.
+    video, extracted audio, audio quality and recording metadata. If the work dir
+    already holds audio from a *different* source file (checksum mismatch), the
+    audio is re-extracted rather than reused. Raises ``EmptyAudioError`` if the
+    audio track has no usable samples.
     """
     video_path = Path(video_path)
     if not video_path.is_file():
@@ -120,12 +126,31 @@ def ingest_video(
     work_dir = Path(interim_root) / _safe_dirname(dirname)
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    audio = extract_audio(video_path, work_dir / "audio.wav", sample_rate=sample_rate, overwrite=overwrite)
+    manifest_path = work_dir / "ingest.json"
+    if manifest_path.exists() and not overwrite:
+        try:
+            previous_sha = json.loads(manifest_path.read_text())["video"]["sha256"]
+        except (ValueError, KeyError, TypeError):
+            previous_sha = None
+        overwrite = previous_sha != info.sha256
+    elif not manifest_path.exists():
+        overwrite = True  # never trust audio left behind without a manifest
 
-    ingested = IngestedVideo(video=info, metadata=meta, work_dir=work_dir, audio=audio)
+    audio = extract_audio(video_path, work_dir / "audio.wav", sample_rate=sample_rate, overwrite=overwrite)
+    quality = validate_audio(audio.path)
+
+    warnings = [f"audio {flag.removeprefix('is_')}" for flag in quality.flags]
+    if info.duration and audio.duration and abs(info.duration - audio.duration) > 1.0:
+        warnings.append(f"audio duration {audio.duration:.2f}s differs from video duration {info.duration:.2f}s")
+
+    ingested = IngestedVideo(
+        video=info, metadata=meta, work_dir=work_dir, audio=audio, audio_quality=quality, warnings=warnings
+    )
     manifest = {
         "video": info.to_dict(),
         "audio": audio.to_dict(),
+        "audio_quality": {**quality.to_features(prefix=""), "duration": quality.duration},
+        "warnings": warnings,
         "metadata": {
             "interview_id": meta.interview_id,
             "participant_id": meta.participant_id,

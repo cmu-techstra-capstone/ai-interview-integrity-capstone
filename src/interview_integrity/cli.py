@@ -125,7 +125,7 @@ def _cmd_process_remote(args: argparse.Namespace) -> int:
     samples = []
     try:
         for e in todo:
-            samples.append(process_manifest_entry(
+            samples.extend(process_manifest_entry(
                 e, storage, cache_root=args.cache_dir, max_cache_bytes=int(args.max_cache_mb * 2**20)
             ))
             print(f"processed {e.video_id}", file=sys.stderr)
@@ -185,6 +185,35 @@ def _cmd_process_source(args: argparse.Namespace) -> int:
     print(f"Processed {done}, failed {len(failed)} {failed or ''}; {total} rows in "
           f"processed/combined_features/{args.dataset}.csv; fetched {source.bytes_fetched / 2**20:.1f} MB from source")
     return 1 if failed else 0
+
+
+def _cmd_quality(args: argparse.Namespace) -> int:
+    from .datasets.quality import check_dataset, load_samples, summarize
+
+    samples = load_samples(args.input)
+    report = summarize(check_dataset(samples), len(samples))
+    if args.report:
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(json.dumps(report, indent=2))
+    print(f"{report['samples']} samples: {report['errors']} error(s), {report['warnings']} warning(s)")
+    for severity, codes in report["by_code"].items():
+        for code, n in codes.items():
+            print(f"  {severity:7s} {code:28s} {n}")
+    if args.verbose:
+        for i in report["issues"]:
+            print(f"  [{i['severity']}] {i['code']} {i['key']}: {i['message']}")
+    failing = report["errors"] + (report["warnings"] if args.fail_on == "warning" else 0)
+    return 1 if failing else 0
+
+
+def _cmd_stt_eval(args: argparse.Namespace) -> int:
+    from .transcription.evaluate import evaluate_directories
+
+    report = evaluate_directories(args.reference, args.hypothesis)
+    if args.report:
+        Path(args.report).write_text(json.dumps(report, indent=2))
+    print(json.dumps({k: v for k, v in report.items() if k != "per_clip"}, indent=2))
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -249,6 +278,19 @@ def build_parser() -> argparse.ArgumentParser:
     ps.add_argument("--cache-dir", help="Parent dir for the temp cache (default: system temp)")
     ps.add_argument("--max-cache-mb", type=float, default=500)
     ps.set_defaults(func=_cmd_process_source)
+
+    qc = sub.add_parser("quality", help="Run dataset quality checks (exit 1 on errors)")
+    qc.add_argument("--input", required=True, help="samples .jsonl or a directory of row JSON files")
+    qc.add_argument("--report", help="Write the full report as JSON")
+    qc.add_argument("--fail-on", choices=["error", "warning"], default="error")
+    qc.add_argument("-v", "--verbose", action="store_true", help="List every issue")
+    qc.set_defaults(func=_cmd_quality)
+
+    ev = sub.add_parser("stt-eval", help="Score STT transcripts against reference transcripts (WER, fillers)")
+    ev.add_argument("--reference", required=True, help="Directory of reference transcripts (.txt/.json)")
+    ev.add_argument("--hypothesis", required=True, help="Directory of STT output, same file stems")
+    ev.add_argument("--report", help="Write the full per-clip report as JSON")
+    ev.set_defaults(func=_cmd_stt_eval)
     return parser
 
 

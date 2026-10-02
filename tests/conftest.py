@@ -85,3 +85,34 @@ def metadata_dict() -> dict:
 @pytest.fixture
 def transcript_path() -> Path:
     return FIXTURES / "sample_transcript.json"
+
+
+def make_video(path: Path, audio_filter: str | None, duration: float) -> Path:
+    """Tiny test video; ``audio_filter`` is an ffmpeg lavfi audio source (None = no audio)."""
+    args = ["-f", "lavfi", "-i", f"testsrc=size=160x120:rate=10:duration={duration}"]
+    if audio_filter:
+        args += ["-f", "lavfi", "-i", audio_filter, "-c:a", "aac", "-shortest"]
+    _ffmpeg(*args, "-c:v", "mpeg4", str(path))
+    return path
+
+
+@pytest.fixture(scope="session")
+def media_dir(tmp_path_factory) -> Path:
+    if shutil.which("ffmpeg") is None:
+        pytest.skip("ffmpeg not installed")
+    return tmp_path_factory.mktemp("media_extra")
+
+
+@pytest.fixture(scope="session")
+def tone_video_2s(media_dir) -> Path:
+    return make_video(media_dir / "tone2.mp4", "sine=frequency=300:sample_rate=16000:duration=2", 2)
+
+
+@pytest.fixture(scope="session")
+def noise_only_video(media_dir) -> Path:
+    return make_video(media_dir / "noise.mp4", "anoisesrc=color=white:amplitude=0.02:sample_rate=16000:duration=3", 3)
+
+
+@pytest.fixture(scope="session")
+def silent_audio_video(media_dir) -> Path:
+    return make_video(media_dir / "silent.mp4", "anullsrc=r=16000:cl=mono:d=2", 2)

@@ -1,0 +1,32 @@
+{
+  "interview_id": "STG001",
+  "participant_id": "P010",
+  "source_dataset": "staged",
+  "recording_id": "STG001",
+  "session_notes": "Extra keys are kept in ingest.json under 'extra'.",
+  "questions": [
+    {
+      "question_id": "Q01",
+      "question_text": "Tell me about a time you resolved a conflict on a team.",
+      "question_start": 2.0,
+      "question_end": 7.5,
+      "answer_start": 9.1,
+      "answer_end": 62.4,
+      "assistance_label": "HUMAN_UNASSISTED",
+      "response_notes": null
+    },
+    {
+      "question_id": "Q02",
+      "question_text": "How would you design a rate limiter?",
+      "question_start": 70.0,
+      "question_end": 74.2,
+      "answer_start": 81.0,
+      "answer_end": 140.3,
+      "assistance_label": "AI_VERBATIM",
+      "ai_model_used": "<model id used during the session>",
+      "ai_prompt_used": "<exact prompt the participant gave the AI>",
+      "generated_ai_answer": "<the AI output the participant had on screen>",
+      "response_notes": "Participant read the generated answer from a second screen."
+    }
+  ]
+}

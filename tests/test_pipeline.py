@@ -127,3 +127,66 @@ def test_upsert_and_csv_handle_nulls(tmp_path):
     all_samples = upsert_jsonl([s], tmp_path / "s.jsonl")
     write_csv(all_samples, tmp_path / "s.csv")
     assert load_jsonl(tmp_path / "s.jsonl")[0].features["word_count"] is None
+
+
+# --- regression: with question_end known (and no answer_start), the interviewer's
+# question audio used to be taken as the start of the answer -> negative latency.
+@requires_ffmpeg
+def test_answer_search_starts_after_question_end(sample_video, metadata_dict, tmp_path):
+    [s] = process_video(sample_video, {**metadata_dict, "question_end": 1.6},
+                        config=PipelineConfig(interim_dir=tmp_path))
+    assert s.answer_start == pytest.approx(2.5, abs=0.06)
+    assert s.response_latency == pytest.approx(0.9, abs=0.06)
+
+
+@requires_ffmpeg
+def test_answer_search_after_question_end_with_word_timestamps(sample_video, metadata_dict, transcript_path, tmp_path):
+    [s] = process_video(sample_video, {**metadata_dict, "question_end": 1.6},
+                        transcriber=SidecarTranscriber(transcript_path), config=PipelineConfig(interim_dir=tmp_path))
+    assert s.transcript == "You know, it catches bugs early."
+    assert s.answer_start == pytest.approx(2.5)
+
+
+@requires_ffmpeg
+def test_pipeline_records_audio_quality_and_loudness(sample_video, metadata_dict, tmp_path):
+    [s] = process_video(sample_video, metadata_dict, config=PipelineConfig(interim_dir=tmp_path))
+    f = s.features
+    assert f["audio_is_silent"] is False and f["audio_snr_db"] > 20
+    assert f["speech_level_mean_dbfs"] is not None
+    assert f["speech_segment_count"] == 2
+
+
+@requires_ffmpeg
+def test_silent_video_gives_null_timing_not_fake_speech(silent_audio_video, metadata_dict, tmp_path):
+    [s] = process_video(silent_audio_video, metadata_dict, config=PipelineConfig(interim_dir=tmp_path))
+    assert s.features["audio_is_silent"] is True
+    assert s.answer_duration is None and s.features["speech_duration"] is None
+
+
+class _DummyVisual:
+    name = "dummy_visual"
+    prefix = "visual_"
+
+    def extract(self, ctx):
+        assert ctx.video_path.is_file() and ctx.answer_end > ctx.answer_start
+        return {"visual_frames_seen": 1, "visual_unavailable": None}
+
+
+class _BadPrefix:
+    name = "bad"
+    prefix = "visual_"
+
+    def extract(self, ctx):
+        return {"speech_rate_wpm": 1}
+
+
+@requires_ffmpeg
+def test_feature_extractor_plugin(sample_video, metadata_dict, tmp_path):
+    from interview_integrity.features.base import FeatureExtractorError
+
+    [s] = process_video(sample_video, metadata_dict,
+                        config=PipelineConfig(interim_dir=tmp_path, extractors=[_DummyVisual()]))
+    assert s.features["visual_frames_seen"] == 1 and s.features["visual_unavailable"] is None
+    with pytest.raises(FeatureExtractorError, match="must start with"):
+        process_video(sample_video, metadata_dict,
+                      config=PipelineConfig(interim_dir=tmp_path / "b", extractors=[_BadPrefix()]))

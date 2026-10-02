@@ -16,6 +16,7 @@
   "repetition_count": 0,
   "self_correction_count": 0,
   "sentence_count": 5,
+  "transcript_source": "sidecar:trial_lie_023.txt",
   "type_token_ratio": 0.7027,
   "word_count": 111
 }

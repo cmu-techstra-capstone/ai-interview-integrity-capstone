@@ -54,8 +54,10 @@ def extract_audio(
 ) -> AudioInfo:
     """Write the audio track of ``video_path`` to ``out_path`` as PCM WAV.
 
-    The source video is only read, never modified. If ``out_path`` exists and
-    ``overwrite`` is False, the existing file is reused.
+    The source video is only read, never modified. An existing ``out_path`` is reused
+    only if ``overwrite`` is False *and* it already has the requested sample rate and
+    channel count. Output is written to a temporary file and renamed, so an interrupted
+    extraction never leaves a truncated WAV that later runs would reuse.
     """
     video_path = Path(video_path)
     out_path = Path(out_path)
@@ -64,16 +66,23 @@ def extract_audio(
         raise NoAudioStreamError(f"No audio stream found in {video_path}")
 
     if out_path.exists() and not overwrite:
-        return probe_audio(out_path)
+        existing = probe_audio(out_path)
+        if existing.sample_rate == sample_rate and existing.channels == channels:
+            return existing
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    run_ffmpeg([
-        "-y",
-        "-i", str(video_path),
-        "-vn",
-        "-ac", str(channels),
-        "-ar", str(sample_rate),
-        "-c:a", "pcm_s16le",
-        str(out_path),
-    ])
+    tmp = out_path.with_name(out_path.stem + ".partial" + out_path.suffix)
+    try:
+        run_ffmpeg([
+            "-y",
+            "-i", str(video_path),
+            "-vn",
+            "-ac", str(channels),
+            "-ar", str(sample_rate),
+            "-c:a", "pcm_s16le",
+            str(tmp),
+        ])
+        tmp.replace(out_path)
+    finally:
+        tmp.unlink(missing_ok=True)
     return probe_audio(out_path)

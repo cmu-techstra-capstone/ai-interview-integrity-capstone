@@ -89,3 +89,43 @@ def test_timing_short_gaps_are_not_pauses():
     )
     assert f["pause_count"] == 0
     assert f["mean_pause_duration"] is None
+
+
+# ---------------------------------------------------------------- expanded timing features
+
+def test_timing_expanded_features():
+    f = compute_timing_features(
+        speech_intervals=[(0.0, 1.0), (1.5, 2.5), (4.0, 5.0)],
+        answer_start=0.0, answer_end=5.0, word_count=12,
+    )
+    assert f["silence_duration"] == pytest.approx(2.0)
+    assert f["pause_count"] == 2
+    assert f["long_pause_count"] == 1  # the 1.5 s pause
+    assert f["pause_duration_std"] == pytest.approx(0.707, abs=0.001)
+    assert f["speech_segment_count"] == 3
+    assert f["mean_speech_segment_duration"] == pytest.approx(1.0)
+    assert f["speech_segment_duration_std"] == pytest.approx(0.0)
+    assert f["speech_rate_cv"] is None  # no word timestamps given
+
+
+def test_speech_rate_cv_from_words():
+    from interview_integrity.transcription.base import Word
+
+    even = [Word(f"w{i}", i * 0.25, i * 0.25 + 0.2) for i in range(4)] + \
+           [Word(f"v{i}", 2 + i * 0.25, 2 + i * 0.25 + 0.2) for i in range(4)]
+    intervals = speech_intervals_from_words(even)
+    f = compute_timing_features(speech_intervals=intervals, answer_start=0.0, answer_end=3.0,
+                                word_count=8, words=even)
+    assert f["speech_rate_cv"] == pytest.approx(0.0)
+
+
+def test_loudness_features():
+    from interview_integrity.audio.vad import FrameLevels
+    from interview_integrity.features.loudness import extract_loudness_features
+
+    levels = FrameLevels(start=0.0, frame_s=0.5, db=[-20, -30, -120, -25], peak_abs=1000,
+                         clipped_samples=0, n_samples=32000, sample_rate=16000)
+    f = extract_loudness_features(levels, [(0.0, 1.0), (1.5, 2.0)])
+    assert f["speech_level_mean_dbfs"] == pytest.approx(-25.0)
+    assert f["speech_level_std_db"] == pytest.approx(5.0)
+    assert extract_loudness_features(levels, [])["speech_level_mean_dbfs"] is None

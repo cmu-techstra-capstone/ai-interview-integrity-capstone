@@ -16,6 +16,7 @@
   "repetition_count": 0,
   "self_correction_count": 0,
   "sentence_count": null,
+  "transcript_source": "sidecar:trial_truth_035.txt",
   "type_token_ratio": 0.7593,
   "word_count": 54
 }
