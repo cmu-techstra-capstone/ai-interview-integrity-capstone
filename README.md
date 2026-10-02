@@ -71,6 +71,14 @@ interview-integrity process-remote --dataset michigan_deception --root "<shared 
  Open choices:
 [docs/decisions.md](docs/decisions.md).
 
+## Documentation
+
+- [docs/architecture.md](docs/architecture.md): pipeline, modules, where data lives, how one interview is processed, how visual features plug in
+- [docs/audio-features.md](docs/audio-features.md): audio/timing feature inventory and expansion plan
+- [docs/staged-interviews.md](docs/staged-interviews.md): staged-interview metadata and workflow
+- [docs/stt-decision.md](docs/stt-decision.md): **pending** speech-to-text decision
+- [docs/data-strategy.md](docs/data-strategy.md), [docs/data-storage.md](docs/data-storage.md), [docs/decisions.md](docs/decisions.md)
+
 ## Repository layout
 
 ```text
@@ -162,19 +170,30 @@ Example row (abridged):
 | Group | Features |
 |---|---|
 | Linguistic | `word_count`, `sentence_count`, `avg_sentence_length`, `type_token_ratio`, `mattr`, `filler_word_count`, `filler_rate_per_100_words`, `discourse_marker_count`, `repetition_count`, `self_correction_count`, `qa_content_word_overlap`, `qa_semantic_similarity` (interface only, null for now) |
-| Timing | `answer_duration`, `response_latency`, `speech_duration`, `pause_count`, `mean_pause_duration`, `max_pause_duration`, `total_pause_duration`, `pause_ratio`, `speech_rate_wpm`, `articulation_rate_wpm` |
-| Provenance | `timing_source` (`word_timestamps` or `energy_vad`), `transcript_source` |
+| Timing | `answer_duration`, `response_latency`, `speech_duration`, `silence_duration`, `pause_count`, `long_pause_count`, `mean/max/total_pause_duration`, `pause_duration_std`, `pause_ratio`, `speech_segment_count`, `mean_speech_segment_duration`, `speech_segment_duration_std`, `speech_rate_wpm`, `articulation_rate_wpm`, `speech_rate_cv` (needs word timestamps) |
+| Loudness | `speech_level_mean_dbfs`, `speech_level_std_db`, `speech_level_range_db` |
+| Recording quality | `audio_noise_floor_dbfs`, `audio_speech_level_dbfs`, `audio_snr_db`, `audio_peak_dbfs`, `audio_clipping_ratio`, `audio_is_silent`, `audio_is_noisy`, `audio_is_clipped` |
+| Provenance | `timing_source` (`word_timestamps` or `energy_vad`), `transcript_source`, `video_reference`, `video_sha256` |
 
 All times are in seconds. Values that cannot be measured are `null`, never guessed.
+Definitions and limitations: [docs/audio-features.md](docs/audio-features.md). Check a
+dataset with `interview-integrity quality --input <samples.jsonl | dir>`.
+
+Staged interviews add `question_start`, `ai_model_used`, `ai_prompt_used`,
+`generated_ai_answer` and `response_notes` (all optional). See
+[docs/staged-interviews.md](docs/staged-interviews.md).
 
 ## Current limitations
 
-- **No speech-to-text engine yet.** Transcripts must be supplied as files. The provider
+- **No speech-to-text engine yet.** Transcripts must be supplied as files. Use
+  `interview-integrity stt-eval` to compare candidates against reference transcripts. The provider
   choice is pending ([docs/decisions.md](docs/decisions.md#d1-speech-to-text-provider-interface-transcriptionbasetranscriber)).
   Without a transcript, linguistic features are `null` and timing comes from VAD.
-- **Energy VAD is crude.** Its threshold adapts to each recording's level, but background
-  noise can still count as speech, and it cannot separate the interviewer from the
-  candidate. Use metadata answer windows for mixed-speaker audio.
+- **Energy VAD is crude.** Its threshold adapts to each recording's level, and flat noise
+  isn't reported as speech, but loud background noise can still count as speech. It
+  cannot separate the interviewer from the candidate: give `question_end` or answer
+  windows for mixed-speaker audio. Noisy or clipped recordings are flagged by the
+  quality report.
 - **Filler counts depend on the transcript source.** Many ASR models remove "um"/"uh".
 - **Self-correction detection is heuristic** (repeats and repair phrases like "sorry",
   "I meant").
