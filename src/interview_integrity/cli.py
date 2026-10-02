@@ -187,6 +187,25 @@ def _cmd_process_source(args: argparse.Namespace) -> int:
     return 1 if failed else 0
 
 
+def _cmd_quality(args: argparse.Namespace) -> int:
+    from .datasets.quality import check_dataset, load_samples, summarize
+
+    samples = load_samples(args.input)
+    report = summarize(check_dataset(samples), len(samples))
+    if args.report:
+        Path(args.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.report).write_text(json.dumps(report, indent=2))
+    print(f"{report['samples']} samples: {report['errors']} error(s), {report['warnings']} warning(s)")
+    for severity, codes in report["by_code"].items():
+        for code, n in codes.items():
+            print(f"  {severity:7s} {code:28s} {n}")
+    if args.verbose:
+        for i in report["issues"]:
+            print(f"  [{i['severity']}] {i['code']} {i['key']}: {i['message']}")
+    failing = report["errors"] + (report["warnings"] if args.fail_on == "warning" else 0)
+    return 1 if failing else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="interview-integrity", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -249,6 +268,13 @@ def build_parser() -> argparse.ArgumentParser:
     ps.add_argument("--cache-dir", help="Parent dir for the temp cache (default: system temp)")
     ps.add_argument("--max-cache-mb", type=float, default=500)
     ps.set_defaults(func=_cmd_process_source)
+
+    qc = sub.add_parser("quality", help="Run dataset quality checks (exit 1 on errors)")
+    qc.add_argument("--input", required=True, help="samples .jsonl or a directory of row JSON files")
+    qc.add_argument("--report", help="Write the full report as JSON")
+    qc.add_argument("--fail-on", choices=["error", "warning"], default="error")
+    qc.add_argument("-v", "--verbose", action="store_true", help="List every issue")
+    qc.set_defaults(func=_cmd_quality)
     return parser
 
 
