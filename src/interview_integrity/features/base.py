@@ -13,6 +13,10 @@ Teammates can add extractors without touching the core pipeline:
 
 Extractors receive local file paths for the duration of one answer and must not
 modify them. Unavailable values should be ``None``, never guessed.
+
+Namespaces: behavioral features from a visual extractor use ``visual_``; recording/
+processing-quality values from any extractor use ``quality_`` (so they are never treated
+as evidence; see ``features/registry.py``). Core feature names are reserved.
 """
 
 from __future__ import annotations
@@ -50,7 +54,14 @@ class FeatureExtractorError(ValueError):
     pass
 
 
+ALLOWED_PLUGIN_PREFIXES = ("visual_", "quality_", "ext_")
+
+
 def run_extractor(extractor: FeatureExtractor, ctx: AnswerContext, reserved: set[str]) -> dict[str, Any]:
+    if not extractor.prefix.startswith(ALLOWED_PLUGIN_PREFIXES):
+        raise FeatureExtractorError(
+            f"{extractor.name}: prefix {extractor.prefix!r} must start with one of {ALLOWED_PLUGIN_PREFIXES}"
+        )
     out = extractor.extract(ctx)
     if not isinstance(out, dict):
         raise FeatureExtractorError(f"{extractor.name}: extract() must return a dict")
@@ -60,4 +71,7 @@ def run_extractor(extractor: FeatureExtractor, ctx: AnswerContext, reserved: set
     clash = set(out) & reserved
     if clash:
         raise FeatureExtractorError(f"{extractor.name}: feature names already used: {sorted(clash)}")
+    bad = [k for k, v in out.items() if v is not None and not isinstance(v, (str, int, float, bool))]
+    if bad:
+        raise FeatureExtractorError(f"{extractor.name}: values must be scalars or None: {bad}")
     return out
