@@ -1,94 +1,99 @@
 # Architecture
 
 A research pipeline that turns interview recordings into explainable, labelled feature
-rows. It does **not** decide whether anyone cheated, and no detection model exists yet.
+rows for human review. It does **not** decide whether anyone cheated.
 
 ```text
-video ──▶ ingestion ──▶ audio extraction ──▶ audio validation ──▶ transcript (optional)
-          (probe,       (16 kHz mono WAV,    (empty → error;       (Transcriber interface;
-           SHA-256,      atomic, cached       silent/noisy/clipped   STT provider pending)
-           metadata)     per source file)     flags)
-                                   │
-                                   ▼
-              per question: answer window ──▶ speech intervals ──▶ features
-              (metadata, or search after      (word timestamps,    linguistic · timing ·
-               question_end)                   else adaptive VAD)   loudness · recording quality
-                                                                    · plug-in extractors (visual, later)
-                                   │
-                                   ▼
-                      validated InterviewSample rows ──▶ quality report ──▶ JSONL / CSV / JSON
+recording ─▶ ingestion ─┬─▶ audio pipeline ─────────▶ audio features ─────┐
+            (checksum,   │   (extract, validate, VAD)                       │
+             metadata)   ├─▶ transcript (Transcriber) ─▶ linguistic features ├─▶ validated rows ─▶ quality report
+                         └─▶ [video pipeline: planned] ─▶ [visual_* plug-ins]┘        │
+                                                                                      ▼
+                                              evidence contract (EvidenceSignal) ─▶ [fusion/scoring: planned]
+                                                                                      ▼
+                                                                    [human-review output: planned]
 ```
 
-## Modules (`src/interview_integrity/`)
+## Implemented now
 
-| Module | Responsibility | Depends on |
+| Component | Where | Notes |
 |---|---|---|
-| `media.py` | ffmpeg/ffprobe wrappers and errors | ffmpeg binaries |
-| `ingestion/` | validate video, checksum, extract and validate audio, write `ingest.json` | `audio`, `datasets.schema` |
-| `audio/` | extraction, frame levels, adaptive VAD, audio quality | stdlib |
-| `transcription/` | `Transcriber` interface, transcript loader, STT evaluation | `features.linguistic` (tokenizer only) |
-| `features/` | linguistic, timing, loudness; `base.py` plug-in interface; `visual/` (empty, shared) | `audio`, `transcription` types |
-| `datasets/` | schema, JSONL/CSV I/O, group splits, quality checks | — |
-| `storage/` | storage backends, bounded temp cache, manifests, dataset sources, remote workflow | `pipeline` |
-| `pipeline.py` | orchestrates one recording | all of the above |
-| `cli.py` | `interview-integrity` commands | all of the above |
-| `llm/` | provider-agnostic LLM interface (placeholder) | — |
+| Data/video ingestion | `ingestion/` | probe, SHA-256, audio extraction (atomic, cached per source file), `ingest.json` |
+| Audio processing | `audio/` | 16 kHz mono WAV, frame levels, adaptive VAD, audio validation (empty/silent/noisy/clipped) |
+| Transcription interface | `transcription/` | `Transcriber` + transcript loader; candidate adapters (faster-whisper, WhisperX: lazy, not installed); hosted placeholder (blocked without approval); registry; `stt-eval`, `stt-benchmark` |
+| Feature extraction | `features/` | linguistic, timing, loudness, recording quality; `registry.py` (modality + behavioral/quality/provenance); `base.py` plug-in interface |
+| Dataset validation | `datasets/` | schema incl. staged-interview fields, atomic JSONL/CSV I/O, leakage-safe splits |
+| Quality reporting | `datasets/quality.py` | errors/warnings per row and dataset; `quality` command |
+| Staged tooling | `staged.py` | metadata templates, TSV label import, protocol validation |
+| Remote-data workflow | `storage/` | storage interface, bounded temp cache (+ stale cleanup), manifests, source-archive streaming |
+| Evidence contract | `evidence.py` | signal shape + per-modality quality status; no scoring |
+| Application layer | `services.py` | every operation as a function returning structured results; `cli.py` is a thin wrapper |
+| Configuration | `config.py` | `INTERVIEW_INTEGRITY_*` environment variables |
+| Docker scaffolding | `Dockerfile`, `compose.yaml` | single app container, bind mounts only; not yet built (see [teammate-validation.md](teammate-validation.md)) |
 
-Rules: nothing in `audio/`, `features/` or `datasets/` knows about storage. Storage knows
-about the pipeline, not the other way round. The runtime uses only the standard library
-plus ffmpeg.
+## Planned / unresolved (not implemented)
+
+| Component | Status |
+|---|---|
+| Final STT implementation | candidates scaffolded; choice pending ([stt-decision.md](stt-decision.md)) |
+| Video feature pipeline | shared team work; only the plug-in interface exists; no visual model chosen |
+| Model / fusion / scoring layer | not started; no algorithm, fusion method, thresholds or score chosen |
+| Review UI | not started |
+| API layer | not started; no framework chosen; `services.py` is the intended entry point |
+| Database | none; files (JSONL/CSV/JSON) only |
+| Production deployment / cloud | none |
+
+## Module boundaries
+
+`audio/`, `features/`, `transcription/` and `datasets/` know nothing about storage or
+the CLI. `pipeline.py` orchestrates one recording. `storage/` and `services.py` sit on
+top. The runtime uses only the standard library plus ffmpeg/curl. STT packages are
+optional extras.
 
 ## Where data lives
 
 | What | Where | In Git? |
 |---|---|---|
-| Public raw video (Michigan) | the official source; streamed one clip at a time | No |
-| Restricted raw video (DOLOS, Bag-of-Lies, after approval) | shared storage (Drive) under `datasets/<name>/` | No |
-| Staged interview recordings | private shared storage (Drive/Box) under `datasets/staged_interviews/` | **Never** |
-| Recording metadata (labels, timestamps, AI metadata) | shared storage `metadata/…`, referenced from the manifest | Not for staged data (contains participant content) |
-| Manifests (where each file lives, status) | `manifests/` | Yes |
-| Temporary working files | system temp dir, ≤ 500 MB, deleted after each recording | No |
-| Local pipeline outputs | `data/interim`, `data/processed` | No (gitignored) |
-| Public-dataset features and quality reports | `processed/` | Yes |
+| Public raw video (Michigan) | official source; streamed one clip at a time | No |
+| Restricted raw video (DOLOS, Bag-of-Lies, after approval) | shared storage `datasets/<name>/` | No |
+| Staged recordings, metadata, transcripts, outputs | private shared storage | **Never** |
+| Manifests (where files live, status) | `manifests/` | Yes |
+| Temporary working files | temp dir (≤ 500 MB), deleted after each recording; `cache-clean` for leftovers | No |
+| Local outputs | `data/` | No |
+| Public-dataset features + quality reports | `processed/` | Yes |
 
-## How one interview is processed
-
-**Local file:**
+## Processing one interview
 
 ```bash
-interview-integrity process --video rec.mp4 --metadata rec.json [--transcript rec.json]
+interview-integrity process --video rec.mp4 --metadata rec.metadata.json [--transcript rec.transcript.json]
+interview-integrity process-batch --dir pilot/            # many recordings, failures don't stop the batch
+interview-integrity process-remote --dataset staged_interviews --root "<shared root>"
+interview-integrity process-source --dataset michigan_deception   # public archive, no Drive
 interview-integrity quality --input data/processed/samples.jsonl
 ```
 
-**From storage (manifest row → temp cache → outputs → cache deleted):**
+For each question, the pipeline:
+1. Rejects timestamps outside the recording.
+2. Sets the answer window (`answer_start..answer_end`, else search from `question_end`).
+3. Finds speech intervals (word timestamps, else adaptive VAD).
+4. Computes features: unknown values are `null`; quality fields are kept separate from
+   behavioral ones.
+5. Runs optional plug-in extractors.
+6. Validates the row against the schema.
+7. Runs the quality checks.
 
-```bash
-interview-integrity process-remote --dataset staged_interviews --root "<shared root>"
-interview-integrity process-source --dataset michigan_deception    # public archive, no Drive
-```
+## Adding features (audio, linguistic, visual, other)
 
-The steps, for each question in the metadata:
-1. The answer window is `answer_start..answer_end`. If those are missing, the pipeline
-   searches from `question_end` (or 0) to the end.
-2. Speech intervals come from word timestamps when the transcript has them, otherwise
-   from adaptive energy VAD.
-3. Features are computed. Anything that can't be measured is `null`.
-4. The row is validated against the schema: labels, time order, and label separation.
-5. The quality checks flag problems as errors or warnings
-   ([datasets/quality.py](../src/interview_integrity/datasets/quality.py)).
-
-## Adding future visual features
-
-Implement `features.base.FeatureExtractor` (`name`, `prefix="visual_"`,
-`extract(ctx) -> dict`) in `features/visual/`. Then pass it in
-`PipelineConfig(extractors=[...])`. The pipeline gives it the video path, the answer
-window, the transcript and the speech intervals. It rejects feature names without the
-prefix or that collide with existing ones. No visual model has been chosen; see
+Implement `features.base.FeatureExtractor` (`name`, `prefix`, `extract(ctx) -> dict`) and
+pass it via `PipelineConfig(extractors=[...])`. Prefixes: `visual_` (behavioral visual),
+`quality_` (quality metadata, never evidence) or `ext_` (other). The pipeline rejects
+collisions with core or other plug-in features, and any non-scalar values. Register core
+features in `features/registry.py`. Visual contributors: see
 [features/visual/README.md](../src/interview_integrity/features/visual/README.md).
 
 ## Related docs
 
-- [audio-features.md](audio-features.md): feature inventory and expansion plan
-- [staged-interviews.md](staged-interviews.md): how staged recordings enter the pipeline
-- [stt-decision.md](stt-decision.md): pending speech-to-text decision
-- [data-strategy.md](data-strategy.md), [data-storage.md](data-storage.md), [decisions.md](decisions.md)
+[audio-features.md](audio-features.md) · [staged-interviews.md](staged-interviews.md) ·
+[evidence-contract.md](evidence-contract.md) · [stt-decision.md](stt-decision.md) ·
+[docker.md](docker.md) · [teammate-validation.md](teammate-validation.md) ·
+[data-strategy.md](data-strategy.md) · [data-storage.md](data-storage.md) · [decisions.md](decisions.md)

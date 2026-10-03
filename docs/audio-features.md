@@ -28,12 +28,18 @@ if the level barely varies. Gaps under 0.3 s are bridged.
 | `speech_rate_cv` | ✅ (inactive) | **word timestamps** | coefficient of variation of words/s across segments with ≥ 3 words | `null` until an STT with word timestamps is chosen |
 | `response_latency` | ✅ | `question_end` in metadata | `answer_start − question_end` | `null` without `question_end`; never estimated |
 | `speech_level_mean_dbfs`, `speech_level_std_db`, `speech_level_range_db` | ✅ | audio | mean, std and p90−p10 of speech-frame RMS levels | absolute level depends on mic gain; std/range are more comparable |
+| `audio_duration` | ✅ | audio | length of the extracted audio; used to reject timestamps beyond the recording | — |
 | `audio_noise_floor_dbfs`, `audio_speech_level_dbfs`, `audio_snr_db`, `audio_peak_dbfs`, `audio_clipping_ratio` | ✅ | audio (whole recording) | p10 / p95 frame level, their difference, peak, share of full-scale samples | energy-only SNR estimate |
 | `audio_is_silent`, `audio_is_noisy`, `audio_is_clipped` | ✅ | as above | peak < −60 dBFS; SNR < 15 dB; clipping > 1% | thresholds are simple and documented in `audio/quality.py` |
 
 The quality report (`interview-integrity quality`) turns these into explicit errors and
 warnings: silent audio, no speech, noisy or clipped recordings, extreme speech or
-articulation rates, and invalid durations.
+articulation rates, invalid or impossible timing, and missing transcripts.
+
+**Quality is separate from behavior.** Every feature is registered in
+`features/registry.py` as `behavioral`, `quality` or `provenance`. All `audio_*` fields
+are `quality`. They only qualify how much audio signals can be trusted and can never be
+used as evidence (see [evidence-contract.md](evidence-contract.md)).
 
 ## Expansion plan
 

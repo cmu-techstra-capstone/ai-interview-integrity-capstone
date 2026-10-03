@@ -73,9 +73,12 @@ interview-integrity process-remote --dataset michigan_deception --root "<shared 
 
 ## Documentation
 
-- [docs/architecture.md](docs/architecture.md): pipeline, modules, where data lives, how one interview is processed, how visual features plug in
+- [docs/architecture.md](docs/architecture.md): what's implemented vs planned, modules, where data lives, how features plug in
+- [docs/teammate-validation.md](docs/teammate-validation.md): exact commands for heavy checks (Docker build, STT benchmark, full dataset runs)
+- [docs/docker.md](docs/docker.md): container usage and safe disk cleanup
+- [docs/evidence-contract.md](docs/evidence-contract.md): shape of future reviewable signals (no scoring)
 - [docs/audio-features.md](docs/audio-features.md): audio/timing feature inventory and expansion plan
-- [docs/staged-interviews.md](docs/staged-interviews.md): staged-interview metadata and workflow
+- [docs/staged-interviews.md](docs/staged-interviews.md): staged-interview protocol, metadata and pilot workflow
 - [docs/stt-decision.md](docs/stt-decision.md): **pending** speech-to-text decision
 - [docs/data-strategy.md](docs/data-strategy.md), [docs/data-storage.md](docs/data-storage.md), [docs/decisions.md](docs/decisions.md)
 
@@ -110,6 +113,31 @@ pytest                        # media fixtures are generated with ffmpeg at test
 ```
 
 The runtime package uses only the Python standard library plus the ffmpeg binaries.
+
+## Docker (optional)
+
+```bash
+docker compose build
+docker compose run --rm app pytest
+docker compose run --rm app interview-integrity --help
+```
+
+The image holds code, Python dependencies and ffmpeg only; data is bind-mounted. See
+[docs/docker.md](docs/docker.md). It hasn't been built on the development laptop
+(disk constraints); see [docs/teammate-validation.md](docs/teammate-validation.md).
+
+## Commands at a glance
+
+| Command | Purpose |
+|---|---|
+| `process` / `process-batch` | one recording / a folder of `<name>.metadata.json` + video |
+| `process-remote` / `process-source` | from shared storage / streamed from an official public archive |
+| `staged template` / `import-labels` / `validate` | prepare staged-interview metadata |
+| `quality` | dataset quality report (exit 1 on errors) |
+| `split` | leakage-safe train/val/test splits |
+| `stt-list` / `stt-eval` / `stt-benchmark` | STT candidates and evaluation (no provider chosen) |
+| `datasets status` / `build-manifest` / `acquire` | dataset registry and acquisition |
+| `storage-init` / `cache-clean` | shared folder layout / remove stale temp caches |
 
 ## Process one sample video
 
