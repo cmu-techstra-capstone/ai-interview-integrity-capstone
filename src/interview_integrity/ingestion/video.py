@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -17,6 +18,8 @@ from ..audio.extract import DEFAULT_SAMPLE_RATE, AudioInfo, extract_audio
 from ..audio.quality import AudioQuality, validate_audio
 from ..datasets.schema import RecordingMetadata
 from ..media import InvalidMediaError, ffprobe, first_stream, to_float
+
+log = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -143,6 +146,8 @@ def ingest_video(
     if info.duration and audio.duration and abs(info.duration - audio.duration) > 1.0:
         warnings.append(f"audio duration {audio.duration:.2f}s differs from video duration {info.duration:.2f}s")
 
+    for warning in warnings:
+        log.warning("%s: %s", meta.recording_id, warning)
     ingested = IngestedVideo(
         video=info, metadata=meta, work_dir=work_dir, audio=audio, audio_quality=quality, warnings=warnings
     )
