@@ -109,7 +109,12 @@ class LocalFolderStorage(RemoteStorage):
     def upload(self, local_path: Path, remote_path: str) -> None:
         dst = self._p(remote_path)
         dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(local_path, dst)
+        tmp = dst.with_name(dst.name + ".partial")
+        try:
+            shutil.copyfile(local_path, tmp)
+            tmp.replace(dst)
+        finally:
+            tmp.unlink(missing_ok=True)
 
     def upload_stream(self, stream: BinaryIO, remote_path: str) -> int:
         dst = self._p(remote_path)

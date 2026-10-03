@@ -86,3 +86,12 @@ def test_ingest_records_audio_quality_and_warnings(silent_audio_video, tmp_path)
     assert "audio silent" in ingested.warnings
     manifest = json.loads(ingested.manifest_path.read_text())
     assert manifest["audio_quality"]["is_silent"] is True
+
+
+def test_ingest_logs_audio_warnings(silent_audio_video, tmp_path, caplog):
+    import logging
+
+    meta = {"interview_id": "S2", "participant_id": "P1", "source_dataset": "staged", "question_id": "Q1"}
+    with caplog.at_level(logging.WARNING, logger="interview_integrity.ingestion.video"):
+        ingest_video(silent_audio_video, meta, tmp_path)
+    assert any("audio silent" in r.message for r in caplog.records)

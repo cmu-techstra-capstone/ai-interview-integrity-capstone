@@ -65,6 +65,11 @@ def check_sample(s: InterviewSample) -> list[QualityIssue]:
         add("error", "INVALID_DURATION", f"answer_duration {s.answer_duration}s outside (0, {MAX_ANSWER_S}]")
     elif s.answer_duration < MIN_ANSWER_S:
         add("warning", "VERY_SHORT_ANSWER", f"answer_duration {s.answer_duration}s < {MIN_ANSWER_S}s")
+    audio_duration = f.get("audio_duration")
+    if audio_duration is not None and s.answer_end is not None and s.answer_end > audio_duration + 0.5:
+        add("error", "IMPOSSIBLE_TIMING", f"answer_end {s.answer_end}s is beyond the audio ({audio_duration}s)")
+    if s.question_end is not None and s.answer_end is not None and s.question_end > s.answer_end:
+        add("error", "IMPOSSIBLE_TIMING", f"question_end {s.question_end}s is after answer_end {s.answer_end}s")
     if s.response_latency is not None and s.response_latency < 0:
         add("warning", "NEGATIVE_LATENCY", f"answer starts {abs(s.response_latency)}s before the question ends")
 
@@ -107,10 +112,18 @@ def check_dataset(samples: Iterable[InterviewSample]) -> list[QualityIssue]:
                                        f"same video file ({sha[:12]}…) and question {qid} under recordings "
                                        f"{sorted(recs)}"))
 
-    for group_key in ("participant_id", "recording_id"):
+    for group_key in ("participant_id", "recording_id", "video_sha256"):
         for group, splits in find_group_leakage(samples, group_key).items():
             issues.append(QualityIssue("error", "PARTICIPANT_LEAKAGE", "dataset",
                                        f"{group_key} {group} appears in splits {sorted(splits)}"))
+
+    participants_by_recording: dict[str, set[str]] = defaultdict(set)
+    for s in samples:
+        participants_by_recording[s.recording_id].add(s.participant_id)
+    for rec, people in participants_by_recording.items():
+        if len(people) > 1:
+            issues.append(QualityIssue("error", "INCONSISTENT_PARTICIPANT", rec,
+                                       f"recording has rows with different participant_ids {sorted(people)}"))
 
     unknown = [s for s in samples if s.participant_id.startswith("unknown:")]
     if unknown and any(s.split for s in samples):

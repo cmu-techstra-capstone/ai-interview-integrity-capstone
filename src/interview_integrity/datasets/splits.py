@@ -1,8 +1,10 @@
 """Group-aware train/val/test splitting.
 
-All samples sharing a group (by default the participant) land in the same split.
-Because augmented variants carry the same participant_id and recording_id as
-their original, they can never leak across partitions.
+Rows are grouped so that anything that could leak stays together: rows are in the
+same group if they share a participant_id, a recording_id, or a source video
+checksum (video_sha256), transitively. So augmented variants (same recording_id),
+repeated answers (same participant) and mislabelled rows of one recording
+(same recording_id, inconsistent participant_id) can never cross partitions.
 """
 
 from __future__ import annotations
@@ -33,6 +35,33 @@ def _group_counts(n_groups: int, ratios: dict[str, float]) -> dict[str, int]:
     return counts
 
 
+def leakage_groups(samples: list[InterviewSample], group_key: str = "participant_id") -> list[str]:
+    """Return a group label per sample (connected components over shared identifiers)."""
+    parent: dict[str, str] = {}
+
+    def find(x: str) -> str:
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a: str, b: str) -> None:
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[max(ra, rb)] = min(ra, rb)
+
+    nodes_per_sample = []
+    for s in samples:
+        nodes = [f"{group_key}:{getattr(s, group_key)}", f"recording:{s.recording_id}"]
+        if s.video_sha256:
+            nodes.append(f"sha:{s.video_sha256}")
+        for n in nodes[1:]:
+            union(nodes[0], n)
+        nodes_per_sample.append(nodes[0])
+    return [find(n) for n in nodes_per_sample]
+
+
 def assign_splits(
     samples: Iterable[InterviewSample],
     ratios: dict[str, float] | None = None,
@@ -42,7 +71,8 @@ def assign_splits(
 ) -> list[InterviewSample]:
     samples = list(samples)
     ratios = ratios or DEFAULT_RATIOS
-    groups = sorted({str(getattr(s, group_key)) for s in samples})
+    labels = leakage_groups(samples, group_key)
+    groups = sorted(set(labels))
     random.Random(seed).shuffle(groups)
 
     assignment: dict[str, str] = {}
@@ -51,7 +81,7 @@ def assign_splits(
         for g in groups[i : i + count]:
             assignment[g] = split
         i += count
-    return [replace(s, split=assignment[str(getattr(s, group_key))]) for s in samples]
+    return [replace(s, split=assignment[label]) for s, label in zip(samples, labels)]
 
 
 def find_group_leakage(
@@ -61,5 +91,7 @@ def find_group_leakage(
     seen: dict[str, set[str]] = defaultdict(set)
     for s in samples:
         if s.split:
-            seen[str(getattr(s, group_key))].add(s.split)
+            value = getattr(s, group_key)
+            if value:
+                seen[str(value)].add(s.split)
     return {g: splits for g, splits in seen.items() if len(splits) > 1}

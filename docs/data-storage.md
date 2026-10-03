@@ -104,3 +104,30 @@ A native backend (rclone or the Drive API) is pending decision **D6** in
 - Don't bypass access controls. Restricted datasets stay `ACCESS_PENDING` until the team
   completes the manual step.
 - Respect each license: no redistribution, and cite the dataset papers.
+
+## Access status (verified 2026-10-03)
+
+```text
+Dataset:              University of Michigan Real-life Deception
+Official source:      https://web.eecs.umich.edu/~mihalcea/downloads.html
+Required action:      none (public download)
+License/access:       no licence file; research use; cite Pérez-Rosas et al. (ICMI 2015)
+What we can do now:   done: all 121 clips processed from source; features in processed/
+
+Dataset:              DOLOS (ROSE Lab, NTU)
+Official source:      https://rose1.ntu.edu.sg/dataset/DOLOS/
+Required action:      create a ROSE Lab account (CMU email) → "Request" → accept the Release Agreement → wait for approval
+License/access:       academic, non-commercial only; no redistribution or derived datasets without permission
+What we can do after: store clips in private shared storage, add manifest rows, run process-remote
+                      (1,675 clips, 213 participants: real participant IDs make leakage-safe splits possible)
+
+Dataset:              Bag-of-Lies (IIIT-Delhi)
+Official source:      http://iab-rubric.org/index.php/bag-of-lies
+Required action:      licence agreement signed by someone with legal authority for CMU (e.g. via advisor /
+                      Office of Sponsored Programs), emailed to databases@iab-rubric.org,
+                      subject "License agreement for Bag-of-Lies Database"
+License/access:       research/educational only; no commercial use; no User_12 data in publications; cite paper
+What we can do after: copy the 6.14 GB archive Drive-to-Drive, add manifest rows, process on a machine with disk space
+```
+
+All three provide **deception** labels only; `assistance_label` stays `UNKNOWN`.

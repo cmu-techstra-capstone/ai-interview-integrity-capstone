@@ -24,6 +24,27 @@ from .ingestion.video import IngestedVideo, ingest_video
 from .transcription.base import Transcriber, Transcript
 
 
+TIMING_TOLERANCE_S = 0.5  # container/codec durations differ slightly from metadata
+
+
+def _check_within_recording(q: QuestionSpec, duration: float | None, recording_id: str) -> None:
+    """Fail fast on metadata timestamps that cannot belong to this recording."""
+    if duration is None:
+        return
+    for name in ("question_start", "question_end", "answer_start", "answer_end"):
+        value = getattr(q, name)
+        if value is not None and value > duration + TIMING_TOLERANCE_S:
+            raise SchemaError(
+                f"Recording {recording_id}, question {q.question_id}: {name}={value}s is beyond the "
+                f"recording's audio duration ({duration:.2f}s). Check the metadata timestamps."
+            )
+    if q.question_end is not None and q.answer_end is not None and q.question_end > q.answer_end:
+        raise SchemaError(
+            f"Recording {recording_id}, question {q.question_id}: question_end ({q.question_end}) "
+            f"is after answer_end ({q.answer_end})."
+        )
+
+
 @dataclass
 class PipelineConfig:
     interim_dir: Path = Path("data/interim")
@@ -65,6 +86,7 @@ def _process_question(
             f"question {q.question_id} needs answer_start and answer_end."
         )
 
+    _check_within_recording(q, ingested.audio.duration, meta.recording_id)
     answer_tr = _answer_transcript(transcript, q, multi)
     # Search for the answer after the question ends, so the interviewer's speech is not
     # mistaken for the start of the answer.

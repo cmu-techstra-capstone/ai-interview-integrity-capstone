@@ -1,8 +1,8 @@
 {
-  "interview_id": "STG001",
+  "interview_id": "STG-P010-S01",
   "participant_id": "P010",
   "source_dataset": "staged",
-  "recording_id": "STG001",
+  "recording_id": "STG-P010-S01",
   "session_notes": "Extra keys are kept in ingest.json under 'extra'.",
   "questions": [
     {

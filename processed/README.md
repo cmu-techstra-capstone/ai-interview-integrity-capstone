@@ -41,6 +41,8 @@ interview-integrity process-source --dataset michigan_deception --force
   likely undercounted and speech duration overcounted.
 - Quality report: 0 errors, 15 warnings (6 noisy, 5 clipped, 4 extreme speech rate).
   Check `quality/michigan_deception.json` before using a clip's timing features.
+- Outputs were generated before the `audio_duration` column existed. Regenerate with
+  `process-source --force` on a machine with bandwidth (docs/teammate-validation.md §3).
 - Columns `video_path`/`audio_path` were renamed `video_reference`/`audio_reference`.
   Loaders still accept the old names.
 

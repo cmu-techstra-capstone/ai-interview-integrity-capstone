@@ -7,10 +7,12 @@
 from __future__ import annotations
 
 import csv
+import io
 import json
 from pathlib import Path
 from typing import Iterable
 
+from .._fs import atomic_write_text
 from .schema import CORE_COLUMNS, InterviewSample
 
 
@@ -29,11 +31,9 @@ def load_jsonl(path: str | Path) -> list[InterviewSample]:
 
 
 def write_jsonl(samples: Iterable[InterviewSample], path: str | Path) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w") as fh:
-        for s in samples:
-            fh.write(json.dumps(s.to_row()) + "\n")
+    """Serialize all rows first, then replace the file atomically (never truncates on error)."""
+    lines = [json.dumps(s.to_row(), allow_nan=False) + "\n" for s in samples]
+    atomic_write_text(path, "".join(lines))
 
 
 def upsert_jsonl(new: Iterable[InterviewSample], path: str | Path) -> list[InterviewSample]:
@@ -49,10 +49,9 @@ def upsert_jsonl(new: Iterable[InterviewSample], path: str | Path) -> list[Inter
 def write_csv(samples: Iterable[InterviewSample], path: str | Path) -> None:
     rows = [s.to_row() for s in samples]
     feature_cols = sorted({k for r in rows for k in r} - set(CORE_COLUMNS))
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=[*CORE_COLUMNS, *feature_cols])
-        writer.writeheader()
-        for r in rows:
-            writer.writerow({k: ("" if v is None else v) for k, v in r.items()})
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=[*CORE_COLUMNS, *feature_cols])
+    writer.writeheader()
+    for r in rows:
+        writer.writerow({k: ("" if v is None else v) for k, v in r.items()})
+    atomic_write_text(path, buf.getvalue())

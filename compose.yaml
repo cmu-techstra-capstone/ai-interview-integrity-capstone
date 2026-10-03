@@ -1,0 +1,30 @@
+# Local development/processing container. No databases, servers or named volumes:
+# host folders are bind-mounted so outputs stay on the host and the image stays data-free.
+#
+#   docker compose build
+#   docker compose run --rm app pytest
+#   docker compose run --rm app interview-integrity --help
+services:
+  app:
+    build:
+      context: .
+      args:
+        EXTRAS: ${EXTRAS:-dev}   # e.g. EXTRAS=dev,stt-faster-whisper on a machine with disk space
+    image: interview-integrity:dev
+    # Linux hosts: export HOST_UID=$(id -u) HOST_GID=$(id -g) so bind-mounted outputs are writable.
+    user: "${HOST_UID:-10001}:${HOST_GID:-10001}"
+    working_dir: /app
+    environment:
+      INTERVIEW_INTEGRITY_LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      INTERVIEW_INTEGRITY_MAX_CACHE_MB: ${MAX_CACHE_MB:-500}
+      INTERVIEW_INTEGRITY_CACHE_DIR: /tmp
+      INTERVIEW_INTEGRITY_SHARED_ROOT: /shared
+    volumes:
+      - ./data:/app/data                    # local pipeline outputs (gitignored)
+      - ./processed:/app/processed          # committed public-dataset features
+      - ./manifests:/app/manifests          # manifests are updated by processing runs
+      - ${SHARED_ROOT:-./data/shared}:/shared   # optional shared storage mount (e.g. Drive)
+      # STT benchmarking only (teammate machine): persist model downloads on the host
+      # - ${MODEL_CACHE:-./data/model-cache}:/home/app/.cache
+    tmpfs:
+      - /tmp:size=1g                        # temporary media cache lives in memory, never on disk

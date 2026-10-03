@@ -1,9 +1,10 @@
 # Speech-to-Text Decision (pending approval)
 
-**Status:** not chosen and not implemented. The pipeline uses the provider-independent
-`Transcriber` interface. Today only `SidecarTranscriber` exists, which loads existing
-transcripts. Any option below plugs in as one new `Transcriber` class, and nothing else
-changes.
+**Status:** not chosen. The pipeline uses the provider-independent `Transcriber`
+interface. Candidate adapters exist for evaluation only: `faster-whisper` and `whisperx`
+(lazy imports; packages not installed by default; faster-whisper won't download weights
+unless `allow_download=true`), plus a `hosted` placeholder that refuses to run without
+explicit approval for external upload. None is wired in as a default.
 
 ## Why STT matters for this project
 
@@ -53,6 +54,29 @@ CPU speed on a Mac becomes the bottleneck.
    It reports corpus WER, filler recall and word-timestamp coverage. If filler recall
    from faster-whisper is too low for the filler features to be meaningful, reconsider a
    hosted API for **public** data only, and only if consent allows it for staged data.
+
+## Benchmark readiness
+
+`interview-integrity stt-benchmark` runs every candidate in
+[config/stt_candidates.example.json](../config/stt_candidates.example.json) on the same
+clips: streamed Michigan clips with human reference transcripts, or local
+`--audio-dir/--reference-dir`. It reports:
+
+| Factor | Measured by the benchmark | From the candidate config / this doc |
+|---|---|---|
+| WER / accuracy | `corpus_wer`, per-clip WER | |
+| Word timestamps | `word_timestamp_coverage` | |
+| Filler preservation | `filler_recall` | |
+| Speaker separation | `speaker_label_coverage` | |
+| Processing speed | `real_time_factor`, `model_load_seconds` | |
+| Memory | `peak_process_rss_mb` | |
+| Disk | | model download size (teammate measures `du -sh` of the model cache) |
+| CPU/GPU | | device in the candidate options |
+| Privacy | | `runs_locally`, `sends_audio_externally` (hosted is skipped unless approved) |
+| Cost | | `cost_note` |
+
+Not run yet: it needs model downloads. Commands are in
+[teammate-validation.md](teammate-validation.md#4-stt-benchmark-downloads-models-several-gb).
 
 ## What approval is needed
 

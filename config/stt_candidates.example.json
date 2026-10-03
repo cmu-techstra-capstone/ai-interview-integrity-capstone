@@ -1,0 +1,38 @@
+{
+  "_comment": "STT candidates for 'interview-integrity stt-benchmark'. None is the project default. Run on a machine with disk space; models download only where allow_download is true.",
+  "candidates": [
+    {
+      "name": "faster-whisper-small-int8",
+      "transcriber": "faster-whisper",
+      "options": {"model_size": "small", "device": "cpu", "compute_type": "int8", "allow_download": true},
+      "runs_locally": true, "sends_audio_externally": false, "cost_note": "free"
+    },
+    {
+      "name": "faster-whisper-medium-int8",
+      "transcriber": "faster-whisper",
+      "options": {"model_size": "medium", "device": "cpu", "compute_type": "int8", "allow_download": true},
+      "runs_locally": true, "sends_audio_externally": false, "cost_note": "free"
+    },
+    {
+      "name": "faster-whisper-small-disfluent-prompt",
+      "transcriber": "faster-whisper",
+      "options": {"model_size": "small", "device": "cpu", "compute_type": "int8", "allow_download": true,
+                  "initial_prompt": "Umm, let me think, uh... so, like, I mean, hmm."},
+      "runs_locally": true, "sends_audio_externally": false, "cost_note": "free",
+      "notes": "Tests whether a disfluent prompt improves filler recall."
+    },
+    {
+      "name": "whisperx-small-aligned",
+      "transcriber": "whisperx",
+      "options": {"model_size": "small", "device": "cpu", "compute_type": "int8", "align": true, "diarize": false},
+      "runs_locally": true, "sends_audio_externally": false, "cost_note": "free"
+    },
+    {
+      "name": "hosted-placeholder",
+      "transcriber": "hosted",
+      "options": {"vendor": "tbd"},
+      "runs_locally": false, "sends_audio_externally": true, "cost_note": "per audio minute",
+      "notes": "Skipped unless --allow-external-upload AND project approval."
+    }
+  ]
+}

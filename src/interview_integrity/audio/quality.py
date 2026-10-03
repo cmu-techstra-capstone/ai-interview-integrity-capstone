@@ -47,9 +47,7 @@ class AudioQuality:
         return [name for name in ("is_silent", "is_noisy", "is_clipped") if getattr(self, name)]
 
     def to_features(self, prefix: str = "audio_") -> dict[str, Any]:
-        d = asdict(self)
-        d.pop("duration")
-        return {f"{prefix}{k}": v for k, v in d.items()}
+        return {f"{prefix}{k}": v for k, v in asdict(self).items()}
 
 
 def assess_levels(levels: FrameLevels) -> AudioQuality:

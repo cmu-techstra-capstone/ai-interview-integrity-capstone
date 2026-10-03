@@ -1,6 +1,6 @@
 {
   "drive_root": "AI Interview Integrity Capstone",
-  "verified_on": "2026-09-29",
+  "verified_on": "2026-10-03",
   "notes": "Access terms verified from official sources on verified_on. Re-check before acquiring. assistance_label is always UNKNOWN for the three public deception datasets.",
   "datasets": {
     "michigan_deception": {
@@ -26,14 +26,15 @@
       "access": "restricted",
       "license_short": "ROSE Lab Release Agreement: academic, non-commercial research only; no redistribution or derived datasets without permission.",
       "approx_size_bytes": null,
-      "contents": "Deception clips from a reality game show, with MUMIN behavior annotations.",
+      "contents": "1,675 deception clips (2-19 s, median 5 s) from 213 participants across 84 episodes of a reality game show, with MUMIN behavior annotations. ROSE Lab does not own the copyright of the source videos.",
       "drive_folder": "datasets/dolos",
       "status": "ACCESS_PENDING",
       "manual_steps": [
         "Create a ROSE Lab account with your CMU email at https://rose1.ntu.edu.sg/",
         "Open https://rose1.ntu.edu.sg/dataset/DOLOS/, click Request, and accept the Release Agreement",
         "Wait for approval; download only via the channel ROSE Lab provides (do not use the GitHub YouTube downloader as a substitute for approval)"
-      ]
+      ],
+      "what_we_can_do_after_access": "Store clips in private shared storage, add manifest rows, run process-remote for audio/transcript/timing features (deception_label only; assistance_label UNKNOWN)."
     },
     "bag_of_lies": {
       "display_name": "Bag-of-Lies (IIIT-Delhi)",
@@ -51,7 +52,8 @@
         "Have it signed by someone with legal authority for CMU (e.g. via your advisor and CMU Office of Sponsored Programs); student/faculty signatures alone are rejected",
         "Email it to databases@iab-rubric.org with subject 'License agreement for Bag-of-Lies Database'",
         "They reply with the password for the Google Drive download; the archive (6.14 GB) exceeds the 500 MB local limit, so transfer it Drive-to-Drive (e.g. 'Make a copy'/shortcut or a Colab notebook), not via the laptop"
-      ]
+      ],
+      "what_we_can_do_after_access": "Copy the archive Drive-to-Drive (never via a laptop), add manifest rows, process on a machine with disk space; exclude User_12 from publications."
     },
     "staged_interviews": {
       "display_name": "Staged mock interviews (team-recorded)",
@@ -63,7 +65,9 @@
       "contents": "Controlled answers labeled HUMAN_UNASSISTED / AI_ASSISTED / AI_VERBATIM / AI_PERSONALIZED.",
       "drive_folder": "datasets/staged_interviews",
       "status": "NOT_COLLECTED",
-      "manual_steps": ["Record under the approved protocol; upload directly to Drive; add rows to manifests/files/staged_interviews.csv"]
+      "manual_steps": [
+        "Record under the approved protocol; upload directly to Drive; add rows to manifests/files/staged_interviews.csv"
+      ]
     }
   }
 }
