@@ -330,6 +330,13 @@ class InterviewSample:
         collisions = set(self.features) & set(CORE_COLUMNS)
         if collisions:
             raise SchemaError(f"{where}: feature names collide with core columns: {sorted(collisions)}")
+        for name, value in self.features.items():
+            if value is not None and not isinstance(value, (str, int, float, bool)):
+                raise SchemaError(
+                    f"{where}: feature {name!r} must be a str/int/float/bool/None, got {type(value).__name__}"
+                )
+            if isinstance(value, float) and (value != value or value in (float("inf"), float("-inf"))):
+                raise SchemaError(f"{where}: feature {name!r} is NaN/inf; use None for unmeasurable values")
         return self
 
     def to_row(self) -> dict[str, Any]:

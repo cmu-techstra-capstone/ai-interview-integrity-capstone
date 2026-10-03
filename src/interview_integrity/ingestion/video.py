@@ -149,7 +149,7 @@ def ingest_video(
     manifest = {
         "video": info.to_dict(),
         "audio": audio.to_dict(),
-        "audio_quality": {**quality.to_features(prefix=""), "duration": quality.duration},
+        "audio_quality": quality.to_features(prefix=""),
         "warnings": warnings,
         "metadata": {
             "interview_id": meta.interview_id,

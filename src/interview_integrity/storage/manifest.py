@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import csv
 import enum
+import io
 from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from typing import Iterable
 
+from .._fs import atomic_write_text
 from ..datasets.schema import (
     AssistanceLabel,
     DeceptionLabel,
@@ -84,10 +86,10 @@ def load_manifest(path: str | Path) -> list[ManifestEntry]:
 
 
 def save_manifest(entries: Iterable[ManifestEntry], path: str | Path) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=COLUMNS)
-        writer.writeheader()
-        for e in entries:
-            writer.writerow(asdict(e.validate()))
+    """Validate every entry first, then replace the file atomically."""
+    rows = [asdict(e.validate()) for e in entries]
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=COLUMNS)
+    writer.writeheader()
+    writer.writerows(rows)
+    atomic_write_text(path, buf.getvalue())
