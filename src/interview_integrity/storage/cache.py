@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+import logging
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 from .remote import RemoteStorage
 
 DEFAULT_MAX_BYTES = 500 * 1024 * 1024  # team rule: never exceed 500 MB locally without asking
+CACHE_PREFIX = "iic-cache-"
+
+log = logging.getLogger(__name__)
 
 
 class CacheBudgetExceeded(RuntimeError):
@@ -31,7 +36,7 @@ class TemporaryCache:
     def __enter__(self) -> "TemporaryCache":
         if self.root:
             self.root.mkdir(parents=True, exist_ok=True)
-        self.dir = Path(tempfile.mkdtemp(prefix="iic-cache-", dir=self.root))
+        self.dir = Path(tempfile.mkdtemp(prefix=CACHE_PREFIX, dir=self.root))
         return self
 
     def __exit__(self, *exc) -> None:
@@ -72,3 +77,22 @@ class TemporaryCache:
         if local.stat().st_size != size:
             raise IOError(f"Size mismatch downloading {remote_path}: {local.stat().st_size} != {size}")
         return local
+
+
+def purge_stale_caches(root: str | Path | None = None, older_than_hours: float = 12.0) -> list[Path]:
+    """Delete leftover cache dirs (e.g. from a killed process) older than ``older_than_hours``.
+
+    Only directories named ``iic-cache-*`` directly under ``root`` (default: system temp dir)
+    are touched; nothing else is ever removed.
+    """
+    base = Path(root) if root else Path(tempfile.gettempdir())
+    if not base.is_dir():
+        return []
+    cutoff = time.time() - older_than_hours * 3600
+    removed = []
+    for d in base.iterdir():
+        if d.is_dir() and not d.is_symlink() and d.name.startswith(CACHE_PREFIX) and d.stat().st_mtime < cutoff:
+            shutil.rmtree(d)
+            removed.append(d)
+            log.info("removed stale cache %s", d)
+    return removed
