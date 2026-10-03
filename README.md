@@ -73,6 +73,7 @@ interview-integrity process-remote --dataset michigan_deception --root "<shared 
 
 ## Documentation
 
+- **[docs/PROJECT_STATE.md](docs/PROJECT_STATE.md): start here.** Current state, decisions, PRs, next steps (single source of truth)
 - [docs/architecture.md](docs/architecture.md): what's implemented vs planned, modules, where data lives, how features plug in
 - [docs/teammate-validation.md](docs/teammate-validation.md): exact commands for heavy checks (Docker build, STT benchmark, full dataset runs)
 - [docs/docker.md](docs/docker.md): container usage and safe disk cleanup
