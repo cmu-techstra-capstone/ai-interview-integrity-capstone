@@ -13,6 +13,10 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+# STT *candidates* for benchmarking only (no provider has been chosen). Heavy: install only
+# on a machine with disk space, never needed for the core pipeline or its tests.
+stt-faster-whisper = ["faster-whisper>=1.0"]
+stt-whisperx = ["whisperx>=3.1"]
 
 [project.scripts]
 interview-integrity = "interview_integrity.cli:main"
