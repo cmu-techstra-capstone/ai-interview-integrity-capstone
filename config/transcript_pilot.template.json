@@ -1,0 +1,15 @@
+{
+  "purpose": "Four-condition controlled audio/text pilot planning only; not an importable manifest",
+  "consent_required": true,
+  "human_conditions_before_ai_exposure": true,
+  "counterbalance_matched_questions_across_participants": true,
+  "same_asr_settings_for_all_conditions": true,
+  "conditions": [
+    {"condition_id": "human_spontaneous", "assistance_label": "HUMAN_UNASSISTED", "delivery": "spontaneous", "instructions": "Explain a familiar technical topic without AI, scripts, or generated reference material."},
+    {"condition_id": "human_self_script", "assistance_label": "HUMAN_UNASSISTED", "delivery": "scripted", "instructions": "Write the answer independently without AI and deliver it naturally."},
+    {"condition_id": "ai_verbatim_natural", "assistance_label": "AI_VERBATIM", "delivery": "scripted_natural", "instructions": "Deliver the AI-produced answer naturally; retain private model, prompt, and output provenance."},
+    {"condition_id": "ai_personalized", "assistance_label": "AI_PERSONALIZED", "delivery": "paraphrased", "instructions": "Use AI-provided points, reorganizing them into your own spoken answer; record the actual assistance used."}
+  ],
+  "required_recording_metadata": ["participant_pseudonym", "question_id", "condition_id", "consent_confirmed", "assistance_verified_by_protocol", "private_audio_path", "candidate_answer_start", "candidate_answer_end", "language", "recording_device", "ai_model_used_if_any", "private_ai_provenance_if_any"],
+  "recordings": []
+}

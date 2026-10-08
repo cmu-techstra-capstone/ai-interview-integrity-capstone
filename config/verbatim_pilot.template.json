@@ -1,0 +1,10 @@
+{
+  "purpose": "verbatim_asr_pilot",
+  "candidate_only": true,
+  "notes": "Template only. Replace paths and confirm actual provenance before use. Self-reported labels are not independent controlled verification.",
+  "samples": [
+    {"id": "human_spontaneous", "input_kind": "audio", "path": "/absolute/path/to/independent-answer.m4a", "language": "en", "condition": "human_spontaneous", "provenance_status": "self_reported", "notes": "Familiar topic, independently answered without AI output/scripts for this task."},
+    {"id": "human_self_script", "input_kind": "audio", "path": "/absolute/path/to/self-written-reading.m4a", "language": "en", "condition": "human_self_script", "provenance_status": "self_reported", "notes": "Answer written independently without AI, then read naturally. Keep original script privately."},
+    {"id": "ai_verbatim", "input_kind": "audio", "path": "/absolute/path/to/ai-answer-reading.m4a", "language": "en", "condition": "ai_verbatim", "provenance_status": "self_reported", "notes": "AI-generated answer spoken substantially verbatim. Keep exact model/prompt/output privately; record any skipped/reworded parts."}
+  ]
+}

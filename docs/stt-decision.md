@@ -75,7 +75,13 @@ clips: streamed Michigan clips with human reference transcripts, or local
 | Privacy | | `runs_locally`, `sends_audio_externally` (hosted is skipped unless approved) |
 | Cost | | `cost_note` |
 
-Not run yet: it needs model downloads. Commands are in
+Four local configurations completed 20/20 Michigan clips each on 2026-10-07. Full
+results, environment, reproduced bugs and fixes are in
+[the validation report](../reports/pr5_validation/validation-20261007.md).
+On this narrow sample, small WER was 0.1534 versus medium 0.1593 and WhisperX 0.1711.
+The disfluency prompt reached 8/9 filler recall but emitted 25 fillers, so recall alone
+is misleading. These results do not approve a provider or establish interview-domain
+performance. Commands are in
 [teammate-validation.md](teammate-validation.md#4-stt-benchmark-downloads-models-several-gb).
 
 ## What approval is needed

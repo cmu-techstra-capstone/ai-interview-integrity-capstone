@@ -13,13 +13,30 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+ml = ["scikit-learn>=1.3"]
+# Local research only; no core/Docker dependency. Review openSMILE's commercial licence.
+audio-research = ["scikit-learn>=1.3", "opensmile==2.6.0", "silero-vad==6.2.3", "onnxruntime>=1.16.1"]
+# Local text-detector baseline only; does not change the core pipeline or Docker.
+text-research = ["transformers>=5.0,<6", "torch>=2.6", "safetensors>=0.4"]
+# Optional public paired-text benchmark loader; not a core/Docker dependency.
+text-benchmark = ["pyarrow>=17"]
+# Publisher cleanup only, pinned to the reviewed source dependency versions.
+text-cleanup = ["clean-text==0.6.0", "emoji==1.7.0", "ftfy==6.1.3", "Unidecode==1.3.8", "beautifulsoup4==4.12.3", "Markdown==3.7"]
 # STT *candidates* for benchmarking only (no provider has been chosen). Heavy: install only
 # on a machine with disk space, never needed for the core pipeline or its tests.
-stt-faster-whisper = ["faster-whisper>=1.0"]
+stt-faster-whisper = ["faster-whisper>=1.0", "av>=11,<19"]
 stt-whisperx = ["whisperx>=3.1"]
 
 [project.scripts]
 interview-integrity = "interview_integrity.cli:main"
+audio-baseline = "interview_integrity.modeling.audio_baseline:main"
+allsstar-import = "interview_integrity.modeling.allsstar:main"
+audio-delivery-experiment = "interview_integrity.modeling.audio_experiment:main"
+transcript-baseline = "interview_integrity.modeling.transcript_baseline:main"
+transcript-compare = "interview_integrity.modeling.text_comparison:main"
+beemo-benchmark = "interview_integrity.modeling.beemo_benchmark:main"
+detector-followup = "interview_integrity.modeling.detector_followup:main"
+verbatim-pilot = "interview_integrity.modeling.verbatim_pilot:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
