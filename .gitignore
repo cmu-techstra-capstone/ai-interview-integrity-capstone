@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .venv/
+.venv*/
 venv/
 .pytest_cache/
 build/
@@ -24,6 +25,7 @@ data/processed/*
 # Local temp cache for files pulled from shared storage
 .cache/
 data/cache/
+data/models/
 iic-cache-*/
 
 # Media files anywhere in the repo (tests generate their own fixtures at runtime)

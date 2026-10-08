@@ -1,0 +1,75 @@
+{
+  "clips": [
+    "trial_lie_001",
+    "trial_lie_002",
+    "trial_lie_003",
+    "trial_lie_004",
+    "trial_lie_005",
+    "trial_lie_006",
+    "trial_lie_007",
+    "trial_lie_008",
+    "trial_lie_009",
+    "trial_lie_010",
+    "trial_lie_011",
+    "trial_lie_012",
+    "trial_lie_013",
+    "trial_lie_014",
+    "trial_lie_015",
+    "trial_lie_016",
+    "trial_lie_017",
+    "trial_lie_018",
+    "trial_lie_019",
+    "trial_lie_020"
+  ],
+  "note": "peak_process_rss_mb is cumulative for the benchmark process; run one candidate per process for a clean memory figure.",
+  "results": [
+    {
+      "candidate": {
+        "name": "faster-whisper-small-int8",
+        "transcriber": "faster-whisper",
+        "options": {
+          "model_size": "small",
+          "device": "cpu",
+          "compute_type": "int8",
+          "allow_download": true,
+          "download_root": ".cache/models/faster-whisper"
+        },
+        "runs_locally": true,
+        "sends_audio_externally": false,
+        "cost_note": "local CPU; no hosted audio upload",
+        "notes": ""
+      },
+      "status": "ok",
+      "model_load_seconds": 60.94,
+      "audio_seconds": 0.0,
+      "transcribe_seconds": 0.0,
+      "real_time_factor": null,
+      "speaker_label_coverage": null,
+      "peak_process_rss_mb": 1080.1,
+      "failures": {
+        "trial_lie_001": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_002": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_003": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_004": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_005": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_006": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_007": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_008": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_009": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_010": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_011": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_012": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_013": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_014": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_015": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_016": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_017": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_018": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_019": "TypeError: open() got an unexpected keyword argument 'metadata_errors'",
+        "trial_lie_020": "TypeError: open() got an unexpected keyword argument 'metadata_errors'"
+      },
+      "clips": 0,
+      "per_clip": []
+    }
+  ]
+}

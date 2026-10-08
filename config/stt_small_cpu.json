@@ -1,0 +1,10 @@
+{
+  "candidates": [{
+    "name": "faster-whisper-small-int8",
+    "transcriber": "faster-whisper",
+    "options": {"model_size": "small", "device": "cpu", "compute_type": "int8", "allow_download": true, "download_root": ".cache/models/faster-whisper"},
+    "runs_locally": true,
+    "sends_audio_externally": false,
+    "cost_note": "local CPU; no hosted audio upload"
+  }]
+}

@@ -1,0 +1,78 @@
+{
+  "clips": [
+    "trial_lie_001",
+    "trial_lie_002",
+    "trial_lie_003",
+    "trial_lie_004",
+    "trial_lie_005",
+    "trial_lie_006",
+    "trial_lie_007",
+    "trial_lie_008",
+    "trial_lie_009",
+    "trial_lie_010",
+    "trial_lie_011",
+    "trial_lie_012",
+    "trial_lie_013",
+    "trial_lie_014",
+    "trial_lie_015",
+    "trial_lie_016",
+    "trial_lie_017",
+    "trial_lie_018",
+    "trial_lie_019",
+    "trial_lie_020"
+  ],
+  "note": "peak_process_rss_mb is cumulative for the benchmark process; run one candidate per process for a clean memory figure.",
+  "results": [
+    {
+      "candidate": {
+        "name": "whisperx-small-aligned",
+        "transcriber": "whisperx",
+        "options": {
+          "model_size": "small",
+          "device": "cpu",
+          "compute_type": "int8",
+          "align": true,
+          "diarize": false,
+          "download_root": ".cache/models/faster-whisper"
+        },
+        "runs_locally": true,
+        "sends_audio_externally": false,
+        "cost_note": "local CPU; no hosted audio upload",
+        "notes": ""
+      },
+      "status": "failed",
+      "attempted_clips": 20,
+      "failed_clips": 20,
+      "model_load_seconds": 59.94,
+      "audio_seconds": 0.0,
+      "transcribe_seconds": 0.0,
+      "real_time_factor": null,
+      "speaker_label_coverage": null,
+      "peak_process_rss_mb": 1187.8,
+      "failures": {
+        "trial_lie_001": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_002": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_003": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_004": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_005": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_006": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_007": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_008": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_009": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_010": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_011": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_012": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_013": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_014": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_015": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_016": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_017": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_018": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_019": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>",
+        "trial_lie_020": "URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1032)>"
+      },
+      "clips": 0,
+      "per_clip": []
+    }
+  ]
+}
