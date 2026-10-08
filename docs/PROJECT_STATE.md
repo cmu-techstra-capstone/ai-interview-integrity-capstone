@@ -1,7 +1,7 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-08** (PR #5 base plus local validation/fixes and audio/text research on `codex/pr5-michigan-validation`).
+> Last updated: **2026-10-08** (PR #5 base plus validation/fixes and audio/text research published in [PR #6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6), branch `codex/audio-transcript-research`).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -454,8 +454,10 @@ When one is resolved, move it to §13 with what was chosen and why.
 
 ## 15. PR / Branch Status
 
-Stacked PRs. Merge strictly in order **#1 → #2 → #3 → #4 → #5**. As of 2026-10-03, none
-are merged and none have been reviewed.
+Stacked PRs. Integration dependency order is **#1 → #2 → #3 → #4 → #5 → #6**.
+All are open as of 2026-10-08; review status is not audited here. PR #6 targets
+PR #5's branch to isolate the research delta, not to duplicate it against main.
+No PR was merged or another author's branch changed during research publication.
 
 | PR | Branch | Base | Purpose | Status |
 |---|---|---|---|---|
@@ -464,6 +466,7 @@ are merged and none have been reviewed.
 | [#3](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/3) | `feature/michigan-source-features` | #2 | Michigan from source, 121 clips | open |
 | [#4](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/4) | `feature/audio-backend-hardening` | #3 | audio/backend hardening, staged schema, quality | open |
 | [#5](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/5) | `feature/docker-stt-staged-readiness` | #4 | Docker, service layer, STT tooling, staged readiness, this file | open |
+| [#6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6) | `codex/audio-transcript-research` | #5 | audio/transcript research tools, verbatim pilot, validation and aggregate reports | open |
 
 ---
 
@@ -745,4 +748,7 @@ actually validated and recorded in §5 and §19.
   unknown; existing frozen reports unchanged. Regression assertion added.
 - Pre-publication native test rerun: 418 passed in 20.43 s, clean exit.
   Evidence: reports/pr5_validation/native-tests-pr-sync-20261008.xml.
+- Published research branch and PR #6 targeting feature/docker-stt-staged-readiness.
+  Only audited code, templates, docs and lightweight reports pushed; raw/private
+  artifacts and regenerated Michigan features remain excluded. No PR merged.
 ```

@@ -73,6 +73,8 @@ individual scores remain local and ignored. Aggregate execution status:
 This branch is stacked on PR #5's `feature/docker-stt-staged-readiness`, not on
 `main`. Review only the delta above PR #5; do not merge or alter PR #5 as part of
 this research PR. Use a separate checkout if keeping your current branch intact.
+Published branch: `codex/audio-transcript-research`;
+[PR #6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6).
 
 ```sh
 python -m venv .venv
