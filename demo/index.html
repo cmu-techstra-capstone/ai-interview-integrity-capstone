@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interview Signal Agent</title>
+<style>
+  :root{--bg:#0f172a;--card:#111c33;--line:#243352;--text:#e5ecf6;--muted:#93a3bd;--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--accent:#60a5fa}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0} .chip{font-size:12px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--muted)}
+  .chip.warn{color:#fbbf24;border-color:#7c5a10}
+  main{display:grid;grid-template-columns:minmax(380px,1fr) minmax(420px,1.15fr);gap:16px;padding:16px 22px;max-width:1500px;margin:auto}
+  @media(max-width:980px){main{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+  .card h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:600}
+  button,select,textarea,input{font:inherit;color:var(--text);background:#0b1426;border:1px solid var(--line);border-radius:8px;padding:7px 11px}
+  button{cursor:pointer;background:#1c2d52} button:hover{background:#24396a} button.primary{background:#2563eb;border-color:#2563eb}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+  textarea{width:100%;min-height:76px;resize:vertical}
+  #feed{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+  .bub{padding:9px 12px;border-radius:12px;max-width:94%;border:1px solid var(--line)}
+  .bub.interviewer{background:#16233f;align-self:flex-start} .bub.candidate{background:#1a2a4a;align-self:flex-end}
+  .bub .who{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;display:flex;justify-content:space-between;gap:10px}
+  .pill{font-weight:700;border-radius:99px;padding:0 8px;color:#06101f}
+  .caret{display:inline-block;width:7px;height:14px;background:var(--accent);vertical-align:-2px;animation:b 1s infinite} @keyframes b{50%{opacity:0}}
+  #gaugeWrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  #needle{transition:transform .45s cubic-bezier(.3,1.4,.5,1);transform-origin:150px 150px}
+  #big{font-size:54px;font-weight:800;line-height:1} #zone{font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .seg{display:flex;gap:4px;margin-top:10px} .seg i{flex:1;height:14px;border-radius:4px;background:#1b2845;transition:background .3s}
+  .seg-labels{display:flex;gap:4px;font-size:11px;color:var(--muted)} .seg-labels span{flex:1;text-align:center}
+  .sig{margin:8px 0} .sig .top{display:flex;justify-content:space-between;font-size:13px;gap:10px}
+  .sig .bar{height:7px;background:#1b2845;border-radius:5px;margin:4px 0;overflow:hidden} .sig .bar b{display:block;height:100%;border-radius:5px;transition:width .4s}
+  .sig .d{font-size:12px;color:var(--muted)}
+  .fu{padding:8px 10px;border:1px dashed #36507f;border-radius:8px;margin:7px 0;background:#0e1932}
+  .muted{color:var(--muted);font-size:13px} .err{color:#fca5a5;font-size:13px}
+  canvas{width:100%;height:120px;background:#0b1426;border:1px solid var(--line);border-radius:8px}
+  .disc{font-size:12px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Interview Signal Agent <span class="muted">(live demo)</span></h1>
+  <span class="chip warn">Decision support only &mdash; not proof of misconduct</span>
+  <span class="chip">Demo heuristic, not a validated detector</span>
+  <span class="chip" id="llmChip">follow-ups: …</span>
+</header>
+<main>
+<section>
+  <div class="card">
+    <h2>1 &middot; Meeting feed (simulated meeting agent)</h2>
+    <div class="row">
+      <select id="sampleSel"></select>
+      <button id="loadSample">Load</button>
+      <button id="nextBtn" class="primary" disabled>Next turn &#9654;</button>
+      <button id="playBtn" disabled>Auto-play</button>
+      <select id="speed"><option value="30">typing: fast</option><option value="70" selected>typing: natural</option><option value="130">typing: slow</option></select>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <div id="feed"><div class="muted">Load a sample, or paste/type a transcript below. Turns stream in one by one and the score updates as the candidate "speaks".</div></div>
+  </div>
+  <div class="card">
+    <h2>Paste a transcript</h2>
+    <textarea id="paste" placeholder="Interviewer: Why does testing matter?&#10;Candidate: Well, um, for me it's ...&#10;(Labels Interviewer:/Candidate: or Q:/A:. Unlabelled paragraphs are treated as candidate answers.)"></textarea>
+    <div class="row" style="margin-top:8px"><button id="loadPaste">Load pasted transcript</button></div>
+  </div>
+  <div class="card">
+    <h2>Or type live &mdash; score updates as you type</h2>
+    <div class="row"><select id="who"><option value="interviewer">Interviewer</option><option value="candidate" selected>Candidate</option></select>
+      <button id="addTurn">Add turn</button></div>
+    <textarea id="live" placeholder="Type or paste what the speaker is saying. The gauge previews the score while you type."></textarea>
+  </div>
+</section>
+<section>
+  <div class="card">
+    <h2>2 &middot; Live signal score (0&ndash;9)</h2>
+    <div id="gaugeWrap">
+      <svg id="gauge" viewBox="0 0 300 175" width="330"></svg>
+      <div>
+        <div id="big">&ndash;</div>
+        <div id="zone" class="muted">waiting</div>
+        <div class="muted" id="conf"></div>
+        <div class="muted" id="mode"></div>
+      </div>
+    </div>
+    <div class="seg" id="seg"></div>
+    <div class="seg-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></div>
+    <div class="disc">0&ndash;3 low &middot; 4&ndash;5 worth a second look &middot; 6&ndash;9 high (red). A high score means "ask more questions", never "cheating".</div>
+  </div>
+  <div class="card"><h2>Score over the interview</h2><svg id="timeline" viewBox="0 0 560 170" width="100%"></svg>
+    <div class="muted">Solid line = running score &middot; dots = score of each answer &middot; dashed = answer in progress</div></div>
+  <div class="card"><h2>Why this score (latest answer)</h2><div id="why" class="muted">No answer scored yet.</div></div>
+  <div class="card"><h2>3 &middot; Suggested follow-up questions</h2><div id="fu" class="muted">Appears after each answer.</div>
+    <div class="muted" id="fuSrc"></div></div>
+  <div class="card">
+    <h2>4 &middot; Audio signal</h2>
+    <div class="row"><input type="file" id="audioFile" accept="audio/*,video/*,.wav">
+      <label class="muted">question ended at (s, optional) <input type="number" id="qEnd" step="0.1" min="0" style="width:90px"></label></div>
+    <div class="row"><label class="muted"><input type="checkbox" id="doTx"> try transcription (only if faster-whisper is installed)</label>
+      <button id="audioBtn" class="primary">Analyze audio</button></div>
+    <div id="audioOut" class="muted">Upload a recording of the candidate's answer (WAV works everywhere; other formats need ffmpeg).</div>
+    <canvas id="env" width="900" height="240" hidden></canvas>
+    <div id="audioSig"></div>
+    <div class="row"><button id="combineBtn" hidden>Combine with latest transcript answer</button></div>
+    <div id="combineOut" class="muted"></div>
+  </div>
+  <div class="card"><h2>Reality check on real human speech</h2>
+    <div class="row"><button id="baseBtn">Score the repo's 121 real human clips</button></div>
+    <div id="baseOut" class="muted">Courtroom transcripts (Michigan deception dataset). These are real people, not AI-assisted, so high scores here would be false positives.</div></div>
+</section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const ZONES = [[0,4,'low','#22c55e'],[4,6,'review','#f59e0b'],[6,9.01,'high','#ef4444']];
+const zoneOf = s => { for (const z of ZONES) if (s>=z[0] && s<z[1]) return z; return ZONES[2]; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path, body){
+  const r = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const j = await r.json(); if (j.error) throw new Error(j.error); return j;
+}
+
+let script = [], shown = [], gen = 0, playing = false, busy = false, lastResult = null, lastTiming = null, samples = {};
+
+// ---------- gauge
+function polar(v, r){ const a = Math.PI*(1 - v/9); return [150 + r*Math.cos(a), 150 - r*Math.sin(a)]; }
+function arc(v0, v1, color){
+  const [x0,y0] = polar(v0,118), [x1,y1] = polar(v1,118);
+  return `<path d="M${x0} ${y0} A118 118 0 0 1 ${x1} ${y1}" stroke="${color}" stroke-width="22" fill="none" opacity=".9"/>`;
+}
+function drawGauge(){
+  let s = ZONES.map(z => arc(z[0], Math.min(z[1],9), z[3])).join('');
+  for (let i=0;i<=9;i++){ const [x,y] = polar(i,142); s += `<text x="${x}" y="${y+4}" fill="#93a3bd" font-size="11" text-anchor="middle">${i}</text>`; }
+  s += `<g id="needle"><line x1="150" y1="150" x2="40" y2="150" stroke="#e5ecf6" stroke-width="3" stroke-linecap="round"/></g><circle cx="150" cy="150" r="8" fill="#e5ecf6"/>`;
+  $('gauge').innerHTML = s;
+  $('seg').innerHTML = Array.from({length:10},()=>'<i></i>').join('');
+  setGauge(null);
+}
+function setGauge(score, conf, label){
+  const needle = $('needle');
+  if (score == null){ needle.style.transform = 'rotate(0deg)'; $('big').textContent = '–'; $('zone').textContent = 'waiting'; $('zone').style.color=''; $('big').style.color=''; $('conf').textContent=''; $('mode').textContent=''; [...$('seg').children].forEach(c=>c.style.background=''); return; }
+  const z = zoneOf(score);
+  needle.style.transform = `rotate(${score/9*180}deg)`;
+  $('big').textContent = score.toFixed(1); $('big').style.color = z[3];
+  $('zone').textContent = z[2] === 'high' ? 'HIGH – ask follow-ups' : z[2] === 'review' ? 'REVIEW – look closer' : 'LOW'; $('zone').style.color = z[3];
+  $('conf').textContent = conf == null ? '' : `evidence so far: ${conf < .25 ? 'very little' : conf < .6 ? 'some' : 'solid'}`;
+  $('mode').textContent = label || '';
+  [...$('seg').children].forEach((c,i)=>{ c.style.background = (i+1) <= Math.round(score) || (i === 0 && score > 0) ? zoneOf(i+0.5)[3] : ''; });
+}
+
+// ---------- timeline
+function drawTimeline(turns, previewRun){
+  const W=560,H=170,L=30,R=10,T=10,B=22, iw=W-L-R, ih=H-T-B;
+  const y = v => T + ih*(1 - v/9);
+  let s = `<rect x="${L}" y="${y(9)}" width="${iw}" height="${y(6)-y(9)}" fill="#ef4444" opacity=".14"/>`+
+          `<rect x="${L}" y="${y(6)}" width="${iw}" height="${y(4)-y(6)}" fill="#f59e0b" opacity=".12"/>`+
+          `<rect x="${L}" y="${y(4)}" width="${iw}" height="${y(0)-y(4)}" fill="#22c55e" opacity=".10"/>`;
+  [0,3,6,9].forEach(v => s += `<text x="4" y="${y(v)+4}" fill="#93a3bd" font-size="10">${v}</text>`);
+  const n = Math.max(turns.length + (previewRun!=null?1:0), 2);
+  const x = i => L + iw*(i/(n-1 || 1)) * (n===2 && turns.length===0 ? 0 : 1);
+  const pts = turns.map((t,i)=>[x(i), y(t.running_score)]);
+  if (pts.length) s += `<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#e5ecf6" stroke-width="2.5"/>`;
+  turns.forEach((t,i)=>{ s += `<circle cx="${x(i)}" cy="${y(t.score)}" r="4" fill="none" stroke="${t.color}" stroke-width="2"/><circle cx="${x(i)}" cy="${y(t.running_score)}" r="4.5" fill="${t.color}"/><text x="${x(i)}" y="${H-6}" fill="#93a3bd" font-size="10" text-anchor="middle">A${i+1}</text>`; });
+  if (previewRun != null){ const px = x(turns.length), py = y(previewRun);
+    if (pts.length) s += `<line x1="${pts[pts.length-1][0]}" y1="${pts[pts.length-1][1]}" x2="${px}" y2="${py}" stroke="#60a5fa" stroke-dasharray="4 4" stroke-width="2"/>`;
+    s += `<circle cx="${px}" cy="${py}" r="5" fill="#60a5fa"/>`; }
+  $('timeline').innerHTML = s;
+}
+
+// ---------- feed
+function bubble(t, idx, partial){
+  const score = t.pill ? `<span class="pill" style="background:${t.pill.color}">${t.pill.score.toFixed(1)}</span>` : '';
+  return `<div class="bub ${t.role}"><div class="who"><span>${t.role === 'candidate' ? 'Candidate' : 'Interviewer'}</span>${score}</div><div>${esc(t.text)}${partial?'<span class="caret"></span>':''}</div></div>`;
+}
+function renderFeed(partialText){
+  let html = shown.map((t,i)=>bubble(t,i,false)).join('');
+  if (partialText != null) html += bubble({role:'candidate', text:partialText}, -1, true);
+  $('feed').innerHTML = html || '<div class="muted">No turns yet.</div>';
+  $('feed').scrollTop = 1e9;
+}
+
+// ---------- scoring flow
+function turnsPayload(extra){ return shown.map(t=>({role:t.role,text:t.text})).concat(extra ? [extra] : []); }
+async function rescore(extra, isPreview){
+  const res = await api('/api/score', {turns: turnsPayload(extra)});
+  if (!res.turns.length){ return null; }
+  const last = res.turns[res.turns.length-1];
+  setGauge(last.running_score, last.confidence, isPreview ? 'live preview (answer in progress)' : 'running score across answers so far');
+  const committed = isPreview ? res.turns.slice(0,-1) : res.turns;
+  drawTimeline(committed, isPreview ? last.running_score : null);
+  renderWhy(last);
+  if (!isPreview) lastResult = res;
+  return res;
+}
+function renderWhy(t){
+  const rows = t.signals.slice().sort((a,b)=>b.value*b.weight-a.value*a.weight).map(s => {
+    const c = s.value >= .55 ? '#ef4444' : s.value >= .3 ? '#f59e0b' : '#22c55e';
+    return `<div class="sig"><div class="top"><span>${esc(s.label)}</span><span style="color:${c}">${Math.round(s.value*100)}%</span></div><div class="bar"><b style="width:${s.value*100}%;background:${c}"></b></div><div class="d">${esc(s.detail)}</div></div>`;
+  }).join('');
+  $('why').innerHTML = (rows || '<div class="muted">Not enough words yet.</div>') +
+    `<div class="disc">Answer score ${t.score.toFixed(1)} &middot; ${t.word_count} words. Transcripts from speech-to-text often drop "um"/"uh", which can make natural speech look more polished.</div>`;
+}
+async function showFollowups(){
+  if (!lastResult || !lastResult.turns.length) return;
+  const t = lastResult.turns[lastResult.turns.length-1];
+  $('fu').innerHTML = '<span class="muted">thinking…</span>';
+  try {
+    const history = lastResult.turns.slice(0,-1).map(x=>({question:x.question, answer:x.answer}));
+    const r = await api('/api/followups', {question:t.question, answer:t.answer, signals:t.signals, history});
+    $('fu').innerHTML = r.questions.map(q=>`<div class="fu">${esc(q)}</div>`).join('');
+    $('fuSrc').textContent = 'source: ' + r.source + (zoneOf(t.score)[2]==='low' ? ' · (score is low – these are optional depth probes)' : '');
+  } catch(e){ $('fu').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+async function revealNext(myGen){
+  if (busy || shown.length >= script.length) return false;
+  busy = true;
+  try {
+    const t = script[shown.length];
+    if (t.role === 'interviewer'){
+      shown.push({...t}); renderFeed(); await rescore(null,false);
+    } else {
+      const words = t.text.split(/\s+/); const step = 3; const delay = +$('speed').value;
+      let lastReq = 0;
+      for (let i = step; i < words.length + step; i += step){
+        if (myGen !== gen) return false;
+        const partial = words.slice(0, Math.min(i, words.length)).join(' ');
+        renderFeed(partial);
+        if (i - lastReq >= 12 || i >= words.length){ lastReq = i; await rescore({role:'candidate', text:partial}, true); }
+        await sleep(delay);
+      }
+      if (myGen !== gen) return false;
+      shown.push({...t}); renderFeed();
+      const res = await rescore(null,false);
+      const last = res.turns[res.turns.length-1];
+      shown[shown.length-1].pill = {score:last.running_score, color:last.color};
+      renderFeed();
+      await showFollowups();
+    }
+    return true;
+  } finally { busy = false; updateButtons(); }
+}
+function updateButtons(){ $('nextBtn').disabled = busy || shown.length >= script.length; $('playBtn').disabled = shown.length >= script.length && !playing; $('playBtn').textContent = playing ? 'Pause' : 'Auto-play'; }
+async function autoplay(){
+  if (playing){ playing = false; updateButtons(); return; }
+  playing = true; updateButtons(); const myGen = gen;
+  while (playing && myGen === gen && shown.length < script.length){ const ok = await revealNext(myGen); if (!ok) break; await sleep(600); }
+  playing = false; updateButtons();
+}
+function reset(){
+  gen++; playing = false; busy = false; shown = []; lastResult = null; renderFeed(); setGauge(null); drawTimeline([], null);
+  $('why').textContent = 'No answer scored yet.'; $('fu').textContent = 'Appears after each answer.'; $('fuSrc').textContent = ''; updateButtons();
+}
+function loadScript(turns){ reset(); script = turns; $('feed').innerHTML = `<div class="muted">${turns.length} turns loaded. Press “Next turn” or “Auto-play”.</div>`; updateButtons(); }
+
+// ---------- live typing preview
+let liveTimer = null;
+$('live').addEventListener('input', () => {
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(async () => {
+    const text = $('live').value.trim();
+    if (!text){ if (lastResult) { const l = lastResult.turns.at(-1); setGauge(l.running_score, l.confidence, 'running score'); } else setGauge(null); return; }
+    try { await rescore({role: $('who').value, text}, true); } catch(e){ $('mode').textContent = e.message; }
+  }, 350);
+});
+$('addTurn').onclick = async () => {
+  const text = $('live').value.trim(); if (!text) return;
+  gen++; script = shown.slice().concat([{role:$('who').value, text}]); // manual turns extend what is shown
+  shown.push({role:$('who').value, text}); renderFeed(); $('live').value = '';
+  const res = await rescore(null,false);
+  if ($('who').value === 'candidate' && res){ const l = res.turns.at(-1); shown[shown.length-1].pill = {score:l.running_score, color:l.color}; renderFeed(); await showFollowups(); }
+  updateButtons();
+};
+
+// ---------- audio
+const env = $('env');
+function drawEnv(a){
+  env.hidden = false; const c = env.getContext('2d'), W = env.width, H = env.height; c.clearRect(0,0,W,H);
+  const dur = a.duration || 1, X = t => t/dur*W;
+  c.fillStyle = 'rgba(96,165,250,.20)'; a.speech.forEach(([s,e])=>c.fillRect(X(s),0,Math.max(2,X(e)-X(s)),H));
+  c.fillStyle = 'rgba(245,158,11,.25)'; a.pauses.forEach(([s,e])=>c.fillRect(X(s),H-18,X(e)-X(s),18));
+  c.strokeStyle = '#e5ecf6'; c.lineWidth = 1.5; c.beginPath();
+  a.envelope.forEach((v,i)=>{ const x = i/(a.envelope.length-1||1)*W, y = H - 20 - v*(H-40); i?c.lineTo(x,y):c.moveTo(x,y); }); c.stroke();
+  if (a.windows.length){ c.strokeStyle = '#ef4444'; c.lineWidth = 3; c.beginPath();
+    a.windows.forEach((w,i)=>{ const x = X((w.t0+w.t1)/2), y = H - 20 - w.score/9*(H-40); i?c.lineTo(x,y):c.moveTo(x,y); }); c.stroke();
+    c.fillStyle = '#ef4444'; c.font = '20px sans-serif'; c.fillText('red line = timing score per 10 s window (0–9)', 10, 22); }
+}
+$('audioBtn').onclick = async () => {
+  const f = $('audioFile').files[0]; if (!f){ $('audioOut').textContent = 'Choose an audio file first.'; return; }
+  $('audioOut').textContent = 'Analyzing…'; $('audioBtn').disabled = true; lastTiming = null; $('combineOut').textContent='';
+  try {
+    const q = new URLSearchParams({filename:f.name, transcribe:$('doTx').checked?'1':'0'}); if ($('qEnd').value) q.set('question_end', $('qEnd').value);
+    const r = await fetch('/api/audio?'+q, {method:'POST', body:f}); const a = await r.json(); if (a.error) throw new Error(a.error);
+    drawEnv(a); lastTiming = a;
+    const z = a.timing_score!=null ? zoneOf(a.timing_score) : null;
+    $('audioOut').innerHTML = `${a.duration}s recording &middot; ${a.speech.length} speech bursts &middot; ${a.pauses.length} pauses &middot; ` +
+      (z ? `timing score <b style="color:${z[3]}">${a.timing_score.toFixed(1)}</b> (${z[2]})` : 'not enough speech for a timing score') +
+      (a.warnings.length ? `<div class="err">${a.warnings.map(esc).join('<br>')}</div>` : '') +
+      (a.transcript ? `<div class="fu">Transcript: ${esc(a.transcript)}</div>` : '');
+    $('audioSig').innerHTML = a.signals.map(s => { const c = s.value>=.55?'#ef4444':s.value>=.3?'#f59e0b':'#22c55e';
+      return `<div class="sig"><div class="top"><span>${esc(s.label)}</span><span style="color:${c}">${Math.round(s.value*100)}%</span></div><div class="bar"><b style="width:${s.value*100}%;background:${c}"></b></div><div class="d">${esc(s.detail)}</div></div>`; }).join('') +
+      '<div class="disc">Timing cues are weak evidence on their own and their thresholds are uncalibrated demo values.</div>';
+    $('combineBtn').hidden = false;
+    if (a.transcript) $('live').value = a.transcript;
+  } catch(e){ $('audioOut').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+  finally { $('audioBtn').disabled = false; }
+};
+$('combineBtn').onclick = async () => {
+  const cand = (lastResult && lastResult.turns.at(-1)) || null; const text = ($('live').value.trim()) || (cand && cand.answer);
+  if (!text){ $('combineOut').textContent = 'Load a transcript answer first (or run transcription).'; return; }
+  try {
+    const r = await api('/api/score_combined', {question: cand ? cand.question : '', answer: text, timing_signals: lastTiming.signals});
+    setGauge(r.combined.score, r.combined.confidence, 'combined: 70% transcript + 30% audio timing');
+    $('combineOut').innerHTML = `Transcript alone: <b>${r.text_score.toFixed(1)}</b> &rarr; with audio timing: <b style="color:${zoneOf(r.combined.score)[3]}">${r.combined.score.toFixed(1)}</b>`;
+  } catch(e){ $('combineOut').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+};
+
+// ---------- misc
+$('baseBtn').onclick = async () => {
+  $('baseOut').textContent = 'Scoring…';
+  const b = await (await fetch('/api/baseline')).json();
+  $('baseOut').innerHTML = b.available ? `${b.clips} real human clips: <b style="color:#22c55e">${b.low} low</b>, <b style="color:#f59e0b">${b.review} review</b>, <b style="color:#ef4444">${b.high} high</b> (mean ${b.mean}). Short courtroom answers, not AI-assisted interviews &ndash; a false-positive sanity check only, not an accuracy measure.` : 'Dataset not found in processed/.';
+};
+$('loadSample').onclick = () => loadScript(samples[$('sampleSel').value].turns);
+$('nextBtn').onclick = () => revealNext(gen);
+$('playBtn').onclick = autoplay;
+$('resetBtn').onclick = () => { reset(); script = []; updateButtons(); };
+$('loadPaste').onclick = async () => { const t = $('paste').value.trim(); if (!t) return; const r = await api('/api/parse', {text:t}); loadScript(r.turns); };
+
+(async function init(){
+  drawGauge(); drawTimeline([], null);
+  samples = await (await fetch('/api/samples')).json();
+  $('sampleSel').innerHTML = Object.entries(samples).map(([k,v])=>`<option value="${k}">${esc(v.title)}</option>`).join('');
+  const cfg = await (await fetch('/api/config')).json();
+  $('llmChip').textContent = cfg.llm ? 'follow-ups: LLM prompting' : 'follow-ups: offline templates (no API key set)';
+})();
+</script>
+</body>
+</html>
