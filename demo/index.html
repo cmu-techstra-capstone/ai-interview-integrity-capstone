@@ -41,10 +41,7 @@
 </head>
 <body>
 <header>
-  <h1>Interview Signal Agent <span class="muted">(live demo)</span></h1>
-  <span class="chip warn">Decision support only &mdash; not proof of misconduct</span>
-  <span class="chip">Demo heuristic, not a validated detector</span>
-  <span class="chip" id="llmChip">follow-ups: …</span>
+  <h1>Interview Signal Detector</h1>
 </header>
 <main>
 <section>
@@ -59,11 +56,6 @@
       <button id="resetBtn">Reset</button>
     </div>
     <div id="feed"><div class="muted">Load a sample, or paste/type a transcript below. Turns stream in one by one and the score updates as the candidate "speaks".</div></div>
-  </div>
-  <div class="card">
-    <h2>Paste a transcript</h2>
-    <textarea id="paste" placeholder="Interviewer: Why does testing matter?&#10;Candidate: Well, um, for me it's ...&#10;(Labels Interviewer:/Candidate: or Q:/A:. Unlabelled paragraphs are treated as candidate answers.)"></textarea>
-    <div class="row" style="margin-top:8px"><button id="loadPaste">Load pasted transcript</button></div>
   </div>
   <div class="card">
     <h2>Or type live &mdash; score updates as you type</h2>
@@ -88,13 +80,13 @@
     <div class="seg-labels"><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></div>
     <div class="disc">0&ndash;3 low &middot; 4&ndash;5 worth a second look &middot; 6&ndash;9 high (red). A high score means "ask more questions", never "cheating".</div>
   </div>
-  <div class="card"><h2>Score over the interview</h2><svg id="timeline" viewBox="0 0 560 170" width="100%"></svg>
-    <div class="muted">Solid line = running score &middot; dots = score of each answer &middot; dashed = answer in progress</div></div>
-  <div class="card"><h2>Why this score (latest answer)</h2><div id="why" class="muted">No answer scored yet.</div></div>
-  <div class="card"><h2>3 &middot; Suggested follow-up questions</h2><div id="fu" class="muted">Appears after each answer.</div>
+  <div class="card"><h2>Suggested follow-up questions</h2><div id="fu" class="muted">Appears after each answer.</div>
     <div class="muted" id="fuSrc"></div></div>
+  <div class="card"><h2>Score over the interview</h2><svg id="timeline" viewBox="0 0 560 170" width="100%"></svg>
+    <div class="muted">Across: each candidate answer in order (Answer 1, Answer 2, &hellip;). Up: score 0&ndash;9. Solid line = running score so far &middot; hollow dot = that answer on its own &middot; dashed = answer in progress.</div></div>
+  <div class="card"><h2>Why this score (latest answer)</h2><div id="why" class="muted">No answer scored yet.</div></div>
   <div class="card">
-    <h2>4 &middot; Audio signal</h2>
+    <h2>3 &middot; Audio signal</h2>
     <div class="row"><input type="file" id="audioFile" accept="audio/*,video/*,.wav">
       <label class="muted">question ended at (s, optional) <input type="number" id="qEnd" step="0.1" min="0" style="width:90px"></label></div>
     <div class="row"><label class="muted"><input type="checkbox" id="doTx"> try transcription (only if faster-whisper is installed)</label>
@@ -105,9 +97,6 @@
     <div class="row"><button id="combineBtn" hidden>Combine with latest transcript answer</button></div>
     <div id="combineOut" class="muted"></div>
   </div>
-  <div class="card"><h2>Reality check on real human speech</h2>
-    <div class="row"><button id="baseBtn">Score the repo's 121 real human clips</button></div>
-    <div id="baseOut" class="muted">Courtroom transcripts (Michigan deception dataset). These are real people, not AI-assisted, so high scores here would be false positives.</div></div>
 </section>
 </main>
 <script>
@@ -160,7 +149,7 @@ function drawTimeline(turns, previewRun){
   const x = i => L + iw*(i/(n-1 || 1)) * (n===2 && turns.length===0 ? 0 : 1);
   const pts = turns.map((t,i)=>[x(i), y(t.running_score)]);
   if (pts.length) s += `<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#e5ecf6" stroke-width="2.5"/>`;
-  turns.forEach((t,i)=>{ s += `<circle cx="${x(i)}" cy="${y(t.score)}" r="4" fill="none" stroke="${t.color}" stroke-width="2"/><circle cx="${x(i)}" cy="${y(t.running_score)}" r="4.5" fill="${t.color}"/><text x="${x(i)}" y="${H-6}" fill="#93a3bd" font-size="10" text-anchor="middle">A${i+1}</text>`; });
+  turns.forEach((t,i)=>{ s += `<circle cx="${x(i)}" cy="${y(t.score)}" r="4" fill="none" stroke="${t.color}" stroke-width="2"/><circle cx="${x(i)}" cy="${y(t.running_score)}" r="4.5" fill="${t.color}"/><text x="${x(i)}" y="${H-6}" fill="#93a3bd" font-size="10" text-anchor="middle">Answer ${i+1}</text>`; });
   if (previewRun != null){ const px = x(turns.length), py = y(previewRun);
     if (pts.length) s += `<line x1="${pts[pts.length-1][0]}" y1="${pts[pts.length-1][1]}" x2="${px}" y2="${py}" stroke="#60a5fa" stroke-dasharray="4 4" stroke-width="2"/>`;
     s += `<circle cx="${px}" cy="${py}" r="5" fill="#60a5fa"/>`; }
@@ -317,23 +306,15 @@ $('combineBtn').onclick = async () => {
 };
 
 // ---------- misc
-$('baseBtn').onclick = async () => {
-  $('baseOut').textContent = 'Scoring…';
-  const b = await (await fetch('/api/baseline')).json();
-  $('baseOut').innerHTML = b.available ? `${b.clips} real human clips: <b style="color:#22c55e">${b.low} low</b>, <b style="color:#f59e0b">${b.review} review</b>, <b style="color:#ef4444">${b.high} high</b> (mean ${b.mean}). Short courtroom answers, not AI-assisted interviews &ndash; a false-positive sanity check only, not an accuracy measure.` : 'Dataset not found in processed/.';
-};
 $('loadSample').onclick = () => loadScript(samples[$('sampleSel').value].turns);
 $('nextBtn').onclick = () => revealNext(gen);
 $('playBtn').onclick = autoplay;
 $('resetBtn').onclick = () => { reset(); script = []; updateButtons(); };
-$('loadPaste').onclick = async () => { const t = $('paste').value.trim(); if (!t) return; const r = await api('/api/parse', {text:t}); loadScript(r.turns); };
 
 (async function init(){
   drawGauge(); drawTimeline([], null);
   samples = await (await fetch('/api/samples')).json();
   $('sampleSel').innerHTML = Object.entries(samples).map(([k,v])=>`<option value="${k}">${esc(v.title)}</option>`).join('');
-  const cfg = await (await fetch('/api/config')).json();
-  $('llmChip').textContent = cfg.llm ? 'follow-ups: LLM prompting' : 'follow-ups: offline templates (no API key set)';
 })();
 </script>
 </body>
