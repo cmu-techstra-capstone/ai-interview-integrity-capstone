@@ -12,13 +12,15 @@ import pytest
 
 from interview_integrity.modeling.text_comparison import (
     BASE_REPO, Candidate, COMMON_MAX_TOKENS, MODEL_FILES, MODELS,
-    _snapshot, _superannotate_model, compare, load_samples,
+    _desklib_model, _snapshot, _superannotate_model, compare, load_samples,
     validate_config, validated_scores,
 )
 
 TEXT = " ".join(f"word{i}" for i in range(60)) + "  um, I-I think.\nLike this."
 SUPER_CONFIG = {"pretrain_checkpoint": BASE_REPO, "num_labels": 1,
                 "id2label": {"0": "GENERATED"}, "classifier_dropout": 0.1}
+DESKLIB_CONFIG = {"model_type": "deberta-v2", "architectures": ["DesklibAIDetectionModel"],
+                  "hidden_size": 1024, "max_position_embeddings": 512}
 
 
 class FakeDetector:
@@ -58,6 +60,7 @@ def test_official_semantics_are_not_hc3_order():
     assert MODELS["mage"]["ai_index"] == 0 and MODELS["hc3"]["ai_index"] == 1
     validate_config("mage", {"model_type": "longformer", "id2label": {"0": 0, "1": 1}})
     validate_config("superannotate", SUPER_CONFIG)
+    validate_config("desklib", DESKLIB_CONFIG)
 
 
 @pytest.mark.parametrize("name,config", [
@@ -66,6 +69,10 @@ def test_official_semantics_are_not_hc3_order():
     ("superannotate", {**SUPER_CONFIG, "num_labels": 2}),
     ("superannotate", {**SUPER_CONFIG, "id2label": {"0": "HUMAN"}}),
     ("superannotate", {**SUPER_CONFIG, "pretrain_checkpoint": "unknown"}),
+    ("desklib", {**DESKLIB_CONFIG, "model_type": "roberta"}),
+    ("desklib", {**DESKLIB_CONFIG, "architectures": ["AutoModelForSequenceClassification"]}),
+    ("desklib", {**DESKLIB_CONFIG, "hidden_size": 768}),
+    ("desklib", {**DESKLIB_CONFIG, "max_position_embeddings": 768}),
 ])
 def test_wrong_checkpoint_configs_rejected(name, config):
     with pytest.raises(ValueError, match="Unexpected"):
@@ -88,7 +95,7 @@ def test_invalid_scores_rejected(scores):
 def test_identical_frozen_text_no_label_leakage_or_source_changes(tmp_path):
     detector = FakeDetector()
     result, source = run_fake(tmp_path, detector)
-    assert detector.inputs == [("token_count", TEXT), ("score", TEXT)] * 3
+    assert detector.inputs == [("token_count", TEXT), ("score", TEXT)] * len(MODELS)
     assert source.read_text() == TEXT
     assert len({r["text_sha256"] for r in result["rows"]}) == 1
     assert len({r["source_sha256"] for r in result["rows"]}) == 1
@@ -132,7 +139,9 @@ def test_model_failure_is_null_and_other_models_continue(tmp_path):
     result = compare(manifest, tmp_path / "out", model_names=list(MODELS),
                      cache_root=tmp_path, factory=factory)
     assert result["model_errors"] == {"mage": "missing local weights"}
-    assert [r["status"] for r in result["rows"]] == ["scored_exploratory", "model_error", "scored_exploratory"]
+    assert [r["status"] for r in result["rows"]] == [
+        "scored_exploratory", "model_error", "scored_exploratory", "scored_exploratory"
+    ]
     assert result["rows"][1]["ai_text_score"] is None
 
 
@@ -197,7 +206,9 @@ def test_cached_snapshot_only_requires_downloaded_files(monkeypatch, tmp_path):
     assert args["allow_patterns"] == MODEL_FILES + ["pytorch_model.bin"]
 
 
-@pytest.mark.parametrize("name,expected", [("mage", 0.75), ("superannotate", 0.75)])
+@pytest.mark.parametrize("name,expected", [
+    ("mage", 0.75), ("superannotate", 0.75), ("desklib", 0.75),
+])
 def test_tensor_class_order_and_custom_sigmoid(name, expected):
     torch = pytest.importorskip("torch")
     candidate = Candidate.__new__(Candidate)
@@ -251,6 +262,48 @@ def test_custom_encoder_head_strict_loading_and_eval_parity(tmp_path):
     safetensors.save_file(state, str(weights))
     with pytest.raises(RuntimeError, match="dense.weight"):
         _superannotate_model(SUPER_CONFIG, config.to_dict(), weights)
+
+
+def test_desklib_head_strict_loading_and_mean_pool_parity(tmp_path):
+    if os.environ.get("TECHSTRA_DESKLIB_PARITY_CHILD") != "1":
+        if any(importlib.util.find_spec(name) is None for name in ("torch", "transformers", "safetensors")):
+            pytest.skip("optional text-research dependencies not installed")
+        child = subprocess.run(
+            [sys.executable, "-m", "pytest", "-q",
+             f"{__file__}::test_desklib_head_strict_loading_and_mean_pool_parity"],
+            capture_output=True, text=True, timeout=60,
+            env={**os.environ, "TECHSTRA_DESKLIB_PARITY_CHILD": "1"},
+        )
+        assert child.returncode == 0, child.stdout + child.stderr
+        return
+    torch = pytest.importorskip("torch")
+    transformers = pytest.importorskip("transformers")
+    safetensors = pytest.importorskip("safetensors.torch")
+    config = transformers.DebertaV2Config(
+        vocab_size=32, hidden_size=8, num_hidden_layers=1, num_attention_heads=2,
+        intermediate_size=12, max_position_embeddings=16, relative_attention=False,
+    )
+    base = transformers.DebertaV2Model(config).eval()
+    classifier = torch.nn.Linear(8, 1).eval()
+    state = {"model." + key: value.contiguous() for key, value in base.state_dict().items()}
+    state.update({"classifier." + key: value.contiguous() for key, value in classifier.state_dict().items()})
+    weights = tmp_path / "desklib-tiny.safetensors"
+    safetensors.save_file(state, str(weights))
+    tiny = config.to_dict()
+    loaded = _desklib_model(tiny, weights)
+    inputs = {"input_ids": torch.tensor([[1, 5, 6, 0]]),
+              "attention_mask": torch.tensor([[1, 1, 1, 0]])}
+    with torch.inference_mode():
+        hidden = base(**inputs).last_hidden_state
+        mask = inputs["attention_mask"].unsqueeze(-1).expand(hidden.size()).float()
+        expected = classifier((hidden * mask).sum(1) / mask.sum(1).clamp(min=1e-9))
+        actual = loaded(**inputs)
+    assert loaded.training is False and actual.shape == (1, 1)
+    torch.testing.assert_close(actual, expected)
+    state.pop("classifier.weight")
+    safetensors.save_file(state, str(weights))
+    with pytest.raises(RuntimeError, match="classifier.weight"):
+        _desklib_model(tiny, weights)
 
 
 def test_cli_imports_without_optional_ml_packages():

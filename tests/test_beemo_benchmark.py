@@ -171,10 +171,39 @@ def test_run_same_text_no_labels_no_training_no_threshold(tmp_path):
     result = json.loads((tmp_path / "run/results.json").read_text())
     assert result["integrity_status"] == "verified" and result["run_status"] == "complete"
     assert result["training"] is False and result["asr_used"] is False
-    assert result["sends_content_externally"] is False and len(events) == 3
+    assert result["sends_content_externally"] is False and len(events) == len(MODELS)
     assert "NOT classification accuracy" in (tmp_path / "run/report.md").read_text()
     with pytest.raises(ValueError, match="already exists"):
         run(path, tmp_path / "run", tmp_path)
+
+
+def test_run_can_limit_to_an_explicit_model_subset(tmp_path):
+    path, _ = protocol(tmp_path)
+    summary = run(path, tmp_path / "run", tmp_path, model_names=["desklib"],
+                  factory=lambda name, cache: FakeCandidate())
+    assert list(summary["models"]) == ["desklib"]
+    with pytest.raises(ValueError, match="Invalid/duplicate"):
+        run(path, tmp_path / "empty", tmp_path, model_names=[])
+    with pytest.raises(ValueError, match="Invalid/duplicate"):
+        run(path, tmp_path / "duplicate", tmp_path, model_names=["desklib", "desklib"])
+
+
+def test_run_can_limit_to_original_ai_contrast(tmp_path):
+    path, _ = protocol(tmp_path)
+    summary = run(path, tmp_path / "run", tmp_path, model_names=["desklib"],
+                  positive_variants=["ai_original"], factory=lambda name, cache: FakeCandidate())
+    assert summary["variants_evaluated"] == ["human", "ai_original"]
+    assert summary["positive_variants"] == ["ai_original"]
+    assert set(summary["models"]["desklib"]["coverage"]) == {"human", "ai_original"}
+    assert set(summary["models"]["desklib"]["contrasts"]) == {"ai_original"}
+    assert "expert_edit_lowered_score_fraction" not in summary["models"]["desklib"]
+    result = json.loads((tmp_path / "run/results.json").read_text())
+    assert len(result["rows"]) == 8
+    assert all(row["variant"] != "ai_expert_edited" for row in result["rows"])
+    report = (tmp_path / "run/report.md").read_text()
+    assert "Expert-edited" not in report and "Edited mean" not in report
+    with pytest.raises(ValueError, match="Invalid/duplicate positive"):
+        run(path, tmp_path / "empty", tmp_path, positive_variants=[])
 
 
 def test_all_models_use_common_complete_prompt_groups(tmp_path):

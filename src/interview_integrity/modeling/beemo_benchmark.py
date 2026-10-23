@@ -190,6 +190,12 @@ def summarize(result: dict, manifest: dict) -> dict:
         raise ValueError("Cannot summarize unverified/incomplete run")
     samples = manifest["samples"]
     names = list(result["models"])
+    variants = result.get("variants_evaluated", list(FIELDS))
+    positives = result.get("positive_variants", ["ai_original", "ai_expert_edited"])
+    if (not isinstance(variants, list) or variants != ["human", *positives]
+            or not positives or len(set(positives)) != len(positives)
+            or any(v not in ("ai_original", "ai_expert_edited") for v in positives)):
+        raise ValueError("Invalid evaluated variants")
     lookup = {}
     for row in result["rows"]:
         key = (row["model"], row["prompt_id"], row["variant"])
@@ -197,17 +203,18 @@ def summarize(result: dict, manifest: dict) -> dict:
             raise ValueError("Duplicate result row")
         lookup[key] = row
     prompts = sorted({s["prompt_id"] for s in samples})
-    if any((name, prompt, variant) not in lookup for name in names for prompt in prompts for variant in FIELDS):
+    if any((name, prompt, variant) not in lookup for name in names for prompt in prompts for variant in variants):
         raise ValueError("Missing result rows")
     complete = [p for p in prompts if all(lookup[name, p, v]["status"] == "scored_exploratory"
-                                        for name in names for v in FIELDS)]
+                                        for name in names for v in variants)]
     summary = {"selected_groups": len(prompts), "common_complete_groups": len(complete),
                "common_complete_group_fraction": len(complete) / len(prompts),
                "common_prompt_ids": complete, "threshold_selected": False, "accuracy_estimated": False,
-               "model_selected": None, "scope": "conditional written-text stress test", "models": {}}
+               "model_selected": None, "scope": "conditional written-text stress test",
+               "variants_evaluated": variants, "positive_variants": positives, "models": {}}
     for name in names:
         coverage = {}
-        for variant in FIELDS:
+        for variant in variants:
             rows = [lookup[name, p, variant] for p in prompts]
             scored = [r["ai_text_score"] for r in rows if r["status"] == "scored_exploratory"]
             for r in rows:
@@ -220,42 +227,52 @@ def summarize(result: dict, manifest: dict) -> dict:
                                  "all_scored_median": statistics.median(scored) if scored else None}
         metrics = {"coverage": coverage, "common_groups": len(complete), "contrasts": {}, "paired_score_means": {}}
         if complete:
-            scores = {v: [lookup[name, p, v]["ai_text_score"] for p in complete] for v in FIELDS}
+            scores = {v: [lookup[name, p, v]["ai_text_score"] for p in complete] for v in variants}
             metrics["paired_score_means"] = {v: statistics.mean(x) for v, x in scores.items()}
-            for variant in ("ai_original", "ai_expert_edited"):
+            for variant in positives:
                 human, positive = scores["human"], scores[variant]
                 metrics["contrasts"][variant] = {"auroc": auroc(human, positive),
                     "bootstrap_95_percentile_interval": bootstrap_auc(human, positive, manifest["seed"], manifest["bootstrap_draws"]),
                     "bootstrap_unit": "paired_prompt_group", "bootstrap_draws": manifest["bootstrap_draws"],
                     "within_prompt_positive_higher_fraction": statistics.mean(float(p > h) for h, p in zip(human, positive)),
                     "within_prompt_tie_fraction": statistics.mean(float(p == h) for h, p in zip(human, positive))}
-            metrics["edited_minus_original_mean_score"] = statistics.mean(
-                e - o for e, o in zip(scores["ai_expert_edited"], scores["ai_original"]))
-            metrics["expert_edit_lowered_score_fraction"] = statistics.mean(
-                float(e < o) for e, o in zip(scores["ai_expert_edited"], scores["ai_original"]))
+            if "ai_expert_edited" in scores:
+                metrics["edited_minus_original_mean_score"] = statistics.mean(
+                    e - o for e, o in zip(scores["ai_expert_edited"], scores["ai_original"]))
+                metrics["expert_edit_lowered_score_fraction"] = statistics.mean(
+                    float(e < o) for e, o in zip(scores["ai_expert_edited"], scores["ai_original"]))
         summary["models"][name] = metrics
     return summary
 
 
 def report_text(summary: dict, manifest: dict) -> str:
-    lines = ["# Beemo paired-text stress test", "", *["- " + w for w in WARNINGS], "",
+    warnings = [w for w in WARNINGS
+                if "Expert-edited" not in w or "ai_expert_edited" in summary["positive_variants"]]
+    contrast_labels = {"ai_original": "Original AI vs human AUROC [95% CI]",
+                       "ai_expert_edited": "Expert-edited AI vs human AUROC [95% CI]"}
+    mean_labels = {"human": "Human mean score", "ai_original": "Original AI mean score",
+                   "ai_expert_edited": "Expert-edited AI mean score"}
+    variants = summary["variants_evaluated"]
+    lines = ["# Beemo paired-text stress test", "", *["- " + w for w in warnings], "",
              f"Dataset: `{DATASET}` @ `{REVISION}`; seed {manifest['seed']}.",
-             f"Frozen selection: {summary['selected_groups']} prompt groups, three variants each.",
+             f"Frozen selection: {summary['selected_groups']} prompt groups; evaluated variants: "
+             + ", ".join(summary["variants_evaluated"]) + ".",
              f"Common complete groups across all models/variants: **{summary['common_complete_groups']}**.",
              "AUROC: 0.5 means no ranking separation, 1.0 perfect ranking; NOT classification accuracy.",
              "Bootstrap intervals resample paired prompt groups (1000 draws). Generalization/overlap uncertainty is not captured.", "",
-             "| Model | Original AI vs human AUROC [95% CI] | Expert-edited AI vs human AUROC [95% CI] | Human mean score | AI mean score | Edited mean score |",
-             "| --- | --- | --- | --- | --- | --- |"]
+             "| " + " | ".join(["Model", *[contrast_labels[v] for v in summary["positive_variants"]],
+                                      *[mean_labels[v] for v in variants]]) + " |",
+             "| " + " | ".join(["---"] * (1 + len(summary["positive_variants"]) + len(variants))) + " |"]
     for name, metrics in summary["models"].items():
         contrasts = []
-        for variant in ("ai_original", "ai_expert_edited"):
+        for variant in summary["positive_variants"]:
             item = metrics["contrasts"].get(variant)
             if item is None:
                 contrasts.append("n/a")
             else:
                 ci = item["bootstrap_95_percentile_interval"]
                 contrasts.append(f"{item['auroc']:.4f}" + (f" [{ci[0]:.4f}, {ci[1]:.4f}]" if ci else ""))
-        means = [metrics["paired_score_means"].get(v) for v in FIELDS]
+        means = [metrics["paired_score_means"].get(v) for v in variants]
         lines.append("| " + " | ".join([name, *contrasts, *["n/a" if x is None else f"{x:.4f}" for x in means]]) + " |")
     lines += ["", "## Coverage on the full frozen selection", "",
               "| Model | Variant | Scored / selected | Unscored | Reasons |", "| --- | --- | --- | --- | --- |"]
@@ -264,14 +281,25 @@ def report_text(summary: dict, manifest: dict) -> str:
             reasons = ", ".join(f"{k}: {v}" for k, v in coverage["statuses"].items() if k != "scored_exploratory") or "none"
             lines.append(f"| {name} | {variant} | {coverage['scored']} / {coverage['total']} | {coverage['unscored_fraction']:.1%} | {reasons} |")
     lines += ["", "No excluded examples were replaced. No threshold/model winner selected; no interview/hiring accuracy claim.",
-              "The same complete prompt groups are used for every model and both contrasts.",
+              "The same complete prompt groups are used for every selected model and evaluated contrast.",
               "No ASR, fine-tuning, LLM cleanup, multimodal fusion or interview-content upload.", ""]
     return "\n".join(lines)
 
 
-def run(manifest_path: Path, out: Path, cache_root: Path, *, factory=Candidate, progress=None) -> dict:
+def run(manifest_path: Path, out: Path, cache_root: Path, *, model_names=None,
+        positive_variants=None, factory=Candidate, progress=None) -> dict:
     if out.exists():
         raise ValueError("Output already exists")
+    model_names = list(MODELS) if model_names is None else list(model_names)
+    if (not model_names or len(set(model_names)) != len(model_names)
+            or any(name not in MODELS for name in model_names)):
+        raise ValueError("Invalid/duplicate model names")
+    positive_variants = (["ai_original", "ai_expert_edited"] if positive_variants is None
+                         else list(positive_variants))
+    if (not positive_variants or len(set(positive_variants)) != len(positive_variants)
+            or any(v not in ("ai_original", "ai_expert_edited") for v in positive_variants)):
+        raise ValueError("Invalid/duplicate positive variants")
+    variants = ["human", *positive_variants]
     before = sha256(manifest_path)
     manifest = load_manifest(manifest_path)
     if sha256(manifest_path) != before:
@@ -279,19 +307,22 @@ def run(manifest_path: Path, out: Path, cache_root: Path, *, factory=Candidate, 
     out.mkdir(parents=True, exist_ok=False)
     result = {"purpose": manifest["purpose"], "dataset": DATASET, "revision": REVISION,
               "manifest_file": str(manifest_path.resolve()), "manifest_sha256": before,
-              "source_sha256": manifest["source_sha256"], "models": MODELS,
+              "source_sha256": manifest["source_sha256"],
+              "models": {name: MODELS[name] for name in model_names},
+              "variants_evaluated": variants, "positive_variants": positive_variants,
               "runtime_versions": runtime_versions(), "rows": [], "model_errors": {},
               "integrity_status": "pending", "run_status": "running", "asr_used": False,
               "training": False, "threshold_selected": False, "model_selected": None,
               "sends_content_externally": False, "warnings": WARNINGS}
-    for name in MODELS:
+    for name in model_names:
         candidate, loaded = None, time.monotonic()
         try:
             candidate = factory(name, cache_root)
         except (ImportError, OSError, ValueError, RuntimeError) as exc:
             result["model_errors"][name] = str(exc)
         load_seconds = time.monotonic() - loaded
-        for index, sample in enumerate(manifest["samples"], 1):
+        samples = [sample for sample in manifest["samples"] if sample["variant"] in variants]
+        for index, sample in enumerate(samples, 1):
             row = {k: sample[k] for k in ("id", "source_row_id", "prompt_id", "category", "generator",
                                           "variant", "label", "text_sha256", "word_count")}
             row.update(model=name, ai_text_score=None, human_score=None, token_count=None,
@@ -317,10 +348,10 @@ def run(manifest_path: Path, out: Path, cache_root: Path, *, factory=Candidate, 
                     row.update(status="inference_error", error=str(exc))
             row["inference_seconds"] = time.monotonic() - started
             result["rows"].append(row)
-            if index % 50 == 0 or index == len(manifest["samples"]):
+            if index % 50 == 0 or index == len(samples):
                 write_json(out / "results.json", result)
                 if progress is not None:
-                    progress(f"{name}: {index}/{len(manifest['samples'])} samples processed (including abstentions)")
+                    progress(f"{name}: {index}/{len(samples)} samples processed (including abstentions)")
         del candidate
         gc.collect()
     try:
@@ -359,6 +390,10 @@ def main() -> None:
     inference.add_argument("--manifest", type=Path, required=True)
     inference.add_argument("--out-dir", type=Path, required=True)
     inference.add_argument("--cache-root", type=Path, default=ROOT / ".cache/models")
+    inference.add_argument("--models", nargs="+", choices=list(MODELS), default=list(MODELS))
+    inference.add_argument("--positive-variants", nargs="+",
+                           choices=["ai_original", "ai_expert_edited"],
+                           default=["ai_original", "ai_expert_edited"])
     args = parser.parse_args()
     try:
         if args.command == "download":
@@ -378,7 +413,9 @@ def main() -> None:
             print(json.dumps({k: manifest[k] for k in ("selected_groups", "category_counts", "generator_counts")}, indent=2))
             print(f"Frozen manifest: {args.out_dir / 'manifest.json'}")
         else:
-            summary = run(args.manifest, args.out_dir, args.cache_root, progress=lambda x: print(x, flush=True))
+            summary = run(args.manifest, args.out_dir, args.cache_root, model_names=args.models,
+                          positive_variants=args.positive_variants,
+                          progress=lambda x: print(x, flush=True))
             print(f"Common complete groups: {summary['common_complete_groups']}/{summary['selected_groups']}")
             print(f"Private report: {args.out_dir / 'report.md'}")
     except (ImportError, OSError, ValueError, RuntimeError) as exc:

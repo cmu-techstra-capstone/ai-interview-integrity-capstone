@@ -1,8 +1,8 @@
-"""Frozen-input, offline comparison of HC3, MAGE and SuperAnnotate.
+"""Frozen-input, offline comparison of pretrained AI-text detectors.
 
 Diagnostic only: no ASR, training, thresholds, fusion, verdicts or population metrics.
 Publisher-specific preprocessing and deployment thresholds are not reproduced;
-all three receive the same unedited candidate-answer text. Full tokens, no truncation.
+all candidates receive the same unedited candidate-answer text. Full tokens, no truncation.
 """
 from __future__ import annotations
 
@@ -33,12 +33,18 @@ MODELS = {
                       "weight": "model.safetensors", "ai_index": 0,
                       "score_type": "uncalibrated_sigmoid",
                       "semantics_source": "https://github.com/superannotateai/generated_text_detector/blob/dbd6317968d144291192a2baf33e11df4e6cdf65/generated_text_detector/utils/model/roberta_classifier.py"},
+    "desklib": {"repo": "desklib/ai-text-detector-v1.01",
+                 "revision": "5fdea974cd4287c61674951ec78803aa274e2fb7",
+                 "weight": "model.safetensors", "ai_index": 0,
+                 "score_type": "uncalibrated_sigmoid",
+                 "semantics_source": "https://huggingface.co/desklib/ai-text-detector-v1.01/blob/5fdea974cd4287c61674951ec78803aa274e2fb7/README.md",
+                 "training_dataset": "liamdugan/raid"},
 }
 BASE_REPO = "FacebookAI/roberta-large"
 BASE_REVISION = "722cf37b1afa9454edce342e7895e588b6ff1d59"
 COMMON_MAX_TOKENS = 512
 MODEL_FILES = ["config.json", "tokenizer.json", "tokenizer_config.json", "special_tokens_map.json",
-               "merges.txt", "vocab.json", "README.md", "LICENSE"]
+               "merges.txt", "vocab.json", "spm.model", "added_tokens.json", "README.md", "LICENSE"]
 WARNINGS = [
     "Previously inspected diagnostic samples, not a blind independent test set.",
     "Synthetic colloquial and standard answers are BOTH AI-generated, not human negatives.",
@@ -59,6 +65,12 @@ def validate_config(name: str, config: dict) -> None:
                 or config.get("id2label") != {"0": "GENERATED"}
                 or config.get("classifier_dropout") != 0.1):
             raise ValueError("Unexpected SuperAnnotate architecture/GENERATED label")
+    elif name == "desklib":
+        if (config.get("model_type") != "deberta-v2"
+                or config.get("architectures") != ["DesklibAIDetectionModel"]
+                or config.get("hidden_size") != 1024
+                or config.get("max_position_embeddings") != 512):
+            raise ValueError("Unexpected Desklib DeBERTa architecture")
     else:
         raise ValueError("Unknown config type")
 
@@ -115,6 +127,36 @@ def _superannotate_model(config: dict, base_config: dict, weights: Path):
     return model.to("cpu").eval()
 
 
+def _desklib_model(config: dict, weights: Path):
+    """Reconstruct the published DeBERTa mean-pooling + linear detector head.
+
+    The complete pinned safetensors state is loaded strictly. Hub custom code is
+    never executed and the publisher's 0.5 decision threshold is not applied.
+    """
+    import torch
+    from safetensors.torch import load_file
+    from transformers import AutoConfig, AutoModel
+
+    class DebertaMeanPoolHead(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            local_config = AutoConfig.for_model("deberta-v2", **{
+                key: value for key, value in config.items() if key != "model_type"
+            })
+            self.model = AutoModel.from_config(local_config, trust_remote_code=False)
+            self.classifier = torch.nn.Linear(config["hidden_size"], 1)
+
+        def forward(self, **encoded):
+            hidden = self.model(**encoded).last_hidden_state
+            mask = encoded["attention_mask"].unsqueeze(-1).expand(hidden.size()).float()
+            pooled = torch.sum(hidden * mask, dim=1) / torch.clamp(mask.sum(dim=1), min=1e-9)
+            return self.classifier(pooled)
+
+    model = DebertaMeanPoolHead()
+    model.load_state_dict(load_file(str(weights), device="cpu"), strict=True)
+    return model.to("cpu").eval()
+
+
 class Candidate:
     def __init__(self, name: str, cache_root: Path):
         if name not in MODELS:
@@ -137,7 +179,7 @@ class Candidate:
                 use_safetensors=False, weights_only=True, token=False,
             ).to("cpu").eval()
             validate_config(name, self.model.config.to_dict())
-        else:
+        elif name == "superannotate":
             from huggingface_hub import snapshot_download
             base = Path(snapshot_download(BASE_REPO, revision=BASE_REVISION,
                                           cache_dir=str(cache_root / "superannotate-base-config"),
@@ -146,6 +188,8 @@ class Candidate:
             if base_config.get("model_type") != "roberta" or base_config.get("hidden_size") != 1024:
                 raise ValueError("Unexpected encoder config")
             self.model = _superannotate_model(self.config, base_config, path / "model.safetensors")
+        else:
+            self.model = _desklib_model(self.config, path / "model.safetensors")
 
     def token_count(self, text: str) -> int:
         if self.hc3 is not None:
@@ -167,7 +211,7 @@ class Candidate:
                         "raw_logits": logits.tolist()}
             logits = self.model(**encoded)[0]
             if logits.numel() != 1:
-                raise ValueError("Expected a single GENERATED logit")
+                raise ValueError("Expected a single AI/generated logit")
             score = float(torch.sigmoid(logits).item())
             return {"ai_text_score": score, "human_score": 1 - score, "raw_logits": logits.tolist()}
 
@@ -284,7 +328,7 @@ def compare(manifest: Path, out: Path, *, model_names: list[str],
             score = "n/a" if row["ai_text_score"] is None else f"{row['ai_text_score']:.6f}"
             lines.append(f"| {sample['id']} | {row['model']} | {score} | {row['token_count']} | {row['status']} |")
     lines.extend(["", "No winner or threshold selected. All source hashes verified unchanged after inference.",
-                  "Raw logits are retained for MAGE/SuperAnnotate. MAGE's publisher uses a raw-logit",
+                  "Raw logits are retained for MAGE/SuperAnnotate/Desklib. MAGE's publisher uses a raw-logit",
                   "threshold rather than the softmax score; that threshold is not applied here.",
                   "SuperAnnotate uses a single GENERATED logit with sigmoid, not two-class softmax.",
                   "All transcripts, provenance and detailed results are private; do not commit them.", ""])
