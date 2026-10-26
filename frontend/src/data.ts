@@ -1,6 +1,6 @@
 export type ReviewStatus =
   "Awaiting review" | "In review" | "Reviewed" | "Follow-up needed";
-export type Feedback = "Valid signal" | "False alarm" | "Inconclusive";
+export type Feedback = "Relevant" | "Explained by context" | "Inconclusive";
 export type Modality = "audio" | "transcript" | "visual";
 export interface EvidenceSignal {
   signal_name: string;
@@ -43,12 +43,14 @@ export interface Interview {
   consent: boolean;
   quality: "Good" | "Limited audio" | "Missing transcript";
   answers: Answer[];
+  completedAt?: string | null;
 }
 export interface Review {
   notes: string;
   feedback: Feedback | "";
   followup: boolean;
   reviewed: boolean;
+  bookmarks?: { id: string; time: number; label: string }[];
 }
 export type Reviews = Record<string, Review>;
 export const emptyReview: Review = {
@@ -241,7 +243,7 @@ export function createDemoInterviews(): Interview[] {
         "AI Solutions",
       ][i % 4],
       interviewer: ["Priya Nair", "Michael Evans", "Paul Bennett"][i % 3],
-      date: new Date(Date.UTC(2026, 9, 8 - i * 2)).toISOString().slice(0, 10),
+      date: new Date(Date.UTC(2026, 9, 23 - i * 2)).toISOString().slice(0, 10),
       status: (
         [
           "Awaiting review",
@@ -252,6 +254,7 @@ export function createDemoInterviews(): Interview[] {
           "Reviewed",
         ] as ReviewStatus[]
       )[i % 6],
+      completedAt: [2, 4, 5].includes(i % 6) ? "2026-10-23T12:00:00Z" : null,
       processing: i === 9 ? "Failed" : i === 3 ? "Processing" : "Ready",
       consent: true,
       quality,
@@ -263,9 +266,9 @@ export const reviewKey = (id: string, q: string) => `${id}/${q}`;
 export function statusOf(i: Interview, reviews: Reviews): ReviewStatus {
   const records = i.answers.map((a) => reviews[reviewKey(i.id, a.id)]);
   if (records.some((r) => r?.followup)) return "Follow-up needed";
-  if (records.every((r) => r?.reviewed)) return "Reviewed";
+  if (i.completedAt) return "Reviewed";
   if (records.some((r) => r?.reviewed)) return "In review";
-  return i.status;
+  return "Awaiting review";
 }
 
 export function createDemoReviews(interviews: Interview[]): Reviews {
