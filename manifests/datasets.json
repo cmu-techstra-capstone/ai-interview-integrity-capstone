@@ -77,13 +77,17 @@
       "license_short": "AI-generated TT portion requires the authors' request form and agreement; research and educational use only.",
       "approx_size_bytes": 988807168,
       "approx_size_note": "Hugging Face reports about 943 MB for the complete repository; accessible files vary by subset.",
+      "downloaded_archive_bytes": 99697635,
+      "uncompressed_archive_bytes": 302569981,
+      "archive_member_count": 61,
+      "archive_sha256": "933fdac83fc4d08b99051525a46f3575899a2644378421a0eca1aa49bddf8e1e",
       "contents": "Human spoken-text sources plus ChatGPT, PaLM2 and Vicuna-13B generated spoken-style text across TED, Spotify, SEC, CEO and Tennis domains. Transcript benchmark, not interview audio ground truth.",
       "drive_folder": "datasets/hansen_tt",
-      "status": "REQUEST_FORM_OPEN_SSO_PENDING",
+      "status": "DOWNLOADED_TEST_BENCHMARK_COMPLETED",
       "manual_steps": [
-        "Sign in with the CMU Google/Andrew account and submit https://forms.gle/WZt7KrxTcmfPXuho9",
-        "Wait for the authors' download link; keep status pending until access is verified",
-        "Record exact downloaded files, hashes, license terms and sample counts before benchmark ingestion"
+        "Submitted the authors' request form using the CMU Andrew account on 2026-10-22",
+        "Downloaded HANSEN-TT.zip; archive hash and test inventory are recorded in a local aggregate output",
+        "Completed held-out Desklib inference and a leakage-audited TF-IDF/LR baseline; raw text and row-level predictions are not committed"
       ],
       "what_we_can_do_after_access": "Create a fixed human-versus-original-AI spoken-text evaluation cohort. Keep it separate from audio and real-time interview-use claims."
     }
