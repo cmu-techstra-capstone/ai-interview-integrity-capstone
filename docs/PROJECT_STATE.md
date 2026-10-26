@@ -130,6 +130,14 @@ Supporting infrastructure (implemented):
   Primary MVP handoff: [audio/transcript research update](audio-transcript-research-update.md),
   focusing on original AI vs independent human responses; human-edited/paraphrased
   AI remains outside this phase's headline evaluation, not a human-negative label.
+- **Midterm signal-score demo (standalone, `demo/`):** zero-install local web demo on branch
+  `demo/midterm`. Hand-weighted 0-9 heuristic (six linguistic signals, optional audio timing
+  blended 70/30) with per-signal reasons and follow-up questions for the human interviewer.
+  Reuses `interview_integrity` feature code but changes no existing file and is **not wired
+  into the pipeline or the evidence contract**. Not validated: no accuracy claim; the only
+  real-data check is 0/121 Michigan human clips reaching the high band (false positives only,
+  no AI-assisted positives exist). Bands (0-3.9 / 4-5.9 / 6-9) and audio thresholds are
+  uncalibrated. See [demo/README.md](../demo/README.md).
 
 ### Planned (NOT implemented)
 
@@ -137,7 +145,7 @@ Supporting infrastructure (implemented):
 |---|---|
 | Video feature pipeline | not started; only the plug-in interface exists |
 | Selected STT implementation | candidates scaffolded; no provider approved |
-| Multimodal fusion / validated AI-assistance model / scoring | not started; standalone audio-delivery and pretrained text-detector research prototypes exist, neither validated for AI-assistance decisions |
+| Multimodal fusion / validated AI-assistance model / scoring | not started in the pipeline; standalone audio-delivery and pretrained text-detector research prototypes exist, neither validated for AI-assistance decisions; a standalone heuristic score demo exists on `demo/midterm` (not integrated, not calibrated) |
 | Review UI | not started |
 | API layer | not started; no framework chosen |
 | Persistent database | none; files only |
@@ -467,6 +475,10 @@ No PR was merged or another author's branch changed during research publication.
 | [#4](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/4) | `feature/audio-backend-hardening` | #3 | audio/backend hardening, staged schema, quality | open |
 | [#5](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/5) | `feature/docker-stt-staged-readiness` | #4 | Docker, service layer, STT tooling, staged readiness, this file | open |
 | [#6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6) | `codex/audio-transcript-research` | #5 | audio/transcript research tools, verbatim pilot, validation and aggregate reports | open |
+
+Branch without a PR: `demo/midterm` (based on PR #6's tip `7a2ea76`) holds the standalone
+midterm signal-score demo in `demo/`. It changes no existing source file; this file and
+`demo/` are the only paths it touches.
 
 ---
 
