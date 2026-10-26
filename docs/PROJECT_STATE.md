@@ -1,7 +1,7 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-08** (PR #5 base plus validation/fixes and audio/text research published in [PR #6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6), branch `codex/audio-transcript-research`).
+> Last updated: **2026-10-26** (PR #5 base plus validation/fixes and audio/text research published in [PR #6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6), followed by research-only transcript-detector work).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -98,12 +98,28 @@ Supporting infrastructure (implemented):
   terminology errors; interview performance remains unvalidated. See
   [workflow and limitations](transcript-baseline.md).
 - **Frozen-transcript candidate comparison:** optional `transcript-compare`
-  compares pinned HC3, MAGE and SuperAnnotate locally on identical existing
+  compares pinned HC3, MAGE, SuperAnnotate and Desklib locally on identical existing
   answer text; correct label order and strict custom-head loading verified.
   Four private diagnostic samples completed and repeated exactly; the colloquial
   AI-generated answer remains a low-score blind spot across all three. No model
   winner, training, threshold, calibrated score or production integration. See
   [protocol and limitations](text-model-comparison.md).
+- **Desklib transcript-detector challenger:** pinned DeBERTa-large model reconstructed
+  locally with the published attention-mask-aware mean pool and single-logit head;
+  full safetensors state loads strictly and no remote custom code runs. Beemo
+  original-AI vs human AUROC **0.8705** on 103 complete paired groups (95% paired
+  bootstrap interval 0.8267–0.9133); no threshold or calibrated probability.
+  Expert-edited AI is excluded from the headline phase result. See
+  [aggregate result](../reports/beemo/desklib-20261022.md).
+- **HANSEN-TT text-authorship experiments (research-only):** fixed pretrained
+  Desklib inference on the official test split scored 3,472/11,594 texts (29.9%
+  coverage), AUROC 0.9941 on scored rows. A separate leakage-audited, self-trained
+  word unigram/bigram TF-IDF + Logistic Regression baseline scored 10,313 unique
+  test texts at 100% coverage, AUROC 0.9985. These are dataset-specific
+  human-vs-LLM text-authorship results, not interview AI-assistance validation;
+  neither model is selected for the MVP or wired into the product pipeline. See
+  [Desklib report](../reports/hansen/hansen-tt-desklib-test-2026-10-22.md) and
+  [self-trained baseline report](../reports/hansen/hansen-tfidf-training-2026-10-23.md).
 - **Public paired-text benchmark:** optional `beemo-benchmark` freezes 200 prompt
   groups from pinned Beemo before offline scoring; human/original-AI/expert-edited-AI
   variants remain paired. Completed 1,800 rows with no inference errors; 90 common
@@ -200,6 +216,9 @@ larger machine is expected to run the heavy validation in §17.
 | ✅ Executed locally | Beemo external written-text stress test | 200 frozen groups, three variants, three models; 1,800 rows, 0 inference errors, hashes verified. 90 common complete groups; six AUROCs cross-checked with scikit-learn; not audio/interview validation |
 | ✅ Verified after detector follow-up | Native tests, publisher cleanup and Fast-DetectGPT | **391 tests passed**, final clean exit in 16.69 s; 1,200 cleanup rows + 600 Fast-DetectGPT rows, 0 errors, exact same 90 groups. Both reports' AUROCs cross-checked; all 600 cleaned inputs match each publisher source. Smaller GPT-Neo baseline original/edited AUROC 0.8535/0.6116; Docker not rebuilt |
 | ✅ Verified after verbatim pilot mechanics | Native tests and partial local audio/ASR diagnostic | **418 tests passed**, clean exit, 23.59 s; two recordings and two pure-text controls transcribed/scored/repeated. Source/text hashes and scores identical; reading subsequently user-confirmed AI-verbatim, speaking independent; human self-script control still missing. First ASR teardown aborted; clean retry retained. No audio accuracy estimate; Docker not rebuilt |
+| ✅ Verified after Desklib integration | Native suite, strict architecture/loading checks and model/contrast-subset benchmark support | **426 tests passed**, 0 failures/errors/skips (2026-10-22); pinned 1.7 GB weights cached locally; Docker not rebuilt |
+| ✅ Verified after HANSEN research-only experiments | Native suite, including HANSEN archive parsing, leakage-audited baseline and aggregate-only CLI tests | **431 tests passed** (2026-10-26); no product API changes; Docker not rebuilt |
+| ✅ Executed locally | Desklib Beemo original-AI stress test | 200 frozen groups evaluated; 103 complete human/original-AI pairs; AUROC **0.8705** [0.8267, 0.9133], 92.2% paired ordering; written-text benchmark only |
 | ✅ Verified with local fixes | Docker build + container CLI smoke | Linux arm64 image, 288,175,847 bytes; help/dataset status/STT list/audio-baseline help OK (2026-10-07) |
 | ✅ Executed locally | 20-clip faster-whisper small, medium, prompted small benchmarks | 20/20 success each; WER 0.1534 / 0.1593 / 0.1462; see validation report for filler limitations |
 | ✅ Executed locally | WhisperX small aligned benchmark | **20/20 success**, WER 0.1711, filler recall 0/9; trusted CA/NLTK fix; diarization not tested |
@@ -224,6 +243,8 @@ Follow-up model comparison: [VAD and prosody results](../reports/allsstar/prosod
 | UMich Real-life Deception | supporting: deception/audio pipeline data | **regenerated locally 2026-10-06** (121 clips: 61 deceptive, 60 truthful) | **No:** `UNKNOWN` | features in `processed/`; `audio_duration` present in all 121 rows; quality: 0 errors, 15 warnings across 14 clips (6 noisy, 5 clipped, 4 extreme rate); no speaker IDs |
 | ALLSSTAR English | reading/spontaneous audio delivery research | **downloaded manually, ZIP CRC verified; NWS/ST1/ST2 imported and baseline fitted locally 2026-10-07** | **No** | local inventory: 1,163 WAV, 963 TextGrid, 140 speakers; ZIP 9.89 GiB; selected 418 recordings produced 862 windows (148 reading / 714 spontaneous), 0 decode failures; QNA excluded |
 | Beemo | external written-text detector stress test | **public parquet downloaded and paired benchmark completed locally 2026-10-08** | **AI-origin text labels, NOT verified real-time interview use** | 8,345,056-byte parquet, 2,187 groups; 200 selected before inference, three variants; 90 common complete groups. Human-edited AI text remains a project AI-assisted positive. No audio; training overlap not fully auditable |
+| HANSEN Turing Test | spoken-style human/original-LLM transcript stress test | **request submitted and 95 MB TT archive downloaded 2026-10-22; two research evaluations completed** | **Human vs generated spoken-style text; NOT interview-use ground truth** | Desklib: 3,472/11,594 scored (29.9%); AUROC 0.9941 on scored subset. TF-IDF/LR: leakage-audited, deduplicated test AUROC 0.9985 at 100% coverage. Research-only; not interview-use ground truth. |
+| MIT Interview Dataset | interview audio/video and prosodic component testing | **approval email reported by user; download not yet located in connected personal Gmail 2026-10-22** | **No AI-assistance label** | research-only; use for ASR/prosody/interview-domain transfer checks, never as AI-use ground truth |
 | DOLOS | supporting multimodal deception data | **access pending** | **No:** `UNKNOWN` | needs a ROSE Lab account + Release Agreement; 1,675 clips / 213 participants; academic, non-commercial |
 | Bag-of-Lies | supporting multimodal deception data | **access pending** | **No:** `UNKNOWN` | needs a licence signed by a CMU legal signatory → databases@iab-rubric.org; 6.14 GB |
 | Staged interviews | **the only AI-assistance ground truth** | **preparation** (tooling ready, nothing recorded) | **Yes** (4 conditions) | team-created, consenting participants only |
@@ -751,4 +772,35 @@ actually validated and recorded in §5 and §19.
 - Published research branch and PR #6 targeting feature/docker-stt-staged-readiness.
   Only audited code, templates, docs and lightweight reports pushed; raw/private
   artifacts and regenerated Michigan features remain excluded. No PR merged.
+
+2026-10-22 Desklib transcript challenger and dataset access follow-up
+- Added pinned `desklib/ai-text-detector-v1.01` as a fourth local transcript
+  candidate. Reconstructed its DeBERTa attention-mask mean-pooling + linear head,
+  strict-loaded the complete safetensors state, and did not execute Hub custom code.
+- Added explicit model- and positive-variant-subset execution to `beemo-benchmark`,
+  retaining all existing defaults and frozen input/label protections. Native suite:
+  **426 passed**.
+- Cached approximately 1.7 GB of public weights locally; cache and detailed results
+  remain ignored. The four existing CUDA Graph transcript diagnostics completed;
+  the standard AI answer scored higher than the three conversational/ASR samples,
+  supporting model mechanics only, not individual classification accuracy.
+- Reused the checksum-frozen Beemo cohort in explicit original-AI-only mode. On 103
+  complete human/original-AI pairs, AUROC was **0.8705** (paired bootstrap 95%
+  interval 0.8267–0.9133); original AI ranked higher within 92.2% of matched prompts.
+  Human-edited AI was neither scored nor required for this headline run. No threshold, winner,
+  calibrated probability or interview/hiring claim. Aggregate report committed;
+  source text and per-example outputs remain ignored.
+- HANSEN TT research-only benchmark: the authors' request was submitted and the
+  95 MB archive was downloaded under research/education terms. Desklib pretrained
+  detector inference on the official test split scored 3,472 of 11,594 texts
+  (29.9% coverage), AUROC 0.9941 on scored rows; over-limit rows were abstained,
+  not truncated. The separate self-trained HANSEN-TT baseline removed normalized
+  train/test overlaps (4,691 unique shared texts) and deduplicated both splits;
+  AUROC was 0.9985 on 10,313 unique test texts at 100% coverage. This is text
+  authorship only, not AI-assistance detection. No raw dataset, transcript, or
+  per-row score is included in this PR. Reports:
+  [Desklib evaluation](../reports/hansen/hansen-tt-desklib-test-2026-10-22.md),
+  [TF-IDF/LR baseline](../reports/hansen/hansen-tfidf-training-2026-10-23.md).
+- Connected personal Gmail (`leojh07632@gmail.com`) did not contain the reported MIT
+  download email at the time of search. No MIT data downloaded or redistributed.
 ```

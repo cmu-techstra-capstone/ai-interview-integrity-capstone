@@ -11,6 +11,7 @@ The audio-delivery model, production pipeline and Docker remain unchanged.
 | [HC3 RoBERTa](https://huggingface.co/Hello-SimpleAI/chatgpt-detector-roberta) | `d2b342c61775d5dd0221808a79983ed3b86ffd86` | Two-class softmax, class 1 = ChatGPT | Card does not explicitly declare a licence; clarification pending |
 | [MAGE](https://huggingface.co/yaful/MAGE) | `0d82ca0fdf6ebef5babb813cc11bd8eb2552c846` | Two-class softmax, class 0 = machine, class 1 = human | Model card declares Apache-2.0 |
 | [SuperAnnotate](https://huggingface.co/SuperAnnotate/ai-detector) | `74b2b8580915c202607c09f64f8170eaa87a6a14` | One GENERATED logit, then sigmoid | Weights carry custom SAIPL terms; deployment/redistribution review pending |
+| [Desklib DeBERTa](https://huggingface.co/desklib/ai-text-detector-v1.01) | `5fdea974cd4287c61674951ec78803aa274e2fb7` | Mean-pooled DeBERTa output, one AI logit, then sigmoid | Model card declares MIT; trained on RAID |
 
 MAGE's numeric label mapping is verified from its
 [pinned author implementation](https://github.com/yafuly/MAGE/blob/6d11f851184b9f04166f952ddc1f47727f36710f/deployment/utils.py),
@@ -27,6 +28,12 @@ strictly, rejects missing classifier weights, and does not execute Hub code.
 The tiny encoder config is separately pinned to FacebookAI/roberta-large revision
 `722cf37b1afa9454edce342e7895e588b6ff1d59`; no extra encoder weights are downloaded.
 The author's source licence and the model-weight licence are distinct.
+
+Desklib requires its published custom architecture rather than a stock sequence-
+classification head: DeBERTa-v3-large, attention-mask-aware mean pooling, and one
+linear output. The local reconstruction strictly loads every pinned safetensors
+weight and does not execute remote Hub code. Its published 0.5 threshold is not
+used because it has not been calibrated for interview ASR transcripts.
 
 ## Protocol
 
@@ -56,8 +63,8 @@ The author's source licence and the model-weight licence are distinct.
 
 ## Run locally
 
-Approximately 2 GB of additional candidate weights beyond cached HC3 are needed,
-plus optional dependencies and sufficient CPU RAM for RoBERTa-large loading.
+Approximately 3.8 GB of additional candidate weights beyond cached HC3 are needed,
+plus optional dependencies and sufficient CPU RAM for sequential large-model loading.
 Heavy imports are lazy; the core standard-library pipeline does not require them.
 
 ```bash
@@ -101,7 +108,7 @@ ancillary-cache-file errors are retained separately, not confused with zero scor
 
 On these already-inspected examples, MAGE and SuperAnnotate assigned lower
 generated-class scores to the user-described spontaneous transcript than HC3,
-and higher scores to the standard synthetic answer. HOWEVER, all three assigned
+and higher scores to the standard synthetic answer. HOWEVER, all legacy candidates assigned
 low generated-class scores to the synthetic colloquial answer. Reading cannot be
 scored as a correct/incorrect assistance detection because its origin is unknown.
 This is evidence of a remaining diagnostic blind spot, not a population accuracy,
