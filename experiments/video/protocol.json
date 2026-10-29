@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "fixed_before_model_evaluation": true,
+  "dataset": "10.17632/mjrfmvsh7d.1",
+  "subset": "70 evenly spaced filenames per sequence, 11 sequences, 770 frames",
+  "group": "subject S1/S2/S3 inferred from source filename; never split a participant",
+  "head_annotation_ids": [0, 1, 2, 3, 4],
+  "eye_annotation_ids": [5, 6, 7, 8, 9],
+  "head_center_id": 3,
+  "eye_center_id": 8,
+  "mapping_basis": "source annotation groups and manual visual check of centered examples; source release has no class-name file",
+  "tasks": ["head_deviation", "eye_deviation", "eye_deviation_when_head_centered"],
+  "models": ["majority", "logistic_regression_C1_balanced", "hist_gradient_boosting_depth3_iter150"],
+  "threshold": 0.5,
+  "protocol": "leave-one-participant-out; fixed parameters; random-frame split and shuffled-label control only as diagnostics",
+  "uncertainty": "report all three participant folds; no frame-independent confidence interval",
+  "event_settings": {"sample_fps": 5, "minimum_event_seconds": 2},
+  "ai_assistance_labels": false
+}

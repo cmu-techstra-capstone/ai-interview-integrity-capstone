@@ -1,7 +1,7 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-26** (PR #5 base plus validation/fixes and audio/text research published in [PR #6](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/6), followed by research-only transcript-detector work).
+> Last updated: **2026-10-29** (research branch `model/video-behavior-research`: standalone video experiments following the audio/transcript and HANSEN work; not yet published or integrated).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -151,7 +151,7 @@ Supporting infrastructure (implemented):
 
 | Component | Status |
 |---|---|
-| Video feature pipeline | not started; only the plug-in interface exists |
+| Video feature pipeline | standalone research pipeline and participant-separated component benchmarks completed 2026-10-29; product plug-in/API integration pending |
 | Selected STT implementation | candidates scaffolded; no provider approved |
 | Multimodal fusion / validated AI-assistance model / scoring | not started; standalone audio-delivery and pretrained text-detector research prototypes exist, neither validated for AI-assistance decisions |
 | Review UI | not started |
@@ -803,4 +803,28 @@ actually validated and recorded in §5 and §19.
   [TF-IDF/LR baseline](../reports/hansen/hansen-tfidf-training-2026-10-23.md).
 - Connected personal Gmail (`leojh07632@gmail.com`) did not contain the reported MIT
   download email at the time of search. No MIT data downloaded or redistributed.
+
+2026-10-29 Standalone video research (local branch model/video-behavior-research)
+- User requested the video workstream. MIT video is held by a teammate and has not
+  reached this worktree; local MIT audio is not a video training source.
+- Added scripts in experiments/video/ for verified public-data selection, MediaPipe
+  measurements, frozen MobileGaze ONNX inference, participant-separated training,
+  nested threshold selection, and video-to-event timelines. Product integration is pending.
+- Acquired 770 labeled scene frames from 3 people (11 sequences; 39.4 MB with labels),
+  and 1,176 frontal-head Columbia gaze images spanning all 56 people (541.3 MB saved,
+  490.5 MB transferred using remote ZIP ranges). Raw data and models remain ignored.
+- CSD head-direction AUROC 0.9998 on 657 measurable frames, leave-one-person-out.
+  Eye-only baseline on centered heads was weak (0.4781); dedicated gaze features
+  improved it to 0.7786 on the same 154-frame cohort. These are direction labels.
+- Columbia five-fold participant evaluation plus three inner participant folds for
+  cutoff selection: balanced HGB AUROC 0.8414, FPR 13/168=7.74%, recall 606/1008=60.12%,
+  balanced accuracy 76.19%. Cluster-bootstrap AUC interval 0.8107–0.8685 on fixed OOF
+  predictions. Exploratory comparisons; no interview AI-assistance accuracy claim.
+- Tested complete processing of public 19.2 s and 23.4 s example clips, plus a
+  generated 3 s no-face timing check. Three focused unit tests passed. No core/API
+  integration or Docker rebuild; the existing 431-test result above was not rerun.
+- Found relevant DeepVerify source: 59 people/303 videos, scripted behaviors;
+  primary download page requires IEEE DataPort subscription. No access obtained.
+- Full report: reports/video/video-research-20261029.md; aggregate evidence and
+  provenance in reports/video/. No raw videos, per-frame features or weights published.
 ```
