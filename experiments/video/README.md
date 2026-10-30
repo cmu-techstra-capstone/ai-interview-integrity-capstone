@@ -74,7 +74,7 @@ The eye classifier is gated on a single visible face, measurable eyes, and a cen
 head prediction. The final full-data threshold is an experimental deployment artifact;
 the reported evaluation uses separate fold-specific thresholds, not that final threshold.
 
-## Run a local video, including MIT when received
+## Run a local video
 
 ```bash
 .venv-video/bin/python experiments/video/video_pipeline.py /absolute/path/to/video.mp4 --gaze-model data/models/video_research/mobileone_s0_gaze.onnx --classifiers data/processed/video_research/phase3 --sample-fps 5 --min-event-seconds 2 --out data/processed/video_research/my_video
@@ -85,6 +85,42 @@ For an initial inspection, add `--max-seconds 60`. The output directory contains
 source hash and local processing latency. `ai_assistance_probability` stays null.
 Absence events mean **no face detected**, which may include occlusion or detector failure.
 The 2-second duration is an engineering default, not a learned cheating threshold.
+
+## MIT transfer checks
+
+The supplied README describes 69 students, each recorded before and after career
+counseling (P and PP). These are not assisted/unassisted conditions. Official ratings,
+including EyeContact and Authentic, are not AI-use labels.
+
+Place authorized archives under ignored `data/raw/video_research/mit/`. To audit the
+official features and labels, then prepare and inventory the separate video archive:
+
+```bash
+.venv-video/bin/python experiments/video/mit_feature_audit.py
+.venv-video/bin/python experiments/video/prepare_mit_video.py /absolute/path/to/Videos.zip
+.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --probe-only
+```
+
+The feature audit checks ZIP CRC, missing values, recording/participant counts and
+joins. The transcript CSV has no header. The original pose units are not documented
+in the supplied README; these CSV columns cannot replace the MediaPipe/MobileGaze
+features the classifiers were fitted on. Per-recording inventories remain local.
+
+Once footage has been visually checked for candidate framing, first run paired
+recordings P1/PP1, P2/PP2 and P3/PP3 as an engineering pilot, then expand coverage:
+
+```bash
+.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --include-stems P1 PP1 P2 PP2 P3 PP3 --max-seconds 60 --out data/processed/video_research/mit_pilot
+.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --out data/processed/video_research/mit_full
+```
+
+This is a fixed convenience pilot, not a representative evaluation sample. Batch
+outputs report measurable coverage separately from positive frame/event rates,
+plus local elapsed time and errors. Cache reuse checks source, code, model and
+configuration hashes. Observed event rates are **not** false-positive rates. MIT
+AI-assistance AUROC remains null without ground-truth assistance labels. Event
+accuracy also requires independent timestamp annotations. Research terms prohibit
+redistribution and require destruction of original videos after the research ends.
 
 ## Verification and lightweight reports
 

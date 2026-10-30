@@ -827,4 +827,24 @@ actually validated and recorded in §5 and §19.
   primary download page requires IEEE DataPort subscription. No access obtained.
 - Full report: reports/video/video-research-20261029.md; aggregate evidence and
   provenance in reports/video/. No raw videos, per-frame features or weights published.
+
+2026-10-29 MIT delivery and transfer-runner preparation
+- Located the teammate's full MIT dataset email in the authorized Andrew mailbox.
+  README, Labels.zip (822,506 bytes), and Facial_Features.zip (435,607,323 bytes)
+  are available locally. Both data ZIPs passed CRC checks; Videos.zip (~7 GB)
+  is not yet available locally. Browser archive download was blocked; user is
+  downloading that separate video archive manually. No MIT video inference run yet.
+- Audited 138 feature CSVs / 69 paired participants: 1,392,227 rows, 36 columns;
+  53,417 rows (3.84%) contain nonfinite values. All recording IDs match the 138
+  transcripts and aggregated ratings. Transcript CSV has no header. P/PP means
+  pre/post career counseling, not no-AI/AI. Original feature units are undocumented
+  in supplied README, so the current classifier needs fresh video extraction.
+- Added local ZIP preparation/validation, aggregate feature audit, and resumable
+  batch transfer scripts. Signal coverage is reported separately from flag rates.
+  Batch smoke check: two public examples, 5 seconds each, 50 sampled frames,
+  expected single-/multiple-face behavior, zero pipeline errors. Three focused
+  unit tests passed; synthetic archive integrity/reuse checks passed. This does
+  not update the historical full-suite counts or establish MIT/AI-use accuracy.
+- Only aggregate audit evidence is eligible for Git. MIT raw videos/features,
+  transcripts, per-recording outputs and model weights remain ignored locally.
 ```

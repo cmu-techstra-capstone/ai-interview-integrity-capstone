@@ -87,6 +87,10 @@ def run(source: Path, model_path: Path, classifiers: Path, output: Path,
                'source_fps': fps, 'sample_fps': effective_fps, 'sampled_frames': len(rows),
                'analyzed_seconds': total_s, 'elapsed_seconds': time.perf_counter() - started,
                'quality_status': dict(Counter(r['status'] for r in rows)),
+               'signal_coverage': {task: {
+                   'measured_frames': sum(r.get(task) is not None for r in rows),
+                   'positive_frames': sum(r.get(task) is True for r in rows)}
+                   for task in models},
                'median_inference_ms': float(np.median([r['inference_ms'] for r in rows])),
                'p95_inference_ms': float(np.percentile([r['inference_ms'] for r in rows], 95)),
                'minimum_event_seconds': minimum_event_s, 'events': events,
