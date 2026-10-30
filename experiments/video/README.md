@@ -107,11 +107,12 @@ in the supplied README; these CSV columns cannot replace the MediaPipe/MobileGaz
 features the classifiers were fitted on. Per-recording inventories remain local.
 
 Once footage has been visually checked for candidate framing, first run paired
-recordings P1/PP1, P2/PP2 and P3/PP3 as an engineering pilot, then expand coverage:
+recordings P1/PP1, P3/PP3 and P4/PP4 (first three available participant IDs;
+the delivered archive has no P2) as an engineering pilot, then expand coverage:
 
 ```bash
-.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --include-stems P1 PP1 P2 PP2 P3 PP3 --max-seconds 60 --out data/processed/video_research/mit_pilot
-.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --out data/processed/video_research/mit_full
+.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --include-stems P1 PP1 P3 PP3 P4 PP4 --max-seconds 60 --out data/processed/video_research/mit_pilot
+.venv-video/bin/python experiments/video/batch_transfer.py data/raw/video_research/mit/videos --sample-fps 2 --workers 2 --out data/processed/video_research/mit_full
 ```
 
 This is a fixed convenience pilot, not a representative evaluation sample. Batch
@@ -122,10 +123,49 @@ AI-assistance AUROC remains null without ground-truth assistance labels. Event
 accuracy also requires independent timestamp annotations. Research terms prohibit
 redistribution and require destruction of original videos after the research ends.
 
+The pilot exposed complete head-flag saturation in the six oblique-camera clips.
+The exploratory adaptation measures changes from a natural first-30-second
+reference; it is not a known screen/camera calibration. Fixed parameters are in
+`mit_protocol.json`. The four angle sensitivity settings keep the head reference
+and the gaze-calibration head gate fixed; event gates then use each tested angle.
+
+```bash
+.venv-video/bin/python experiments/video/relative_events.py data/processed/video_research/mit_pilot --out data/processed/video_research/mit_pilot_relative
+.venv-video/bin/python experiments/video/relative_events.py data/processed/video_research/mit_full --out data/processed/video_research/mit_full_relative
+```
+
+`--allow-partial` is only for inspecting completed recordings during extraction.
+Per-recording caches check the measurement and code hashes plus calibration
+duration. The final aggregate publisher refuses incomplete MIT runs.
+
+## Calibration and larger-backbone comparison
+
+The direction check uses one known 0V/0H Columbia image per person, excludes it
+from scoring, and compares raw vs center-relative scores on the same remaining
+1,120 images. The optional five-point affine fit excludes all five calibration
+images for every comparator and evaluates a separate 896-image cohort. These
+enrollment images have known targets; MIT's natural opening reference does not.
+
+```bash
+.venv-video/bin/python experiments/video/calibration_benchmark.py
+curl -fL https://github.com/yakhyo/gaze-estimation/releases/download/weights/resnet34_gaze.onnx -o data/models/video_research/resnet34_gaze.onnx
+.venv-video/bin/python experiments/video/gaze_challenger.py
+.venv-video/bin/python experiments/video/calibration_benchmark.py --features data/processed/video_research/columbia_resnet34.jsonl --model-name "Frozen Gaze360 ResNet-34 ONNX" --out data/processed/video_research/calibration_resnet34
+.venv-video/bin/python experiments/video/compare_calibrated_models.py
+.venv-video/bin/python experiments/video/publish_mit_results.py
+```
+
+Both frozen CNNs use the same MediaPipe crop and publisher preprocessing. The
+paired model check verifies image/label/hash matches and bootstraps participants.
+The larger model is not substituted into the S0-trained HGB classifier: changing
+feature backbones requires refitting/revalidating that classifier. The full MIT
+run retains S0; the challenger is an independent direction component experiment.
+Only aggregate JSON, a monochrome PNG, and a Markdown report are exported.
+
 ## Verification and lightweight reports
 
 ```bash
-.venv-video/bin/python -m pytest -q experiments/video/test_video_research.py
+.venv-video/bin/python -m pytest -q experiments/video/test_video_research.py experiments/video/test_relative_events.py
 .venv-video/bin/python experiments/video/quality_smoke.py
 .venv-video/bin/python experiments/video/audit_and_plot.py
 ```

@@ -1,7 +1,7 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-29** (research branch `model/video-behavior-research`: standalone video experiments following the audio/transcript and HANSEN work; not yet published or integrated).
+> Last updated: **2026-10-29** (research branch `model/video-behavior-research`: complete MIT video transfer, calibrated gaze and backbone comparisons; not yet published or integrated).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -224,7 +224,8 @@ larger machine is expected to run the heavy validation in §17.
 | ✅ Executed locally | WhisperX small aligned benchmark | **20/20 success**, WER 0.1711, filler recall 0/9; trusted CA/NLTK fix; diarization not tested |
 | ✅ Executed locally | ALLSSTAR reading/spontaneous audio baseline | 862 windows, 140 speakers; five-fold speaker-separated balanced accuracy **0.739**, reading F1 **0.488**, ROC AUC **0.812**; not an AI-use detector |
 | ✅ Executed locally | ALLSSTAR paired VAD/prosody comparison, eight arms | Same 862 windows/folds; original metrics reproduced exactly. Silero/prosody SVM: balanced accuracy **0.834**, F1 **0.663**, AUC **0.907**, FPR **12.3%**; exploratory, not an independent test |
-| ❌ Not yet executed | AI-assistance classifier training, staged recordings or video/visual processing | Delivery-mode evaluation does not establish AI detection |
+| ✅ Executed locally | Standalone video research | **7 focused tests passed**; two-worker public-clip smoke checks; all 138 MIT videos processed at 2 fps, 95,945 measurements, 0 errors. Full native suite/Docker not rerun. |
+| ❌ Not yet executed | Interview AI-assistance classifier training, staged cohort validation or video/backend integration | Direction/delivery-mode evaluation does not establish AI detection |
 
 Test growth: 62 (PR #1) → 80 (#2) → 83 (#3) → 136 (#4) → 196 (#5).
 
@@ -244,7 +245,9 @@ Follow-up model comparison: [VAD and prosody results](../reports/allsstar/prosod
 | ALLSSTAR English | reading/spontaneous audio delivery research | **downloaded manually, ZIP CRC verified; NWS/ST1/ST2 imported and baseline fitted locally 2026-10-07** | **No** | local inventory: 1,163 WAV, 963 TextGrid, 140 speakers; ZIP 9.89 GiB; selected 418 recordings produced 862 windows (148 reading / 714 spontaneous), 0 decode failures; QNA excluded |
 | Beemo | external written-text detector stress test | **public parquet downloaded and paired benchmark completed locally 2026-10-08** | **AI-origin text labels, NOT verified real-time interview use** | 8,345,056-byte parquet, 2,187 groups; 200 selected before inference, three variants; 90 common complete groups. Human-edited AI text remains a project AI-assisted positive. No audio; training overlap not fully auditable |
 | HANSEN Turing Test | spoken-style human/original-LLM transcript stress test | **request submitted and 95 MB TT archive downloaded 2026-10-22; two research evaluations completed** | **Human vs generated spoken-style text; NOT interview-use ground truth** | Desklib: 3,472/11,594 scored (29.9%); AUROC 0.9941 on scored subset. TF-IDF/LR: leakage-audited, deduplicated test AUROC 0.9985 at 100% coverage. Research-only; not interview-use ground truth. |
-| MIT Interview Dataset | interview audio/video and prosodic component testing | **approval email reported by user; download not yet located in connected personal Gmail 2026-10-22** | **No AI-assistance label** | research-only; use for ASR/prosody/interview-domain transfer checks, never as AI-use ground truth |
+| MIT Interview Dataset | interview audio/video and component transfer testing | **located in Andrew email and downloaded 2026-10-29**; 138 videos / 69 people, approximately 13.3 locally decoded hours; all videos processed | **No AI-assistance label** | Video ZIP CRC and source hashes checked. P/PP is pre/post counseling. Valid answer windows and directed calibration are still needed. |
+| Cheating Scenario Dataset | head/eye direction components | 770 verified frames, 3 people; participant-separated experiments completed | **Direction labels only** | Scripted directions; not AI-use labels. |
+| Columbia Gaze | gaze-direction component validation | 1,176 images / 56 people; grouped classifier and known-target calibration comparisons completed | **Gaze-target labels only** | Center-calibrated S0 AUC 0.8824 on 1,120 scored images; calibration images excluded. |
 | DOLOS | supporting multimodal deception data | **access pending** | **No:** `UNKNOWN` | needs a ROSE Lab account + Release Agreement; 1,675 clips / 213 participants; academic, non-commercial |
 | Bag-of-Lies | supporting multimodal deception data | **access pending** | **No:** `UNKNOWN` | needs a licence signed by a CMU legal signatory → databases@iab-rubric.org; 6.14 GB |
 | Staged interviews | **the only AI-assistance ground truth** | **preparation** (tooling ready, nothing recorded) | **Yes** (4 conditions) | team-created, consenting participants only |
@@ -375,9 +378,25 @@ See [aggregate Beemo report](../reports/beemo/paired-text-20261008.md).
 - **Integration interface exists:** `FeatureExtractor` plug-ins with `visual_*` (behavioral)
   and `quality_*` (quality) namespaces. See
   [features/visual/README.md](../src/interview_integrity/features/visual/README.md).
-- **No visual model selected or implemented:** no gaze, facial-expression, pose,
-  face-recognition, deepfake or visual-cheating models. Raw video is preserved for
-  future work.
+- **Standalone research implemented:** MediaPipe face/pose/quality, frozen
+  Gaze360-trained MobileOne-S0, direction classifiers and baseline-relative event
+  timelines in `experiments/video/`. These are not integrated into product APIs.
+- All 138 MIT videos processed locally at 2 fps: 95,945 samples, 0 processing errors.
+  Decode durations match source metadata within 0.138 s. After excluding the first
+  30 s per recording, relative head/gaze coverage is 97.61% / 54.05%; these are
+  coverage figures, not accuracy. Head/gaze baselines available in 138/123 videos.
+- Camera-relative head flags saturate on oblique MIT footage. Relative changes
+  restore measurable gaze output, but opening windows can contain writing and
+  recordings can include empty-chair periods. Valid answer windows plus directed
+  calibration after readiness are the next required experiment.
+- On the same 1,120 scored Columbia images, known-center calibration improves S0
+  gaze-direction AUC from 0.7841 to 0.8824 [0.8467, 0.9126]. ResNet-34 reaches
+  0.8422; five-point enrollment is exploratory and its S0 gain over one point has
+  a paired interval including zero. No MIT AI-use or event-FPR estimate exists.
+- Reports: [MIT transfer and calibration](../reports/video/mit-video-transfer-20261029.md),
+  [broader video research](../reports/video/video-research-20261029.md).
+  Raw media, weights and detailed outputs stay local/ignored; probability of AI
+  assistance remains null.
 
 ---
 
@@ -531,6 +550,10 @@ actually validated and recorded in §5 and §19.
    review seven Silero no-speech windows, then evaluate held-out tasks and controlled
    interview delivery. The candidate's 12.3% false-positive rate is not interview-ready.
    Michigan deception labels remain separate; neither dataset supplies AI-use ground truth.
+5. **Video:** identify valid answer windows, collect directed calibration and
+   matched unassisted/own-notes/AI-assisted recordings, then independently annotate
+   event timestamps before any AI-use fusion training. Review the completed MIT
+   report before backend integration.
 
 ---
 
@@ -847,4 +870,30 @@ actually validated and recorded in §5 and §19.
   not update the historical full-suite counts or establish MIT/AI-use accuracy.
 - Only aggregate audit evidence is eligible for Git. MIT raw videos/features,
   transcripts, per-recording outputs and model weights remain ignored locally.
+
+2026-10-29 Complete MIT video transfer and calibrated gaze comparisons
+- User downloaded the separate Videos.zip: 7,510,773,677 bytes, 138 videos / 69
+  paired participants. All AVI ZIP members passed CRC; source archive SHA-256
+  744bd1392cb74b9f3deb1b8b3888dab3fb52492f5aa884bc8eeb39a8ad3fc42e.
+- Full local run completed: 47,969.38 s (13.32 h), 95,945 measurements at 2 fps,
+  two workers, zero errors, approximately 50.2 minutes wall time. Complete source
+  duration validation passed (maximum absolute difference 0.138 s).
+- The six-clip 5-fps pilot exposed absolute head-flag saturation. Added an
+  exploratory first-30-second natural reference, relative rotation/gaze changes,
+  quality abstention, fixed 15-degree/2-second events, and threshold sensitivity.
+  Full post-reference coverage: head 97.61%, gaze 54.05%; 123/138 gaze references
+  available. Emitted 769 head-change, 797 gaze-change, 51 no-face and 5 multiple-face
+  events. Counts are recording-wide diagnostics, not AI accuracy or FPR.
+- Six qualitative examples exposed opening-window writing contaminating the
+  reference, normal posture changes, empty-chair/non-answer periods, and detector
+  errors. Directed calibration and valid answer windows are required next;
+  opening 30 seconds is not a validated production calibration protocol.
+- Frozen S0 known-center gaze AUC 0.8824 versus raw 0.7841 on 1,120 Columbia test
+  images after excluding 56 enrollment images. Same-cohort ResNet-34 AUC 0.8422;
+  paired S0-minus-ResNet interval 0.0030–0.0762. Five-point S0 AUC 0.9016 on a
+  different 896-image cohort; its gain over matched one-point AUC 0.8847 has
+  paired interval -0.0068–0.0417. Exploratory direction results, not interview AI use.
+- Seven focused tests and parallel smoke checks passed. No full native-suite or
+  Docker rerun. Aggregate JSON, monochrome figure and reports saved locally on
+  model/video-behavior-research; raw data/models excluded, no new PR published.
 ```

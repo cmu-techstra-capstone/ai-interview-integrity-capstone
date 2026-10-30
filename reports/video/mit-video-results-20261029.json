@@ -1,0 +1,497 @@
+{
+  "mit_archive": {
+    "archive_filename": "Videos.zip",
+    "archive_bytes": 7510773677,
+    "archive_sha256": "744bd1392cb74b9f3deb1b8b3888dab3fb52492f5aa884bc8eeb39a8ad3fc42e",
+    "videos": 138,
+    "participants": 69,
+    "participants_with_two_videos": 69,
+    "expanded_bytes": 7509608046,
+    "zip_crc": "passed on all extracted AVI members"
+  },
+  "mit_absolute_pipeline": {
+    "recordings": 138,
+    "analyzed_seconds": 47969.37931034482,
+    "sampled_frames": 95945,
+    "quality_counts": {
+      "no_face_detected": 2310,
+      "eye_quality_low": 25793,
+      "ok": 67663,
+      "multiple_faces": 179
+    },
+    "eye_image_quality_pass_fraction": 0.7052269529417896,
+    "signal_coverage": {
+      "head_deviation": {
+        "measured_frames": 93456,
+        "positive_frames": 90742,
+        "measured_fraction": 0.9740580540934911,
+        "positive_fraction_of_measured": 0.9709595959595959
+      },
+      "eye_deviation": {
+        "measured_frames": 2214,
+        "positive_frames": 2085,
+        "measured_fraction": 0.023075720464849653,
+        "positive_fraction_of_measured": 0.9417344173441734
+      }
+    },
+    "pipeline_elapsed_seconds": 5993.385612156981,
+    "processing_seconds_per_video_second": 0.12494190457170412,
+    "event_counts": {
+      "no_face_detected": 74,
+      "head_deviation": 1158,
+      "eye_deviation": 99,
+      "multiple_faces": 5
+    },
+    "events_per_recording_minute": {
+      "no_face_detected": 0.09255904628814934,
+      "head_deviation": 1.4484239946172561,
+      "eye_deviation": 0.12382899435847007,
+      "multiple_faces": 0.006253989614064146
+    },
+    "event_rate_semantics": "Observed flag rates only; no manual event ground truth supplied.",
+    "false_positive_rate": null,
+    "ai_assistance_auroc": null,
+    "errors": [],
+    "expected_recordings": 138,
+    "completed_recordings": 138,
+    "workers": 2
+  },
+  "mit_relative_events": {
+    "recordings": 138,
+    "expected_recordings": 138,
+    "partial": false,
+    "evaluation_seconds": 43829.379310344826,
+    "evaluation_frames": 87665,
+    "calibration_seconds_per_recording": 30,
+    "recordings_with_head_baseline": 138,
+    "recordings_with_gaze_baseline": 123,
+    "signal_coverage": {
+      "head_deviation": {
+        "measured_frames": 85574,
+        "positive_frames": 16945,
+        "measured_fraction": 0.9761478355101808,
+        "positive_fraction_of_measured": 0.19801575244817352
+      },
+      "eye_deviation": {
+        "measured_frames": 47385,
+        "positive_frames": 17064,
+        "measured_fraction": 0.540523584098557,
+        "positive_fraction_of_measured": 0.36011396011396013
+      }
+    },
+    "absolute_signal_coverage_same_evaluation_period": {
+      "head_deviation": {
+        "measured_frames": 85574,
+        "positive_frames": 83072,
+        "measured_fraction": 0.9761478355101808,
+        "positive_fraction_of_measured": 0.9707621473812139
+      },
+      "eye_deviation": {
+        "measured_frames": 2050,
+        "positive_frames": 1934,
+        "measured_fraction": 0.023384474990018823,
+        "positive_fraction_of_measured": 0.9434146341463414
+      }
+    },
+    "absolute_relative_common_frame_comparison": {
+      "head_deviation": {
+        "common_measured_frames": 85574,
+        "absolute_positive_frames": 83072,
+        "relative_positive_frames": 16945
+      },
+      "eye_deviation": {
+        "common_measured_frames": 1545,
+        "absolute_positive_frames": 1472,
+        "relative_positive_frames": 566
+      }
+    },
+    "event_counts": {
+      "relative_gaze_change": 797,
+      "relative_head_change": 769,
+      "no_face_detected": 51,
+      "multiple_faces": 5
+    },
+    "events_per_minute": {
+      "relative_gaze_change": 1.0910489893411128,
+      "relative_head_change": 1.0527185355123159,
+      "no_face_detected": 0.06981618375959442,
+      "multiple_faces": 0.006844723897999452
+    },
+    "event_duration_summary": {
+      "relative_gaze_change": {
+        "median_seconds": 2.5,
+        "p95_seconds": 5.017,
+        "maximum_seconds": 12.017,
+        "events_at_least_4_seconds": 106,
+        "events_at_least_6_seconds": 21
+      },
+      "relative_head_change": {
+        "median_seconds": 3.983,
+        "p95_seconds": 21.596599999999913,
+        "maximum_seconds": 221.983,
+        "events_at_least_4_seconds": 368,
+        "events_at_least_6_seconds": 210
+      },
+      "no_face_detected": {
+        "median_seconds": 4.983,
+        "p95_seconds": 93.7415,
+        "maximum_seconds": 223.017,
+        "events_at_least_4_seconds": 30,
+        "events_at_least_6_seconds": 21
+      },
+      "multiple_faces": {
+        "median_seconds": 2.5,
+        "p95_seconds": 3.3,
+        "maximum_seconds": 3.5,
+        "events_at_least_4_seconds": 0,
+        "events_at_least_6_seconds": 0
+      }
+    },
+    "angle_threshold_sensitivity_event_counts": {
+      "10": {
+        "relative_head_change": 1696,
+        "relative_gaze_change": 1015,
+        "no_face_detected": 51,
+        "multiple_faces": 5
+      },
+      "15": {
+        "relative_gaze_change": 797,
+        "relative_head_change": 769,
+        "no_face_detected": 51,
+        "multiple_faces": 5
+      },
+      "20": {
+        "relative_gaze_change": 535,
+        "relative_head_change": 435,
+        "no_face_detected": 51,
+        "multiple_faces": 5
+      },
+      "25": {
+        "relative_gaze_change": 341,
+        "relative_head_change": 212,
+        "no_face_detected": 51,
+        "multiple_faces": 5
+      }
+    },
+    "fixed_primary_angle_degrees": 15,
+    "sample_fps": 2.0,
+    "ai_assistance_auroc": null,
+    "event_false_positive_rate": null,
+    "scope": "Exploratory natural baseline after absolute-model failure in pilot; no directed calibration or event/AI-use ground truth.",
+    "privacy": "Per-recording features/timelines are local only; publish aggregate report only."
+  },
+  "columbia_mobileone_s0": {
+    "source": "Columbia Gaze Dataset frontal-head subset",
+    "source_features_sha256": "c5cd5fa1b9d5791960bb97f560d27e851796756a8c8e8c3b599fe5c584f30daf",
+    "model": "Frozen Gaze360 MobileOne-S0 ONNX; no Columbia classifier fit",
+    "participants": 56,
+    "calibration_images_excluded": 56,
+    "evaluated_images": 1120,
+    "positive_images": 1008,
+    "negative_images": 112,
+    "positive_label": "abs horizontal>=10 degrees OR abs vertical>=10 degrees; gaze direction only",
+    "raw_forward_distance_auroc_same_scored_cohort": 0.7841110402494331,
+    "relative_to_known_center_auroc": 0.8823607568027211,
+    "participant_bootstrap_95_interval": [
+      0.8466551073554421,
+      0.912551596159297
+    ],
+    "bootstrap_replicates": 1000,
+    "operating_points_degrees": {
+      "10": {
+        "false_positives": 10,
+        "true_positives": 667,
+        "fpr": 0.08928571428571429,
+        "recall": 0.6617063492063492
+      },
+      "15": {
+        "false_positives": 0,
+        "true_positives": 270,
+        "fpr": 0.0,
+        "recall": 0.26785714285714285
+      },
+      "20": {
+        "false_positives": 0,
+        "true_positives": 51,
+        "fpr": 0.0,
+        "recall": 0.050595238095238096
+      },
+      "25": {
+        "false_positives": 0,
+        "true_positives": 3,
+        "fpr": 0.0,
+        "recall": 0.002976190476190476
+      }
+    },
+    "calibration": "One known 0V/0H image per person; excluded from scored images.",
+    "interpretation": "Exploratory calibrated direction scoring. MIT natural baseline is a different, unvalidated setup.",
+    "comparison_note": "Different scored cohort from the 1,176-image trained-HGB benchmark; not a head-to-head ranking.",
+    "ai_assistance_auroc": null,
+    "five_point_exploration": {
+      "evaluated_images": 896,
+      "positive_images": 784,
+      "negative_images": 112,
+      "calibration_images_excluded": 280,
+      "participants": 56,
+      "calibration_targets_horizontal_vertical": [
+        [
+          -15,
+          0
+        ],
+        [
+          0,
+          -10
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          15,
+          0
+        ]
+      ],
+      "score": "Euclidean magnitude in angle space; five-point method maps to target angles via per-person least squares.",
+      "same_cohort_auroc": {
+        "forward": 0.7892219387755102,
+        "one_point": 0.8847029883381924,
+        "five_point_affine": 0.901569333090379
+      },
+      "five_point_minus_one_point_paired_subject_bootstrap_95_interval": [
+        -0.0068162923651604755,
+        0.04167558764577229
+      ],
+      "at_10_degrees": {
+        "forward": {
+          "fpr": 0.2857142857142857,
+          "recall": 0.6926020408163265
+        },
+        "one_point": {
+          "fpr": 0.08928571428571429,
+          "recall": 0.6594387755102041
+        },
+        "five_point_affine": {
+          "fpr": 0.08928571428571429,
+          "recall": 0.7091836734693877
+        }
+      },
+      "calibration_design_condition_number_range": [
+        6.825952883841309,
+        32.96028657245794
+      ],
+      "scope": "Known labeled calibration targets are allowed for enrollment and excluded from evaluation. Not available in MIT."
+    }
+  },
+  "columbia_resnet34": {
+    "source": "Columbia Gaze Dataset frontal-head subset",
+    "source_features_sha256": "046e54708e9bb5a17661012cfbd6fd69f6da4b53ceb8b56e9569fdf135da270a",
+    "model": "Frozen Gaze360 ResNet-34 ONNX; no Columbia classifier fit",
+    "participants": 56,
+    "calibration_images_excluded": 56,
+    "evaluated_images": 1120,
+    "positive_images": 1008,
+    "negative_images": 112,
+    "positive_label": "abs horizontal>=10 degrees OR abs vertical>=10 degrees; gaze direction only",
+    "raw_forward_distance_auroc_same_scored_cohort": 0.7408677012471656,
+    "relative_to_known_center_auroc": 0.8422441893424036,
+    "participant_bootstrap_95_interval": [
+      0.7970791702097506,
+      0.884755217191043
+    ],
+    "bootstrap_replicates": 1000,
+    "operating_points_degrees": {
+      "10": {
+        "false_positives": 5,
+        "true_positives": 500,
+        "fpr": 0.044642857142857144,
+        "recall": 0.49603174603174605
+      },
+      "15": {
+        "false_positives": 1,
+        "true_positives": 134,
+        "fpr": 0.008928571428571428,
+        "recall": 0.13293650793650794
+      },
+      "20": {
+        "false_positives": 0,
+        "true_positives": 10,
+        "fpr": 0.0,
+        "recall": 0.00992063492063492
+      },
+      "25": {
+        "false_positives": 0,
+        "true_positives": 0,
+        "fpr": 0.0,
+        "recall": 0.0
+      }
+    },
+    "calibration": "One known 0V/0H image per person; excluded from scored images.",
+    "interpretation": "Exploratory calibrated direction scoring. MIT natural baseline is a different, unvalidated setup.",
+    "comparison_note": "Different scored cohort from the 1,176-image trained-HGB benchmark; not a head-to-head ranking.",
+    "ai_assistance_auroc": null,
+    "five_point_exploration": {
+      "evaluated_images": 896,
+      "positive_images": 784,
+      "negative_images": 112,
+      "calibration_images_excluded": 280,
+      "participants": 56,
+      "calibration_targets_horizontal_vertical": [
+        [
+          -15,
+          0
+        ],
+        [
+          0,
+          -10
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          15,
+          0
+        ]
+      ],
+      "score": "Euclidean magnitude in angle space; five-point method maps to target angles via per-person least squares.",
+      "same_cohort_auroc": {
+        "forward": 0.7511388483965014,
+        "one_point": 0.8564823250728864,
+        "five_point_affine": 0.8858873906705539
+      },
+      "five_point_minus_one_point_paired_subject_bootstrap_95_interval": [
+        -0.008258928571428636,
+        0.06701951986151598
+      ],
+      "at_10_degrees": {
+        "forward": {
+          "fpr": 0.17857142857142858,
+          "recall": 0.6224489795918368
+        },
+        "one_point": {
+          "fpr": 0.044642857142857144,
+          "recall": 0.5076530612244898
+        },
+        "five_point_affine": {
+          "fpr": 0.11607142857142858,
+          "recall": 0.7538265306122449
+        }
+      },
+      "calibration_design_condition_number_range": [
+        5.417661782391017,
+        96.10900037501995
+      ],
+      "scope": "Known labeled calibration targets are allowed for enrollment and excluded from evaluation. Not available in MIT."
+    }
+  },
+  "resnet34_provenance": {
+    "model_filename": "resnet34_gaze.onnx",
+    "model_sha256": "c8e6b14f6095d2425241b9302aa663d9a23b7dfb9d43941352b718c91dc7f2cf",
+    "model_bytes": 85491644,
+    "landmarker_sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "feature_code_sha256": "df7615386fa2dbca5e3c6c5e72547758fdf594297921c37990e8261603341631",
+    "features_sha256": "046e54708e9bb5a17661012cfbd6fd69f6da4b53ceb8b56e9569fdf135da270a",
+    "frames": 1176,
+    "quality_counts": {
+      "ok": 1176
+    },
+    "median_full_measurement_ms": 373.20391650064266,
+    "p95_full_measurement_ms": 452.97444775042095,
+    "timing_scope": "Includes detection, image resize, crop and gaze; concurrent MIT workers, not an isolated speed benchmark.",
+    "source": "https://github.com/yakhyo/gaze-estimation/releases/download/weights/resnet34_gaze.onnx",
+    "crop": "Same MediaPipe crop and publisher RGB/ImageNet/90-bin preprocessing as MobileOne-S0."
+  },
+  "paired_model_comparison": {
+    "scored_images": 1120,
+    "participants": 56,
+    "matched_image_and_label_hash_check": "passed",
+    "one_point_auc": {
+      "mobileone_s0": 0.8823607568027211,
+      "resnet34": 0.8422441893424036
+    },
+    "mobileone_minus_resnet_auc": 0.04011656746031744,
+    "paired_participant_bootstrap_95_delta": [
+      0.003036865787981833,
+      0.07618693310657595
+    ],
+    "bootstrap_replicates": 1000,
+    "weight_metadata": {
+      "mobileone_s0": {
+        "sha256": "8b4fdc4e3da44733c9a82e7776b411e4a39f94e8e285aee0fc85a548a55f7d9f",
+        "bytes": 4974521
+      },
+      "resnet34": {
+        "sha256": "c8e6b14f6095d2425241b9302aa663d9a23b7dfb9d43941352b718c91dc7f2cf",
+        "bytes": 85491644
+      }
+    },
+    "cpu_microbenchmark": {
+      "mobileone_s0": {
+        "input_shape": [
+          1,
+          3,
+          448,
+          448
+        ],
+        "median_ms": 59.10331250015588,
+        "p95_ms": 84.715822698854
+      },
+      "resnet34": {
+        "input_shape": [
+          1,
+          3,
+          448,
+          448
+        ],
+        "median_ms": 470.7983749995037,
+        "p95_ms": 516.5473972494509
+      }
+    },
+    "timing_scope": "30 alternating trials after 5 warmups per model, synthetic 448px BGR input, CPUExecutionProvider, 2 intra-op threads. MIT jobs ran concurrently; not an isolated or end-to-end latency estimate.",
+    "scope": "Exploratory direction comparison; no interview AI-use labels.",
+    "source_feature_sha256": {
+      "mobileone_s0": "c5cd5fa1b9d5791960bb97f560d27e851796756a8c8e8c3b599fe5c584f30daf",
+      "resnet34": "046e54708e9bb5a17661012cfbd6fd69f6da4b53ceb8b56e9569fdf135da270a"
+    }
+  },
+  "qualitative_audit": {
+    "scope": "Qualitative visual inspection, not an annotated accuracy test",
+    "selection": "Longest example of each of four emitted event types in the 94-recording intermediate snapshot, plus the longest head-change and no-face events after all 138 recordings completed",
+    "review_material": "Six still frames per example, including a baseline frame and event boundary/interior frames; raw videos and contact sheets stay local",
+    "examples_inspected": 6,
+    "findings": {
+      "relative_head_change": "Visible head/posture reorientation is plausible, but neither its physical angle nor its cause is independently labeled.",
+      "relative_gaze_change": "Eye/head direction visibly varies; the footage does not establish what screen region or resource was being viewed.",
+      "no_face_detected": "The candidate remains in view in inspected event frames, including partial occlusion/shadow. Missing detection cannot be interpreted as the candidate leaving.",
+      "multiple_faces": "Only one face is visibly apparent in the inspected event stills. This is a possible detector false alarm, not verified additional-person presence.",
+      "opening_baseline_contamination": "In the full-cohort long head-change example, the opening baseline shows the candidate looking down and writing; later upright answering is marked as a long change. An unlabeled opening window cannot be assumed to be a valid normal-answering reference.",
+      "non_answer_segments": "The full-cohort longest no-face event includes standing up and an empty chair, followed by a return to the seat. Files include non-answer periods; those periods should not enter interview-answer event-rate or AI-use evaluation."
+    },
+    "event_precision": null,
+    "event_false_positive_rate": null,
+    "ai_assistance_labels": false,
+    "next_validation": "Independent timestamp annotations and full clips, including randomly sampled unflagged periods, are needed for event error rates."
+  },
+  "timing": {
+    "full_batch_approx_wall_seconds": 3010.760619878769,
+    "wall_time_basis": "final summary mtime minus initial inventory mtime; excludes acquisition/probe/model preparation",
+    "sampled_frame_inference_median_ms": 54.22720899878186,
+    "sampled_frame_inference_p95_ms": 77.66962500245428,
+    "scope": "Two concurrent CPU workers; full pipeline time also includes decoding, loading and file writes."
+  },
+  "verification": {
+    "focused_unit_tests_passed": 7,
+    "parallel_smoke_examples": 2,
+    "decoded_duration_max_absolute_difference_seconds": 0.13793103448273314,
+    "full_repository_suite_rerun": false
+  },
+  "interpretation": "Columbia metrics are gaze-direction metrics. MIT coverage/event counts are unlabeled transfer diagnostics, not cheating accuracy."
+}
