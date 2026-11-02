@@ -27,9 +27,12 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 | Staged tooling | `staged.py` | metadata templates, TSV label import, protocol validation |
 | Remote-data workflow | `storage/` | storage interface, bounded temp cache (+ stale cleanup), manifests, source-archive streaming |
 | Evidence contract | `evidence.py` | signal shape + per-modality quality status; no scoring |
-| Application layer | `services.py` | every operation as a function returning structured results; `cli.py` is a thin wrapper |
+| Application layer | `services.py` | every operation as a function returning structured results; `cli.py` is a thin wrapper; `analyze_offline_recording` |
+| Analysis contract | `analysis_contract.py` + Meet TS types | `analysis.v1` JSON for offline results → extension mapping |
+| Detection boundary | `detection/boundary.py` | Aditi adapter surface; default `model_unavailable` |
 | Configuration | `config.py` | `INTERVIEW_INTEGRITY_*` environment variables |
 | Docker scaffolding | `Dockerfile`, `compose.yaml` | single app container, bind mounts only; not yet built (see [teammate-validation.md](teammate-validation.md)) |
+| Meet overlay | `extensions/meet-overlay/` | Phase 2 demo + transport-neutral `mapAnalysisContract` / `OfflineAnalysisPanel` |
 
 ## Planned / unresolved (not implemented)
 
@@ -37,9 +40,9 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 |---|---|
 | STT | optional approved baseline: faster-whisper small/CPU/INT8 via explicit `--stt` / `resolve_transcriber`; sidecar preferred; not auto-run ([stt-decision.md](stt-decision.md)) |
 | Video feature pipeline | shared team work; only the plug-in interface exists; no visual model chosen |
-| Model / fusion / scoring layer | not started; no algorithm, fusion method, thresholds or score chosen |
-| Review UI | Meet overlay Phase 2 demo simulation (`extensions/meet-overlay/`); post-interview dashboard not merged |
-| API layer | not started; no framework chosen; `services.py` is the intended entry point |
+| Model / fusion / scoring layer | Aditi boundary only; no algorithm, fusion, thresholds, or calibrated confidence chosen |
+| Review UI | Meet overlay Phase 2 demo default; offline panel path for contract-shaped data |
+| API layer | serializers ready; **no HTTP framework chosen/installed** ([end-to-end-integration.md](end-to-end-integration.md)) |
 | Database | none; files (JSONL/CSV/JSON) only |
 | Production deployment / cloud | none |
 
@@ -96,4 +99,5 @@ features in `features/registry.py`. Visual contributors: see
 [audio-features.md](audio-features.md) · [staged-interviews.md](staged-interviews.md) ·
 [evidence-contract.md](evidence-contract.md) · [stt-decision.md](stt-decision.md) ·
 [docker.md](docker.md) · [teammate-validation.md](teammate-validation.md) ·
+[end-to-end-integration.md](end-to-end-integration.md) ·
 [data-strategy.md](data-strategy.md) · [data-storage.md](data-storage.md) · [decisions.md](decisions.md)

@@ -84,6 +84,36 @@ def _cmd_process(args):
     return EXIT_OK
 
 
+def _cmd_analyze_offline(args):
+    """Offline analysis → API-facing contract JSON (no HTTP; detection unavailable by default)."""
+    from .transcription.registry import parse_options
+
+    result = services.analyze_offline_recording(
+        args.video,
+        args.metadata,
+        transcript=args.transcript,
+        stt=args.stt,
+        stt_options=parse_options(args.stt_option) if args.stt else None,
+        out_dir=args.out_dir,
+        config=_pipeline_config(args),
+        write_outputs=not args.no_write,
+    )
+    doc = result.to_analysis_dict()
+    print(json.dumps(doc, indent=2, sort_keys=True))
+    _print_issue_summary(result.issues)
+    if result.processing_error:
+        _err(f"processing_error: {result.processing_error}")
+        return EXIT_FAILED
+    det = (result.detection.status.value if result.detection else "n/a")
+    _err(
+        f"\nanalysis_id={result.analysis_id}; answers={len(result.samples)}; "
+        f"detection={det}; wrote analysis.json under {result.out_dir}/"
+        if not args.no_write
+        else f"\nanalysis_id={result.analysis_id}; answers={len(result.samples)}; detection={det}"
+    )
+    return EXIT_OK
+
+
 def _cmd_process_batch(args):
     result = services.process_local_batch(args.dir, out_dir=args.out_dir, config=_pipeline_config(args),
                                           transcriber=_stt(args))
@@ -264,6 +294,22 @@ def build_parser(settings: Settings | None = None) -> argparse.ArgumentParser:
     p.add_argument("--overwrite", action="store_true", help="Re-extract audio even if it exists")
     _add_pipeline_args(p, settings)
     p.set_defaults(func=_cmd_process)
+
+    ao = sub.add_parser(
+        "analyze-offline",
+        help="Offline recording analysis → analysis.v1 JSON contract (sidecar/STT/none; detection unavailable by default)",
+    )
+    ao.add_argument("--video", required=True, help="Path to an authorized local interview recording")
+    ao.add_argument("--metadata", required=True, help="Path to the recording metadata JSON")
+    ao.add_argument("--transcript", help="Existing sidecar transcript (.json or .txt); wins over --stt")
+    ao.add_argument("--overwrite", action="store_true", help="Re-extract audio even if it exists")
+    ao.add_argument(
+        "--no-write",
+        action="store_true",
+        help="Do not write samples.jsonl / analysis.json (stdout JSON only)",
+    )
+    _add_pipeline_args(ao, settings)
+    ao.set_defaults(func=_cmd_analyze_offline)
 
     b = sub.add_parser("process-batch", help="Process every <name>.metadata.json + <name>.<video> in a directory")
     b.add_argument("--dir", required=True)

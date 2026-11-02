@@ -77,12 +77,27 @@ All content is labeled as demonstration / synthetic.
 | Minimize / Escape | Collapses to launcher (demo state kept in memory) |
 | Close | Tears down overlay; timers stop; reopen via toolbar |
 
+## Offline / backend-shaped data (integration branch)
+
+Demo mode is unchanged. Additionally:
+
+- `src/types/analysisContract.ts` mirrors Python `analysis.v1`
+- `src/adapters/mapAnalysisContract.ts` maps a document → `OverlayPanelModel` /
+  `DetectionResultState` (no HTTP `fetch`)
+- `src/panel/OfflineAnalysisPanel.tsx` reuses question / transcript / detection UI
+- Golden example: repo `contracts/analysis.v1.example.json`
+
+Default OverlayApp chrome still runs the synthetic demo only. Wiring the loaded
+extension to offline JSON or an HTTP API needs explicit approval (permissions,
+CORS, auth). See [`docs/end-to-end-integration.md`](../../docs/end-to-end-integration.md).
+
 ## Known limitations
 
 - Live Meet UX must be verified manually on your machine
 - Demo timing is accelerated for a short walkthrough
 - No persistence of panel position
 - Full analysis destination is intentionally disabled
+- No Meet audio capture; offline contract is not live detection
 
 ## Disable / remove
 

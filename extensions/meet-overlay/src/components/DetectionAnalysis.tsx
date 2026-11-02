@@ -1,4 +1,6 @@
 import type {
+  ConfidenceAvailability,
+  DataSource,
   DetectionResultState,
   QualityWarning,
   SupportingEvidence,
@@ -7,6 +9,13 @@ import type {
 type Props = {
   detection: DetectionResultState;
   qualityWarnings: QualityWarning[];
+  /** When omitted, treated as demo (preserves Phase 2 behavior). */
+  dataSource?: DataSource;
+  /**
+   * Descriptive offline features (audio/linguistic). Shown separately from
+   * model detection evidence — never presented as proof of AI assistance.
+   */
+  descriptiveEvidence?: SupportingEvidence[];
 };
 
 function EvidenceList({
@@ -32,16 +41,41 @@ function EvidenceList({
   );
 }
 
-export function DetectionAnalysis({ detection, qualityWarnings }: Props) {
+function confidenceLabel(confidence: ConfidenceAvailability): string {
+  if (confidence.status === "provided") {
+    const cal = confidence.calibrated ? "calibrated" : "not calibrated";
+    return `${(confidence.value * 100).toFixed(0)}% (${cal})`;
+  }
+  if (confidence.reason === "demo") return "Not calibrated / unavailable (demo)";
+  if (confidence.reason === "not_provided") return "Not provided";
+  return "Not calibrated / unavailable";
+}
+
+export function DetectionAnalysis({
+  detection,
+  qualityWarnings,
+  dataSource = "demo",
+  descriptiveEvidence = [],
+}: Props) {
+  const sourcePill = dataSource === "demo" ? "Demo fixture" : "Offline analysis";
+
   return (
     <section className="ii-section" aria-label="Detection analysis">
       <div className="ii-section-head">
         <h2>Detection analysis</h2>
-        <span className="ii-pill ii-pill-demo">Demo fixture</span>
+        <span
+          className={`ii-pill ${dataSource === "demo" ? "ii-pill-demo" : "ii-pill-offline"}`}
+        >
+          {sourcePill}
+        </span>
       </div>
 
       {detection.kind === "no_result" && (
-        <p className="ii-empty">No result yet — waiting for the demo analysis step.</p>
+        <p className="ii-empty">
+          {dataSource === "demo"
+            ? "No result yet — waiting for the demo analysis step."
+            : "No detection result yet."}
+        </p>
       )}
 
       {detection.kind === "processing" && (
@@ -69,7 +103,7 @@ export function DetectionAnalysis({ detection, qualityWarnings }: Props) {
           </p>
           <p className="ii-review-label">{detection.prediction.reviewLabel}</p>
           <p className="ii-confidence">
-            Confidence: <strong>Not calibrated / unavailable</strong>
+            Confidence: <strong>{confidenceLabel(detection.prediction.confidence)}</strong>
           </p>
           <p className="ii-meta">
             {detection.prediction.model.note} · schema{" "}
@@ -97,6 +131,13 @@ export function DetectionAnalysis({ detection, qualityWarnings }: Props) {
             )}
           />
         </div>
+      )}
+
+      {descriptiveEvidence.length > 0 && detection.kind !== "available" && (
+        <EvidenceList
+          title="Descriptive features (not model output)"
+          items={descriptiveEvidence}
+        />
       )}
 
       {qualityWarnings.length > 0 && (

@@ -1,9 +1,9 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-11-01** (integration branch `feature/end-to-end-integration-v1`
-> combining optional faster-whisper small/CPU/INT8 baseline and Meet overlay Phase 2 demo UI,
-> both based on `feature/docker-stt-staged-readiness`).
+> Last updated: **2026-11-01** (integration branch `feature/end-to-end-integration-v1`:
+> STT baseline + Meet overlay Phase 2 + offline offline analysis contract / Aditi boundary /
+> extension mapping; HTTP endpoints and Meet capture still await approval).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -77,6 +77,12 @@ Supporting infrastructure (implemented):
   transcript, detection fixtures, sample follow-ups). Demo UI only —
   **no capture, no STT, no model inference, no backend calls**.
   See [extensions/meet-overlay/README.md](../extensions/meet-overlay/README.md).
+- **Offline analysis + extension contract (integration branch):**
+  `services.analyze_offline_recording` builds `analysis.v1` (`analysis_contract.py`) from
+  existing pipeline outputs + descriptive `EvidenceSignal`s + Aditi detection boundary
+  (default `model_unavailable`). Meet overlay maps the contract via
+  `mapAnalysisContract.ts` / `OfflineAnalysisPanel` without HTTP or new host permissions.
+  See [end-to-end-integration.md](end-to-end-integration.md).
 
 ### Planned (NOT implemented)
 
@@ -84,11 +90,11 @@ Supporting infrastructure (implemented):
 |---|---|
 | Video feature pipeline | not started; only the plug-in interface exists |
 | Selected STT implementation | optional baseline approved: faster-whisper small/CPU/INT8 (explicit `--stt` only; not auto-run; live inference not validated on the laptop) |
-| Multimodal fusion / model / scoring | not started |
-| Meet overlay live backend wiring | not started; Phase 2 still uses synthetic fixtures |
+| Multimodal fusion / model / scoring | not started; Aditi adapter boundary exists, no production detector |
+| Meet overlay live backend wiring | transport-neutral mapper done; HTTP fetch / live chrome wiring await approval |
 | Post-interview review dashboard | separate branch `feature/frontend-review-mock` (not merged; out of scope for Meet overlay) |
-| Review UI (productized / live) | Meet overlay demo only so far |
-| API layer | not started; no framework chosen |
+| Review UI (productized / live) | Meet overlay demo default; offline panel path testable |
+| API layer | contract + serializers ready; **no HTTP framework chosen/installed** |
 | Persistent database | none; files only |
 | Production deployment | none |
 
@@ -134,7 +140,8 @@ larger machine is expected to run the heavy validation in §17.
 
 | Status | What | Result |
 |---|---|---|
-| ✅ Verified locally (dev laptop) | `pytest -q` (mocked STT; no weight download) | **210 passed** (2026-11-01) |
+| ✅ Verified locally (dev laptop) | `pytest -q` (mocked STT; no weight download) | **231 passed** (2026-11-01) |
+| ✅ Verified locally | Meet overlay `npm test` + `npm run build` | **17 passed**; production dist OK (2026-11-01) |
 | ✅ Verified locally | `docker compose config` | valid (no image built or pulled) |
 | ✅ Verified locally | CLI smoke: `--help`, `stt-list`, `datasets status`, `staged template/validate`, `cache-clean` | OK |
 | ✅ Previously executed | Michigan processed from source (121/121, 0 failures) | on the dev laptop during PRs #3–#4, before the storage-limit rule |
@@ -238,8 +245,10 @@ Details: [stt-decision.md](stt-decision.md).
 
 | Area | Status |
 |---|---|
-| Service layer (`services.py`) | ✅ all operations; API-ready |
-| CLI (`cli.py`) | ✅ thin wrapper; commands: process, process-batch, process-remote, process-source, quality, split, staged …, stt-list/eval/benchmark, datasets …, storage-init, cache-clean |
+| Service layer (`services.py`) | ✅ all operations + `analyze_offline_recording`; API-ready |
+| Analysis contract (`analysis.v1`) | ✅ Python + TS types; golden example under `contracts/` |
+| Detection boundary | ✅ `detection/boundary.py`; default model unavailable; mocks in tests only |
+| CLI (`cli.py`) | ✅ thin wrapper; commands: process, analyze-offline, process-batch, process-remote, process-source, quality, split, staged …, stt-list/eval/benchmark, datasets …, storage-init, cache-clean |
 | Configuration (`config.py`) | ✅ `INTERVIEW_INTEGRITY_*` env vars |
 | Logging | ✅ standard `logging`, global `--log-level` |
 | Feature registry | ✅ 30 behavioral + 9 quality + provenance; test fails on unregistered features |
@@ -315,7 +324,8 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 | Shared storage for staged/restricted data (Drive, CMU Box, …) and access method (rclone / Drive API / Drive for Desktop) | Shared Drive + rclone suggested earlier |
 | Numeric dependency for pitch features (numpy / parselmouth / librosa) | numpy |
 | Database | none needed yet |
-| API framework | none chosen |
+| API framework | none chosen/installed; FastAPI vs Flask vs stdlib compared in end-to-end-integration.md |
+| Aditi model I/O, labels, calibration, fusion, thresholds | boundary listed; awaiting Aditi confirmation |
 | Baseline ML model | n/a |
 | Multimodal fusion strategy | n/a |
 | Scoring formula / confidence thresholds | n/a |
@@ -378,7 +388,8 @@ actually validated and recorded in §5 and §19.
 1. **Teammate runs the STT benchmark and Docker validation** (validation guide §2 + §4). This unblocks the STT decision.
 2. **Team review and merge of PRs #1–#5**, in order.
 3. **Team decides the staged-pilot protocol** (condition assignment, audio tracks, retention, IRB), then records 2–3 pilots.
-4. **Meet overlay Phase 3 / backend prep** (after Phase 2 review): replace fixtures with API payloads once the backend contract and Aditi’s model output shape are approved — still no Meet capture in the extension until separately approved.
+4. **Approve HTTP framework / CORS / auth** (or keep library+CLI only) and optionally wire OverlayApp to offline panel mode — still no Meet capture until separately approved.
+5. **Confirm Aditi model adapter contract** (see `ADITI_CONFIRMATION_NEEDED`).
 
 ---
 
@@ -414,4 +425,6 @@ actually validated and recorded in §5 and §19.
   floating sizes. Still no capture, STT, model inference, or backend calls.
 - Integration branch `feature/end-to-end-integration-v1`: merges both workstreams above
   on common parent `6e9635c` (docs conflict resolved by retaining both).
+- Offline analysis service + analysis.v1 contract + Aditi detection boundary + Meet
+  overlay transport-neutral mapping/tests (no HTTP framework; no capture; no model weights).
 ```

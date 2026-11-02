@@ -15,8 +15,17 @@ describe("overlay guards", () => {
     const main = readFileSync(join(here, "main.tsx"), "utf8");
     const mount = readFileSync(join(here, "mount.tsx"), "utf8");
     const overlay = readFileSync(join(here, "../components/OverlayApp.tsx"), "utf8");
-    const src = main + mount + overlay;
-    for (const needle of ["getUserMedia", "tabCapture", "desktopCapture", "WebSocket", "EventSource"]) {
+    const adapter = readFileSync(join(here, "../adapters/mapAnalysisContract.ts"), "utf8");
+    const offlinePanel = readFileSync(join(here, "../panel/OfflineAnalysisPanel.tsx"), "utf8");
+    const src = main + mount + overlay + adapter + offlinePanel;
+    for (const needle of [
+      "getUserMedia",
+      "tabCapture",
+      "desktopCapture",
+      "WebSocket",
+      "EventSource",
+      "fetch(",
+    ]) {
       expect(src.includes(needle)).toBe(false);
     }
   });

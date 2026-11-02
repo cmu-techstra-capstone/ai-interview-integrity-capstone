@@ -1,0 +1,552 @@
+{
+  "analysis_id": "anl_example0001",
+  "answers": [
+    {
+      "answer_duration": 3.0,
+      "answer_end": 3.5,
+      "answer_start": 0.5,
+      "audio_timing_features": {
+        "answer_duration": 3.0,
+        "articulation_rate_wpm": 390.0,
+        "long_pause_count": 1,
+        "max_pause_duration": 1.0,
+        "mean_pause_duration": 1.0,
+        "mean_speech_segment_duration": 1.0,
+        "pause_count": 1,
+        "pause_duration_std": null,
+        "pause_ratio": 0.333,
+        "silence_duration": 1.0,
+        "speech_duration": 2.0,
+        "speech_level_mean_dbfs": -9.09,
+        "speech_level_range_db": 0.09,
+        "speech_level_std_db": 0.3,
+        "speech_rate_cv": 0.109,
+        "speech_rate_wpm": 260.0,
+        "speech_segment_count": 2,
+        "speech_segment_duration_std": 0.0,
+        "total_pause_duration": 1.0
+      },
+      "evidence_signals": [
+        {
+          "confidence": null,
+          "explanation": "Filled pauses (um, uh\u2026) + 'you know', 'I mean': 2 count.",
+          "modality": "transcript",
+          "quality_status": "ok",
+          "sample_key": "INT001/Q01",
+          "signal_name": "filler_word_count",
+          "source_features": [
+            "filler_word_count"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": {
+            "end": 3.5,
+            "start": 0.5,
+            "text": "Um, I think I think testing matters. You know, it catches bugs early."
+          },
+          "value": 2
+        },
+        {
+          "confidence": null,
+          "explanation": "Fillers per 100 words: 15.3846 per 100 words.",
+          "modality": "transcript",
+          "quality_status": "ok",
+          "sample_key": "INT001/Q01",
+          "signal_name": "filler_rate_per_100_words",
+          "source_features": [
+            "filler_rate_per_100_words"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": {
+            "end": 3.5,
+            "start": 0.5,
+            "text": "Um, I think I think testing matters. You know, it catches bugs early."
+          },
+          "value": 15.3846
+        },
+        {
+          "confidence": null,
+          "explanation": "Number of words in the answer: 13 words.",
+          "modality": "transcript",
+          "quality_status": "ok",
+          "sample_key": "INT001/Q01",
+          "signal_name": "word_count",
+          "source_features": [
+            "word_count"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": {
+            "end": 3.5,
+            "start": 0.5,
+            "text": "Um, I think I think testing matters. You know, it catches bugs early."
+          },
+          "value": 13
+        },
+        {
+          "confidence": null,
+          "explanation": "Words / answer duration: 260.0 words/min.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "speech_rate_wpm",
+          "source_features": [
+            "speech_rate_wpm"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 260.0
+        },
+        {
+          "confidence": null,
+          "explanation": "Words / speech duration: 390.0 words/min.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "articulation_rate_wpm",
+          "source_features": [
+            "articulation_rate_wpm"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 390.0
+        },
+        {
+          "confidence": null,
+          "explanation": "Gaps \u2265 0.3 s between speech: 1 count.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "pause_count",
+          "source_features": [
+            "pause_count"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 1
+        },
+        {
+          "confidence": null,
+          "explanation": "Pauses \u2265 1.0 s: 1 count.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "long_pause_count",
+          "source_features": [
+            "long_pause_count"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 1
+        },
+        {
+          "confidence": null,
+          "explanation": "Mean pause length: 1.0 s.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "mean_pause_duration",
+          "source_features": [
+            "mean_pause_duration"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 1.0
+        },
+        {
+          "confidence": null,
+          "explanation": "Total pause / answer duration: 0.333 ratio.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "pause_ratio",
+          "source_features": [
+            "pause_ratio"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 0.333
+        },
+        {
+          "confidence": null,
+          "explanation": "Detected speech time in the answer window: 2.0 s.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "speech_duration",
+          "source_features": [
+            "speech_duration"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 2.0
+        },
+        {
+          "confidence": null,
+          "explanation": "Answer duration minus speech duration: 1.0 s.",
+          "modality": "audio",
+          "quality_status": "warning",
+          "sample_key": "INT001/Q01",
+          "signal_name": "silence_duration",
+          "source_features": [
+            "silence_duration"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "value": 1.0
+        },
+        {
+          "confidence": null,
+          "explanation": "Unique words / words: 0.8462 ratio.",
+          "modality": "transcript",
+          "quality_status": "ok",
+          "sample_key": "INT001/Q01",
+          "signal_name": "type_token_ratio",
+          "source_features": [
+            "type_token_ratio"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": {
+            "end": 3.5,
+            "start": 0.5,
+            "text": "Um, I think I think testing matters. You know, it catches bugs early."
+          },
+          "value": 0.8462
+        },
+        {
+          "confidence": null,
+          "explanation": "Immediate word / word-pair repeats: 1 count.",
+          "modality": "transcript",
+          "quality_status": "ok",
+          "sample_key": "INT001/Q01",
+          "signal_name": "repetition_count",
+          "source_features": [
+            "repetition_count"
+          ],
+          "supporting_timestamps": [
+            [
+              0.5,
+              3.5
+            ]
+          ],
+          "supporting_transcript_span": {
+            "end": 3.5,
+            "start": 0.5,
+            "text": "Um, I think I think testing matters. You know, it catches bugs early."
+          },
+          "value": 1
+        }
+      ],
+      "has_segment_timestamps": true,
+      "has_word_timestamps": true,
+      "interview_id": "INT001",
+      "linguistic_features": {
+        "avg_sentence_length": 6.5,
+        "discourse_marker_count": 0,
+        "filler_rate_per_100_words": 15.3846,
+        "filler_word_count": 2,
+        "mattr": 0.8462,
+        "qa_content_word_overlap": 0.3333,
+        "qa_semantic_similarity": null,
+        "repetition_count": 1,
+        "self_correction_count": 1,
+        "sentence_count": 2,
+        "type_token_ratio": 0.8462,
+        "word_count": 13
+      },
+      "participant_id": "P001",
+      "provenance_features": {
+        "timing_source": "word_timestamps",
+        "transcript_source": "sidecar:sample_transcript.json"
+      },
+      "question_end": null,
+      "question_id": "Q01",
+      "question_start": null,
+      "question_text": "Why does software testing matter?",
+      "recording_id": "INT001",
+      "recording_quality_features": {
+        "audio_clipping_ratio": 0.0,
+        "audio_duration": 4.032,
+        "audio_is_clipped": false,
+        "audio_is_noisy": false,
+        "audio_is_silent": false,
+        "audio_noise_floor_dbfs": -120.0,
+        "audio_peak_dbfs": -5.99,
+        "audio_snr_db": 111.01,
+        "audio_speech_level_dbfs": -8.99
+      },
+      "response_latency": null,
+      "sample_row": {
+        "ai_model_used": null,
+        "ai_prompt_used": null,
+        "answer_duration": 3.0,
+        "answer_end": 3.5,
+        "answer_start": 0.5,
+        "articulation_rate_wpm": 390.0,
+        "assistance_label": "HUMAN_UNASSISTED",
+        "audio_clipping_ratio": 0.0,
+        "audio_duration": 4.032,
+        "audio_is_clipped": false,
+        "audio_is_noisy": false,
+        "audio_is_silent": false,
+        "audio_noise_floor_dbfs": -120.0,
+        "audio_peak_dbfs": -5.99,
+        "audio_reference": "/private/var/folders/11/glzsh0nj3r535x7k5j7cgh3c0000gn/T/pytest-of-amanprabhune/pytest-99/test_schema_roundtrip_and_gold0/i/INT001/audio.wav",
+        "audio_snr_db": 111.01,
+        "audio_speech_level_dbfs": -8.99,
+        "augmentation": null,
+        "avg_sentence_length": 6.5,
+        "deception_label": "UNKNOWN",
+        "discourse_marker_count": 0,
+        "filler_rate_per_100_words": 15.3846,
+        "filler_word_count": 2,
+        "generated_ai_answer": null,
+        "interview_id": "INT001",
+        "long_pause_count": 1,
+        "mattr": 0.8462,
+        "max_pause_duration": 1.0,
+        "mean_pause_duration": 1.0,
+        "mean_speech_segment_duration": 1.0,
+        "participant_id": "P001",
+        "pause_count": 1,
+        "pause_duration_std": null,
+        "pause_ratio": 0.333,
+        "qa_content_word_overlap": 0.3333,
+        "qa_semantic_similarity": null,
+        "question_end": null,
+        "question_id": "Q01",
+        "question_start": null,
+        "question_text": "Why does software testing matter?",
+        "recording_id": "INT001",
+        "repetition_count": 1,
+        "response_latency": null,
+        "response_notes": null,
+        "self_correction_count": 1,
+        "sentence_count": 2,
+        "silence_duration": 1.0,
+        "source_dataset": "staged",
+        "speech_duration": 2.0,
+        "speech_level_mean_dbfs": -9.09,
+        "speech_level_range_db": 0.09,
+        "speech_level_std_db": 0.3,
+        "speech_rate_cv": 0.109,
+        "speech_rate_wpm": 260.0,
+        "speech_segment_count": 2,
+        "speech_segment_duration_std": 0.0,
+        "split": null,
+        "timing_source": "word_timestamps",
+        "total_pause_duration": 1.0,
+        "transcript": "Um, I think I think testing matters. You know, it catches bugs early.",
+        "transcript_path": "/private/var/folders/11/glzsh0nj3r535x7k5j7cgh3c0000gn/T/pytest-of-amanprabhune/pytest-99/test_schema_roundtrip_and_gold0/i/INT001/transcript.json",
+        "transcript_source": "sidecar:sample_transcript.json",
+        "type_token_ratio": 0.8462,
+        "video_reference": "/private/var/folders/11/glzsh0nj3r535x7k5j7cgh3c0000gn/T/pytest-of-amanprabhune/pytest-99/media0/sample.mp4",
+        "video_sha256": "999273f69d0aeb846ed373343ceb2c9381882235bcbf8a5061f6d60cdaf57c95",
+        "word_count": 13
+      },
+      "transcript": "Um, I think I think testing matters. You know, it catches bugs early.",
+      "transcript_segments": [
+        {
+          "end_seconds": 1.5,
+          "id": "Q01-seg-0",
+          "speaker": "Candidate",
+          "start_seconds": 0.5,
+          "text": "Um, I think I think testing matters.",
+          "words": [
+            {
+              "confidence": null,
+              "end": 0.6,
+              "start": 0.5,
+              "text": "Um,"
+            },
+            {
+              "confidence": null,
+              "end": 0.75,
+              "start": 0.65,
+              "text": "I"
+            },
+            {
+              "confidence": null,
+              "end": 0.95,
+              "start": 0.8,
+              "text": "think"
+            },
+            {
+              "confidence": null,
+              "end": 1.05,
+              "start": 1.0,
+              "text": "I"
+            },
+            {
+              "confidence": null,
+              "end": 1.2,
+              "start": 1.1,
+              "text": "think"
+            },
+            {
+              "confidence": null,
+              "end": 1.35,
+              "start": 1.2,
+              "text": "testing"
+            },
+            {
+              "confidence": null,
+              "end": 1.5,
+              "start": 1.35,
+              "text": "matters."
+            }
+          ]
+        },
+        {
+          "end_seconds": 3.5,
+          "id": "Q01-seg-1",
+          "speaker": "Candidate",
+          "start_seconds": 2.5,
+          "text": "You know, it catches bugs early.",
+          "words": [
+            {
+              "confidence": null,
+              "end": 2.6,
+              "start": 2.5,
+              "text": "You"
+            },
+            {
+              "confidence": null,
+              "end": 2.7,
+              "start": 2.6,
+              "text": "know,"
+            },
+            {
+              "confidence": null,
+              "end": 2.9,
+              "start": 2.8,
+              "text": "it"
+            },
+            {
+              "confidence": null,
+              "end": 3.1,
+              "start": 2.9,
+              "text": "catches"
+            },
+            {
+              "confidence": null,
+              "end": 3.3,
+              "start": 3.1,
+              "text": "bugs"
+            },
+            {
+              "confidence": null,
+              "end": 3.5,
+              "start": 3.3,
+              "text": "early."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "detection": {
+    "calibrated": null,
+    "confidence_status": "unavailable_not_calibrated",
+    "confidence_value": null,
+    "detection_evidence": [],
+    "error": null,
+    "message": "Aditi's detection model is not integrated yet. Descriptive audio/transcript features are not model inference.",
+    "model_name": "aditi-detection",
+    "model_version": "unavailable",
+    "raw_score": null,
+    "related_question_id": "Q01",
+    "review_label": null,
+    "review_status": null,
+    "status": "model_unavailable",
+    "warnings": [
+      "No AI-assistance detection model is available in this build.",
+      "EvidenceSignal feature descriptions are measurements, not proof of AI assistance."
+    ]
+  },
+  "errors": [],
+  "is_synthetic": false,
+  "processing_error": null,
+  "processing_state": "completed_with_warnings",
+  "provenance": {
+    "analysis_id": "anl_example0001",
+    "is_synthetic": false,
+    "metadata_ref": "<dict>",
+    "pipeline": "interview_integrity.services.analyze_offline_recording",
+    "schema_version": "analysis.v1",
+    "source": "offline_processing",
+    "stt_options": {},
+    "stt_requested": null,
+    "transcript_mode": "sidecar",
+    "transcript_path": "/Users/amanprabhune/ai-interview-integrity-capstone-1/ai-interview-e2e-integration/tests/fixtures/sample_transcript.json",
+    "video_path": "<fixture>"
+  },
+  "quality_issues": [
+    {
+      "code": "EXTREME_ARTICULATION_RATE",
+      "key": "INT001/Q01",
+      "message": "articulation_rate_wpm 390.0 > 350.0; speech duration likely underestimated",
+      "severity": "warning"
+    }
+  ],
+  "schema_version": "analysis.v1",
+  "source": "offline_processing"
+}

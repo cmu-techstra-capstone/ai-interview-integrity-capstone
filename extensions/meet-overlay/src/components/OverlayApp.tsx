@@ -229,6 +229,7 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
 
           <DetectionAnalysis
             detection={demo.state.detection}
+            dataSource="demo"
             qualityWarnings={
               demo.state.detection.kind === "available" ||
               demo.state.detection.kind === "processing"

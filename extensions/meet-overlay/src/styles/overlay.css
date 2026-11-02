@@ -298,6 +298,12 @@
   white-space: nowrap;
 }
 
+.ii-pill-offline {
+  background: #e8f1f8;
+  color: var(--ii-primary);
+  border: 1px solid #b7cfe0;
+}
+
 .ii-pill-demo {
   background: #fff4d6;
   border-color: #f0d48a;

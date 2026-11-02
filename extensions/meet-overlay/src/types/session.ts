@@ -28,7 +28,8 @@ export interface InterviewSession {
   title: string;
   meetContext: string;
   source: DataSource;
-  modeLabel: "DEMO SIMULATION";
+  /** Demo vs offline/backend-shaped analysis — never conflate the two. */
+  modeLabel: "DEMO SIMULATION" | "OFFLINE ANALYSIS";
 }
 
 export interface InterviewQuestion {
