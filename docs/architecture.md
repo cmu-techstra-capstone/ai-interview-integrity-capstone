@@ -30,9 +30,10 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 | Application layer | `services.py` | every operation as a function returning structured results; `cli.py` is a thin wrapper; `analyze_offline_recording` |
 | Analysis contract | `analysis_contract.py` + Meet TS types | `analysis.v1` JSON for offline results → extension mapping |
 | Detection boundary | `detection/boundary.py` | Aditi adapter surface; default `model_unavailable` |
-| Configuration | `config.py` | `INTERVIEW_INTEGRITY_*` environment variables |
+| Localhost API | `api/` (FastAPI, optional `.[api]`) | loopback `GET /health`, `POST /v1/analyze-offline`; authorized recordings dir |
+| Configuration | `config.py` + `api/config.py` | `INTERVIEW_INTEGRITY_*` environment variables |
 | Docker scaffolding | `Dockerfile`, `compose.yaml` | single app container, bind mounts only; not yet built (see [teammate-validation.md](teammate-validation.md)) |
-| Meet overlay | `extensions/meet-overlay/` | Phase 2 demo + transport-neutral `mapAnalysisContract` / `OfflineAnalysisPanel` |
+| Meet overlay | `extensions/meet-overlay/` | Demo Simulation + Offline Analysis; loopback host permissions only |
 
 ## Planned / unresolved (not implemented)
 
@@ -41,10 +42,11 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 | STT | optional approved baseline: faster-whisper small/CPU/INT8 via explicit `--stt` / `resolve_transcriber`; sidecar preferred; not auto-run ([stt-decision.md](stt-decision.md)) |
 | Video feature pipeline | shared team work; only the plug-in interface exists; no visual model chosen |
 | Model / fusion / scoring layer | Aditi boundary only; no algorithm, fusion, thresholds, or calibrated confidence chosen |
-| Review UI | Meet overlay Phase 2 demo default; offline panel path for contract-shaped data |
-| API layer | serializers ready; **no HTTP framework chosen/installed** ([end-to-end-integration.md](end-to-end-integration.md)) |
+| Review UI | Meet overlay demo + offline modes; productized live review still pending |
+| API layer | **localhost FastAPI implemented**; remote hosting / broader auth not approved ([end-to-end-integration.md](end-to-end-integration.md)) |
 | Database | none; files (JSONL/CSV/JSON) only |
 | Production deployment / cloud | none |
+| Meet capture / realtime streaming | not started |
 
 ## Module boundaries
 

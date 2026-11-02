@@ -3,12 +3,16 @@ import { DEMO_SESSION } from "../data/demoScenarios";
 import { useDemoSimulation } from "../demo/useDemoSimulation";
 import { clampPosition, defaultLauncherPosition } from "../content/clamp";
 import { useDraggable } from "../content/useDraggable";
+import { useOfflineAnalysis } from "../offline/useOfflineAnalysis";
+import { OfflineAnalysisPanel } from "../panel/OfflineAnalysisPanel";
 import { CurrentQuestion } from "./CurrentQuestion";
 import { DetectionAnalysis } from "./DetectionAnalysis";
 import { FollowUpQuestions } from "./FollowUpQuestions";
 import { FullAnalysisLink } from "./FullAnalysisLink";
 import { CompactIcon, CloseIcon, ExpandIcon, MinimizeIcon } from "./icons";
 import { LiveTranscript } from "./LiveTranscript";
+import { ModeSwitcher, type OverlayMode } from "./ModeSwitcher";
+import { OfflineAnalysisControls } from "./OfflineAnalysisControls";
 import { SessionControls } from "./SessionControls";
 
 const LAUNCHER = 56;
@@ -29,7 +33,9 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
   const panelRef = useRef<HTMLElement | null>(null);
   const [chromeMode, setChromeMode] = useState<ChromeMode>("launcher");
   const [panelSize, setPanelSize] = useState<PanelSize>("compact");
+  const [mode, setMode] = useState<OverlayMode>("demo");
   const demo = useDemoSimulation();
+  const offline = useOfflineAnalysis();
 
   const panelWidth =
     panelSize === "compact"
@@ -88,6 +94,18 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
     );
   }, [setPosition]);
 
+  const onModeChange = useCallback(
+    (next: OverlayMode) => {
+      setMode(next);
+      if (next === "demo") {
+        offline.reset();
+      } else {
+        demo.reset();
+      }
+    },
+    [demo, offline],
+  );
+
   useEffect(() => {
     if (chromeMode !== "panel") return;
     const node = panelRef.current?.querySelector<HTMLElement>("[data-ii-autofocus]");
@@ -135,6 +153,11 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
   }
 
   const wide = panelSize === "wide";
+  const headerSubtitle =
+    mode === "demo"
+      ? DEMO_SESSION.meetContext
+      : "Offline processed recording — not live Meet capture.";
+  const modeBadge = mode === "demo" ? DEMO_SESSION.modeLabel : "OFFLINE ANALYSIS";
 
   return (
     <div className="ii-root">
@@ -153,11 +176,14 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
             </div>
             <div className="ii-brand-text">
               <strong id={titleId}>Interview Integrity</strong>
-              <span>{DEMO_SESSION.meetContext}</span>
+              <span>{headerSubtitle}</span>
             </div>
           </div>
-          <span className="ii-demo-badge" title="Synthetic demonstration">
-            {DEMO_SESSION.modeLabel}
+          <span
+            className="ii-demo-badge"
+            title={mode === "demo" ? "Synthetic demonstration" : "Offline analysis mode"}
+          >
+            {modeBadge}
           </span>
           <div className="ii-header-actions">
             {wide ? (
@@ -208,42 +234,69 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
         </header>
 
         <div className="ii-body">
-          <SessionControls
-            status={demo.state.status}
-            scenarioTitle={demo.scenario.title}
-            scenarioKind={demo.scenario.kind}
-            onStart={demo.start}
-            onPause={demo.pause}
-            onResume={demo.resume}
-            onReset={demo.reset}
-            onNext={demo.nextScenario}
-          />
+          <ModeSwitcher mode={mode} onChange={onModeChange} />
 
-          <CurrentQuestion
-            question={demo.scenario.question}
-            visible={demo.state.questionVisible}
-            candidateResponding={demo.state.candidateResponding}
-          />
+          {mode === "demo" ? (
+            <>
+              <SessionControls
+                status={demo.state.status}
+                scenarioTitle={demo.scenario.title}
+                scenarioKind={demo.scenario.kind}
+                onStart={demo.start}
+                onPause={demo.pause}
+                onResume={demo.resume}
+                onReset={demo.reset}
+                onNext={demo.nextScenario}
+              />
 
-          <LiveTranscript segments={demo.state.revealedSegments} expanded={wide} />
+              <CurrentQuestion
+                question={demo.scenario.question}
+                visible={demo.state.questionVisible}
+                candidateResponding={demo.state.candidateResponding}
+              />
 
-          <DetectionAnalysis
-            detection={demo.state.detection}
-            dataSource="demo"
-            qualityWarnings={
-              demo.state.detection.kind === "available" ||
-              demo.state.detection.kind === "processing"
-                ? demo.scenario.qualityWarnings
-                : []
-            }
-          />
+              <LiveTranscript segments={demo.state.revealedSegments} expanded={wide} />
 
-          <FollowUpQuestions
-            followup={demo.scenario.followup}
-            visible={demo.state.followupVisible}
-          />
+              <DetectionAnalysis
+                detection={demo.state.detection}
+                dataSource="demo"
+                qualityWarnings={
+                  demo.state.detection.kind === "available" ||
+                  demo.state.detection.kind === "processing"
+                    ? demo.scenario.qualityWarnings
+                    : []
+                }
+              />
 
-          <FullAnalysisLink />
+              <FollowUpQuestions
+                followup={demo.scenario.followup}
+                visible={demo.state.followupVisible}
+              />
+
+              <FullAnalysisLink />
+            </>
+          ) : (
+            <>
+              <OfflineAnalysisControls
+                form={offline.form}
+                connection={offline.connection}
+                healthNote={offline.healthNote}
+                errorMessage={offline.errorMessage}
+                onChange={offline.setForm}
+                onCheckHealth={() => void offline.checkHealth()}
+                onAnalyze={() => void offline.runAnalysis()}
+                onReset={offline.reset}
+              />
+              {offline.panelModel ? (
+                <OfflineAnalysisPanel model={offline.panelModel} expanded={wide} />
+              ) : (
+                <p className="ii-empty">
+                  Run an explicit offline analysis request to display results from the
+                  localhost API. This mode never captures Google Meet audio or video.
+                </p>
+              )}
+            </>
+          )}
         </div>
       </section>
     </div>

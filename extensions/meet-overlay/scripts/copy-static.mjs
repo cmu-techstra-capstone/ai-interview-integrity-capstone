@@ -15,13 +15,14 @@ await build({
 
 mkdirSync(join(dist, "icons"), { recursive: true });
 cpSync(join(extRoot, "public", "icons"), join(dist, "icons"), { recursive: true });
+cpSync(join(extRoot, "public", "api-config.json"), join(dist, "api-config.json"));
 
 const manifest = {
   manifest_version: 3,
   name: "Interview Integrity — Meet Overlay",
-  version: "0.1.0",
+  version: "0.2.0",
   description:
-    "Floating Interview Integrity overlay for Google Meet. Demo simulation UI — no capture.",
+    "Floating Interview Integrity overlay for Google Meet. Demo simulation + localhost offline analysis — no Meet capture.",
   action: {
     default_title: "Open Interview Integrity overlay",
     default_icon: {
@@ -48,12 +49,23 @@ const manifest = {
       run_at: "document_idle",
     },
   ],
-  host_permissions: ["https://meet.google.com/*"],
+  // Meet page injection + loopback-only local API. No microphone/tabCapture/desktopCapture.
+  host_permissions: [
+    "https://meet.google.com/*",
+    "http://127.0.0.1:8765/*",
+    "http://localhost:8765/*",
+  ],
 };
 
 writeFileSync(join(dist, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
 
-for (const file of ["manifest.json", "content.js", "background.js", "icons/icon-48.png"]) {
+for (const file of [
+  "manifest.json",
+  "content.js",
+  "background.js",
+  "api-config.json",
+  "icons/icon-48.png",
+]) {
   readFileSync(join(dist, file));
 }
 

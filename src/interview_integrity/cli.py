@@ -114,6 +114,14 @@ def _cmd_analyze_offline(args):
     return EXIT_OK
 
 
+def _cmd_serve_api(args):
+    """Start the localhost-only FastAPI development server (never binds 0.0.0.0)."""
+    from .api.__main__ import main as api_main
+
+    # Environment already drives ApiSettings; flags are documented for operators.
+    return api_main([])
+
+
 def _cmd_process_batch(args):
     result = services.process_local_batch(args.dir, out_dir=args.out_dir, config=_pipeline_config(args),
                                           transcriber=_stt(args))
@@ -310,6 +318,12 @@ def build_parser(settings: Settings | None = None) -> argparse.ArgumentParser:
     )
     _add_pipeline_args(ao, settings)
     ao.set_defaults(func=_cmd_analyze_offline)
+
+    serve = sub.add_parser(
+        "serve-api",
+        help="Start localhost-only FastAPI development API (127.0.0.1; see docs/end-to-end-integration.md)",
+    )
+    serve.set_defaults(func=_cmd_serve_api)
 
     b = sub.add_parser("process-batch", help="Process every <name>.metadata.json + <name>.<video> in a directory")
     b.add_argument("--dir", required=True)

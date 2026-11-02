@@ -22,9 +22,11 @@ extensions/**/.vite/
 data/raw/*
 data/interim/*
 data/processed/*
+data/authorized_recordings/*
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
+!data/authorized_recordings/.gitkeep
 
 # Local temp cache for files pulled from shared storage
 .cache/

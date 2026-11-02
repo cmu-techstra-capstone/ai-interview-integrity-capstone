@@ -284,15 +284,16 @@ def test_schema_roundtrip_and_golden_contract_keys(sample_video, transcript_path
         "sample_row",
     }
     assert answer_keys <= set(doc["answers"][0])
-    # Persist golden for TypeScript contract-compat tests.
+    # Golden for TypeScript contract-compat tests (write once if missing; do not churn git).
     CONTRACTS.mkdir(exist_ok=True)
     golden = CONTRACTS / "analysis.v1.example.json"
-    # Stable-ish example: rewrite analysis_id for the checked-in golden shape.
-    example = dict(doc)
-    example["analysis_id"] = "anl_example0001"
-    example["provenance"] = {**example["provenance"], "analysis_id": "anl_example0001", "video_path": "<fixture>"}
-    golden.write_text(json.dumps(example, indent=2, sort_keys=True) + "\n")
+    if not golden.is_file():
+        example = dict(doc)
+        example["analysis_id"] = "anl_example0001"
+        example["provenance"] = {**example["provenance"], "analysis_id": "anl_example0001", "video_path": "<fixture>"}
+        golden.write_text(json.dumps(example, indent=2, sort_keys=True) + "\n")
     assert golden.is_file()
+    assert json.loads(golden.read_text())["schema_version"] == ANALYSIS_SCHEMA_VERSION
 
 
 @requires_ffmpeg

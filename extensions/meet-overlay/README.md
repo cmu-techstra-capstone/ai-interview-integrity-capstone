@@ -2,33 +2,40 @@
 
 Floating Chrome extension that sits **on top of** Google Meet.
 
-**Demo simulation UI only — no audio/video capture, no STT, no model inference, no backend calls.**
+**Modes:** Demo Simulation (synthetic) and Offline Analysis (localhost API).
+**Not live Meet monitoring — no audio/video/caption capture.**
 
-## Current phase (Phase 2)
+## Modes
 
-On top of the Phase 1 shell (launcher, drag, minimize/close, Shadow DOM), Phase 2 adds:
+### Demo Simulation
+- Start / Pause / Resume / Reset Demo controls (explicitly not recording)
+- Synthetic question → transcript → analysis → follow-up fixtures
+- No backend request
 
-- Compact (~360px) and optional expanded (~480px) floating panel sizes
-- **Start / Pause / Resume / Reset Demo** controls (explicitly not recording)
-- Simulated live interview progression (question → transcript → analysis → follow-up)
-- Two synthetic scenarios (ordinary answer vs possible verbatim-style indicators)
-- Detection analysis UI with **Confidence: Not calibrated / unavailable**
-- Sample follow-up with copy
-- Disabled **Full analysis** (“Coming soon”)
+### Offline Analysis
+- Explicit relative-path request to the localhost FastAPI (`127.0.0.1:8765`)
+- Displays mapped `analysis.v1` results (question, transcript, evidence, quality warnings)
+- Shows model unavailable / failures honestly
+- Never invents confidence or live Meet claims
+
+See [`docs/end-to-end-integration.md`](../../docs/end-to-end-integration.md) for API setup,
+`RECORDINGS_DIR`, and `API_ALLOWED_ORIGINS` (extension ID).
 
 ## What this does **not** implement
 
-- Real Google Meet capture or DOM scraping of participants/captions
-- Aditi’s detection model or any local inference
-- Backend HTTP / WebSocket / SSE integration
+- Real Google Meet capture or DOM scraping of participants/captions/chat
+- Aditi’s detection model inference
+- Remote / non-loopback servers
+- WebSocket / SSE / polling
+- Microphone, camera, tabCapture, or desktopCapture permissions
 - Sriya’s post-interview dashboard
-- Chrome Side Panel or Meet layout resizing
 - Calibrated confidence / cheating probability scores
 
 ## Requirements
 
 - Node.js 20+ recommended
 - Google Chrome (or Chromium)
+- For Offline Analysis: local FastAPI from the repo (`pip install -e ".[api]"`)
 
 ## Install
 
@@ -42,19 +49,23 @@ Do not commit `node_modules/` or `dist/`.
 ## Test & build
 
 ```bash
-npm test          # vitest (demo engine, clamp, capture guards)
+npm test          # vitest
 npm run build     # typecheck + tests + Vite bundles + dist verify
 ```
 
 Load unpacked from **`extensions/meet-overlay/dist/`**.
 
+`dist/api-config.json` defaults to `http://127.0.0.1:8765`. Host permissions are limited to
+Meet + that loopback port.
+
 ## Load in Chrome
 
 1. `chrome://extensions` → Developer mode → **Load unpacked**
 2. Select `extensions/meet-overlay/dist`
-3. Open `https://meet.google.com/...`
-4. Click the extension toolbar icon → floating launcher
-5. Open the panel → **Start Demo**
+3. Copy the extension ID into the API’s `INTERVIEW_INTEGRITY_API_ALLOWED_ORIGINS`
+4. Open `https://meet.google.com/...`
+5. Click the extension toolbar icon → floating launcher
+6. Choose **Demo Simulation** or **Offline Analysis**
 
 ## Expected demo flow
 
@@ -65,31 +76,24 @@ Load unpacked from **`extensions/meet-overlay/dist/`**.
 5. Sample follow-up appears
 6. Use **Next scenario** for the contrasting example
 
-All content is labeled as demonstration / synthetic.
+All demo content is labeled demonstration / synthetic.
 
-## Interactions retained from Phase 1
+## Offline analysis flow (summary)
+
+1. Start localhost API with authorized recordings directory configured
+2. Enter relative paths (recording, metadata, optional sidecar)
+3. **Check API** then **Run offline analysis**
+4. Review mapped results (model unavailable by default)
+
+## Interactions retained
 
 | Control | Behavior |
 |---|---|
 | Toolbar icon | Opens overlay on Meet |
 | Drag | Moves launcher / panel; stays in viewport |
 | Expand view / Restore compact | Changes floating panel size only |
-| Minimize / Escape | Collapses to launcher (demo state kept in memory) |
+| Minimize / Escape | Collapses to launcher (in-memory state kept) |
 | Close | Tears down overlay; timers stop; reopen via toolbar |
-
-## Offline / backend-shaped data (integration branch)
-
-Demo mode is unchanged. Additionally:
-
-- `src/types/analysisContract.ts` mirrors Python `analysis.v1`
-- `src/adapters/mapAnalysisContract.ts` maps a document → `OverlayPanelModel` /
-  `DetectionResultState` (no HTTP `fetch`)
-- `src/panel/OfflineAnalysisPanel.tsx` reuses question / transcript / detection UI
-- Golden example: repo `contracts/analysis.v1.example.json`
-
-Default OverlayApp chrome still runs the synthetic demo only. Wiring the loaded
-extension to offline JSON or an HTTP API needs explicit approval (permissions,
-CORS, auth). See [`docs/end-to-end-integration.md`](../../docs/end-to-end-integration.md).
 
 ## Known limitations
 
@@ -97,8 +101,5 @@ CORS, auth). See [`docs/end-to-end-integration.md`](../../docs/end-to-end-integr
 - Demo timing is accelerated for a short walkthrough
 - No persistence of panel position
 - Full analysis destination is intentionally disabled
-- No Meet audio capture; offline contract is not live detection
-
-## Disable / remove
-
-Remove or disable the extension in `chrome://extensions`.
+- Unpacked extension ID must be allowlisted on the API for browser Origins
+- Offline mode is not live Meet monitoring

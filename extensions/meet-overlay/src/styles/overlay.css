@@ -334,6 +334,47 @@
   margin: 0 6px;
 }
 
+.ii-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+  font-size: 12px;
+  color: var(--ii-muted);
+}
+
+.ii-field input {
+  border: 1px solid var(--ii-border);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font: inherit;
+  color: var(--ii-text);
+  background: #fff;
+}
+
+.ii-field input:disabled {
+  opacity: 0.7;
+}
+
+.ii-primary {
+  border: 1px solid var(--ii-primary);
+  background: var(--ii-primary);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.ii-primary:hover {
+  background: var(--ii-primary-hover);
+}
+
+.ii-primary:disabled,
+.ii-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .ii-btn-row {
   display: flex;
   flex-wrap: wrap;
