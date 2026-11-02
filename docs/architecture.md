@@ -35,7 +35,7 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 
 | Component | Status |
 |---|---|
-| Final STT implementation | candidates scaffolded; choice pending ([stt-decision.md](stt-decision.md)) |
+| STT | optional approved baseline: faster-whisper small/CPU/INT8 via explicit `--stt` / `resolve_transcriber`; sidecar preferred; not auto-run ([stt-decision.md](stt-decision.md)) |
 | Video feature pipeline | shared team work; only the plug-in interface exists; no visual model chosen |
 | Model / fusion / scoring layer | not started; no algorithm, fusion method, thresholds or score chosen |
 | Review UI | not started |

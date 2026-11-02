@@ -38,6 +38,27 @@ class LeakageError(RuntimeError):
     pass
 
 
+def resolve_transcriber(
+    *,
+    transcript: str | Path | None = None,
+    stt: str | None = None,
+    stt_options: dict[str, Any] | None = None,
+) -> Transcriber | None:
+    """Choose a transcriber explicitly: sidecar file > named STT > none.
+
+    STT is never activated implicitly. Pass ``stt="faster-whisper-small-int8"`` (or
+    ``"faster-whisper"``) only when you intend to run the optional local baseline.
+    Sidecar transcripts always win when ``transcript`` is set.
+    """
+    if transcript is not None:
+        return SidecarTranscriber(transcript)
+    if not stt:
+        return None
+    from .transcription.registry import create_transcriber
+
+    return create_transcriber(stt, **(stt_options or {}))
+
+
 # ----------------------------------------------------------------------------- results
 
 @dataclass
@@ -89,9 +110,14 @@ def process_local_video(
     metadata: str | Path | dict,
     *,
     transcriber: Transcriber | None = None,
+    transcript: str | Path | None = None,
+    stt: str | None = None,
+    stt_options: dict[str, Any] | None = None,
     out_dir: str | Path = "data/processed",
     config: PipelineConfig | None = None,
 ) -> ProcessResult:
+    if transcriber is None and (transcript is not None or stt):
+        transcriber = resolve_transcriber(transcript=transcript, stt=stt, stt_options=stt_options)
     samples = process_video(video, metadata, transcriber=transcriber, config=config)
     rows = _save_outputs(samples, out_dir)
     return ProcessResult(samples, rows, Path(out_dir), check_dataset(samples))

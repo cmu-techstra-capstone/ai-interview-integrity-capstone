@@ -1,0 +1,16 @@
+{
+  "_comment": "Approved optional offline STT baseline for interview-integrity. Not auto-applied. Use with: interview-integrity process … --stt faster-whisper-small-int8   or stt-benchmark --candidates this file. Downloads stay off unless allow_download is true. Live inference belongs on a teammate machine with disk space.",
+  "candidates": [
+    {
+      "name": "faster-whisper-small-int8-baseline",
+      "transcriber": "faster-whisper-small-int8",
+      "options": {
+        "allow_download": false
+      },
+      "runs_locally": true,
+      "sends_audio_externally": false,
+      "cost_note": "free (local CPU)",
+      "notes": "Approved initial baseline: Whisper small, CPU, INT8, word timestamps. Set allow_download=true once on a machine that may cache weights, or point download_root at an existing model dir."
+    }
+  ]
+}
