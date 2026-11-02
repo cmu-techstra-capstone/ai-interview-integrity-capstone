@@ -1,7 +1,8 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-03** (through PR #5, branch `feature/docker-stt-staged-readiness`).
+> Last updated: **2026-11-01** (Meet overlay extension Phase 2 demo simulation UI on
+> `feature/meet-overlay-extension-v1`, based on `feature/docker-stt-staged-readiness`).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -69,6 +70,12 @@ Supporting infrastructure (implemented):
   intended entry point for a future API.
 - **Evidence contract:** `evidence.py` and [evidence-contract.md](evidence-contract.md).
   `confidence` is reserved and stays `None`.
+- **Google Meet overlay (Phase 2 demo UI):** Chrome MV3 extension at
+  `extensions/meet-overlay/`. Floating launcher/panel on `meet.google.com` via content
+  script + open Shadow DOM. Includes simulated interview walkthrough (question,
+  transcript, detection fixtures, sample follow-ups). Demo UI only —
+  **no capture, no STT, no model inference, no backend calls**.
+  See [extensions/meet-overlay/README.md](../extensions/meet-overlay/README.md).
 
 ### Planned (NOT implemented)
 
@@ -77,7 +84,9 @@ Supporting infrastructure (implemented):
 | Video feature pipeline | not started; only the plug-in interface exists |
 | Selected STT implementation | candidates scaffolded; no provider approved |
 | Multimodal fusion / model / scoring | not started |
-| Review UI | not started |
+| Meet overlay live backend wiring | not started; Phase 2 still uses synthetic fixtures |
+| Post-interview review dashboard | separate branch `feature/frontend-review-mock` (not merged; out of scope for Meet overlay) |
+| Review UI (productized / live) | Meet overlay demo only so far |
 | API layer | not started; no framework chosen |
 | Persistent database | none; files only |
 | Production deployment | none |
@@ -94,6 +103,7 @@ Details: [architecture.md](architecture.md).
 - audio pipeline
 - dataset / storage processing
 - integration infrastructure (connecting transcript, audio and future video pipelines)
+- Google Meet Chrome extension frontend (overlay) and related API integration (API not built yet)
 
 ### Shared team responsibility
 - video pipeline (Aman contributes but is **not** the sole owner)
@@ -362,6 +372,7 @@ actually validated and recorded in §5 and §19.
 1. **Teammate runs the STT benchmark and Docker validation** (validation guide §2 + §4). This unblocks the STT decision.
 2. **Team review and merge of PRs #1–#5**, in order.
 3. **Team decides the staged-pilot protocol** (condition assignment, audio tracks, retention, IRB), then records 2–3 pilots.
+4. **Meet overlay Phase 3 / backend prep** (after Phase 2 review): replace fixtures with API payloads once the backend contract and Aditi’s model output shape are approved — still no Meet capture in the extension until separately approved.
 
 ---
 
@@ -384,4 +395,12 @@ actually validated and recorded in §5 and §19.
   evidence contract, STT adapters + benchmark harness, staged pilot tools, process-batch,
   cache-clean; 5 reliability/data-loss bugs fixed. 196 tests.
 - Created docs/PROJECT_STATE.md as the single source of truth.
+
+2026-11-01
+- Meet overlay Phase 1 (branch feature/meet-overlay-extension-v1): MV3 Chrome extension
+  shell under extensions/meet-overlay/ — floating launcher/panel on meet.google.com,
+  open Shadow DOM, React+Vite, demo copy only. No capture, STT, model, or API calls.
+- Meet overlay Phase 2 (same branch): simulated interview UI — Start/Pause/Resume/Reset,
+  progressive transcript, detection fixture states, sample follow-ups, compact/expanded
+  floating sizes. Still no capture, STT, model inference, or backend calls.
 ```

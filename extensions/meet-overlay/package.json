@@ -1,0 +1,27 @@
+{
+  "name": "interview-integrity-meet-overlay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interview Integrity Google Meet floating overlay (Phase 2 demo simulation UI).",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build": "npm run typecheck && npm run test && vite build && node scripts/copy-static.mjs && node scripts/verify-dist.mjs",
+    "verify": "node scripts/verify-dist.mjs",
+    "dev:build": "vite build --watch"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.7.3",
+    "vite": "^6.0.11",
+    "vitest": "^3.0.5"
+  }
+}
