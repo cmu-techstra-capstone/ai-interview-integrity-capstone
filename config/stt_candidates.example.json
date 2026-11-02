@@ -1,11 +1,12 @@
 {
-  "_comment": "STT candidates for 'interview-integrity stt-benchmark'. None is the project default. Run on a machine with disk space; models download only where allow_download is true.",
+  "_comment": "STT candidates for 'interview-integrity stt-benchmark'. Processing never selects STT unless --stt is set. The first entry matches the approved optional baseline (also: config/stt_baseline.faster_whisper_small_int8.json). Run on a machine with disk space; models download only where allow_download is true.",
   "candidates": [
     {
       "name": "faster-whisper-small-int8",
-      "transcriber": "faster-whisper",
-      "options": {"model_size": "small", "device": "cpu", "compute_type": "int8", "allow_download": true},
-      "runs_locally": true, "sends_audio_externally": false, "cost_note": "free"
+      "transcriber": "faster-whisper-small-int8",
+      "options": {"allow_download": true},
+      "runs_locally": true, "sends_audio_externally": false, "cost_note": "free",
+      "notes": "Approved optional offline baseline (small / CPU / INT8 + word timestamps)."
     },
     {
       "name": "faster-whisper-medium-int8",

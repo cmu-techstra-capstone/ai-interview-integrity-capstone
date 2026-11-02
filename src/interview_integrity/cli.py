@@ -16,7 +16,6 @@ from . import services
 from .config import Settings
 from .pipeline import PipelineConfig
 from .storage.sources import AccessRequired
-from .transcription.sidecar import SidecarTranscriber
 
 EXIT_OK, EXIT_FAILED, EXIT_ACCESS = 0, 1, 2
 
@@ -26,11 +25,18 @@ def _err(msg: str) -> None:
 
 
 def _stt(args: argparse.Namespace):
-    if not getattr(args, "stt", None):
-        return None
-    from .transcription.registry import create_transcriber, parse_options
+    """Build an optional transcriber: --transcript sidecar wins; else --stt if set."""
+    from .transcription.registry import parse_options
 
-    return create_transcriber(args.stt, **parse_options(args.stt_option))
+    transcript = getattr(args, "transcript", None)
+    stt = getattr(args, "stt", None)
+    if not transcript and not stt:
+        return None
+    return services.resolve_transcriber(
+        transcript=transcript,
+        stt=stt,
+        stt_options=parse_options(getattr(args, "stt_option", None)) if stt else None,
+    )
 
 
 def _pipeline_config(args: argparse.Namespace) -> PipelineConfig:
@@ -64,9 +70,13 @@ def _print_batch(result: services.BatchResult, what: str) -> int:
 # ----------------------------------------------------------------------------- commands
 
 def _cmd_process(args):
-    transcriber = SidecarTranscriber(args.transcript) if args.transcript else _stt(args)
-    result = services.process_local_video(args.video, args.metadata, transcriber=transcriber,
-                                          out_dir=args.out_dir, config=_pipeline_config(args))
+    result = services.process_local_video(
+        args.video,
+        args.metadata,
+        transcriber=_stt(args),
+        out_dir=args.out_dir,
+        config=_pipeline_config(args),
+    )
     for s in result.samples:
         print(json.dumps(s.to_row(), indent=2))
     _print_issue_summary(result.issues)
@@ -218,8 +228,20 @@ def _add_pipeline_args(p: argparse.ArgumentParser, settings: Settings) -> None:
     p.add_argument("--min-pause", type=float, default=0.3, help="Minimum silence (s) counted as a pause")
     p.add_argument("--vad-threshold-dbfs", type=float, default=None,
                    help="Fixed VAD threshold; default adapts to each recording's level")
-    p.add_argument("--stt", help="Optional STT candidate when no transcript file is given (see 'stt-list')")
-    p.add_argument("--stt-option", action="append", metavar="KEY=VALUE", help="Option for the STT candidate")
+    p.add_argument(
+        "--stt",
+        help=(
+            "Optional STT when no --transcript / sidecar is given (see 'stt-list'). "
+            "Approved offline baseline: faster-whisper-small-int8 (or faster-whisper). "
+            "Not used unless set; package/weights are optional."
+        ),
+    )
+    p.add_argument(
+        "--stt-option",
+        action="append",
+        metavar="KEY=VALUE",
+        help="Option for --stt (e.g. allow_download=true, download_root=...). Downloads stay off unless allow_download=true",
+    )
 
 
 def _add_cache_args(p: argparse.ArgumentParser, settings: Settings) -> None:

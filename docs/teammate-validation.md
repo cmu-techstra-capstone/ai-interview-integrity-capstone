@@ -46,19 +46,41 @@ git status --short processed manifests            # expect only JSON/CSV changes
 Report: processed/failed counts, quality error/warning counts. Commit the updated
 `processed/` and `manifests/` on a branch.
 
-## 4. STT benchmark (downloads models: several GB)
+## 4. STT baseline + benchmark (downloads models: several GB)
+
+**Approved optional baseline:** faster-whisper `small` / CPU / INT8. The constrained
+dev laptop does **not** run this section. Install and download only here.
 
 Uses Michigan's human transcripts as the reference. Audio comes from the public source.
 **Nothing is sent to hosted services** unless `--allow-external-upload` is passed, which
 requires project approval.
 
 ```bash
-pip install -e ".[dev,stt-faster-whisper]"        # add stt-whisperx to include WhisperX
+pip install -e ".[dev,stt-faster-whisper]"        # pins av>=11,<19; add stt-whisperx only if comparing
+
+# A) Smoke the approved baseline on one local wav (after weights exist or with allow_download)
+interview-integrity stt-list
+interview-integrity process --video <one-public-or-fixture-video> \
+  --metadata <metadata.json> \
+  --stt faster-whisper-small-int8 \
+  --stt-option allow_download=true \
+  --out-dir data/stt_smoke_out
+
+# B) Baseline-only benchmark config
+interview-integrity stt-benchmark \
+  --candidates config/stt_baseline.faster_whisper_small_int8.json \
+  --dataset michigan_deception --limit 20 \
+  --report stt_baseline_michigan.json
+
+# C) Full candidate comparison (optional)
 interview-integrity stt-benchmark \
   --candidates config/stt_candidates.example.json \
   --dataset michigan_deception --limit 20 \
   --report stt_benchmark_michigan.json
 ```
+
+For (B), set `"allow_download": true` in a local copy of the baseline JSON (do not
+commit secrets or huge caches), or pre-populate the faster-whisper model cache.
 
 For a clean memory figure per candidate, run one candidate per process: copy the config
 with a single entry. For WhisperX diarization, add `"diarize": true, "hf_token": "<token>"`

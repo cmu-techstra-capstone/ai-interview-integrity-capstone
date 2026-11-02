@@ -1,7 +1,8 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-03** (through PR #5, branch `feature/docker-stt-staged-readiness`).
+> Last updated: **2026-11-01** (optional faster-whisper small/CPU/INT8 baseline on
+> `feature/stt-faster-whisper-baseline`, based on `feature/docker-stt-staged-readiness`).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -75,7 +76,7 @@ Supporting infrastructure (implemented):
 | Component | Status |
 |---|---|
 | Video feature pipeline | not started; only the plug-in interface exists |
-| Selected STT implementation | candidates scaffolded; no provider approved |
+| Selected STT implementation | optional baseline approved: faster-whisper small/CPU/INT8 (explicit `--stt` only; not auto-run; live inference not validated on the laptop) |
 | Multimodal fusion / model / scoring | not started |
 | Review UI | not started |
 | API layer | not started; no framework chosen |
@@ -123,7 +124,7 @@ larger machine is expected to run the heavy validation in §17.
 
 | Status | What | Result |
 |---|---|---|
-| ✅ Verified locally (dev laptop) | `pytest -q` | **196 passed** (2026-10-03) |
+| ✅ Verified locally (dev laptop) | `pytest -q` (mocked STT; no weight download) | **210 passed** (2026-11-01) |
 | ✅ Verified locally | `docker compose config` | valid (no image built or pulled) |
 | ✅ Verified locally | CLI smoke: `--help`, `stt-list`, `datasets status`, `staged template/validate`, `cache-clean` | OK |
 | ✅ Previously executed | Michigan processed from source (121/121, 0 failures) | on the dev laptop during PRs #3–#4, before the storage-limit rule |
@@ -191,17 +192,21 @@ Inventory with calculations: [audio-features.md](audio-features.md).
 ## 9. Transcript / STT Status
 
 - **Architecture:** provider-independent `Transcriber` interface plus a registry
-  (`transcription/registry.py`). Today the only production path is loading existing
-  transcripts (`SidecarTranscriber`).
-- **Candidates being evaluated:** faster-whisper, WhisperX (adapters with lazy imports;
-  packages **not installed**; faster-whisper won't download weights unless
-  `allow_download=true`), and hosted APIs (a placeholder that refuses to run without
-  explicit approval for external upload).
-- **Status:** benchmark tooling exists (`stt-eval`, `stt-benchmark`: WER, filler recall,
-  word-timestamp and speaker coverage, speed, memory). **No provider or model approved.**
-  Current recommendation, not approved: faster-whisper locally, chosen after the benchmark.
-- **Required validation:** 20-clip Michigan benchmark on the teammate machine
-  ([teammate-validation.md](teammate-validation.md) §4).
+  (`transcription/registry.py`). Sidecar transcripts remain preferred when present.
+  `services.resolve_transcriber()` selects sidecar > explicit STT > none.
+- **Optional approved baseline (2026-11-01):** `faster-whisper-small-int8` (and
+  `faster-whisper` with the same defaults): model `small`, device `cpu`, compute
+  `int8`, word timestamps on, **downloads off** unless `allow_download=true`. Selected
+  only via CLI `--stt` / explicit service arguments — **never** the silent default.
+  Optional extra: `.[stt-faster-whisper]` (pins `av>=11,<19`). Config:
+  [config/stt_baseline.faster_whisper_small_int8.json](../config/stt_baseline.faster_whisper_small_int8.json).
+- **Not approved:** WhisperX as default, hosted upload STT, diarization, production
+  model-size lock, any scoring/fusion tied to ASR text.
+- **Local test status:** mocked unit tests only on the constrained laptop. **No**
+  weight download and **no** live faster-whisper inference were run here.
+- **Benchmark tooling:** `stt-eval`, `stt-benchmark` unchanged. Leo's research-branch
+  20-clip Michigan run (WER ≈ 0.153 for small) is historical evidence, not laptop
+  validation. Teammate procedure: [teammate-validation.md](teammate-validation.md) §4.
 
 Details: [stt-decision.md](stt-decision.md).
 
@@ -272,6 +277,7 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 
 | Decision | Approved | Notes |
 |---|---|---|
+| Optional offline STT baseline: faster-whisper `small` / CPU / INT8 + word timestamps; explicit selection only; downloads off by default | 2026-11-01 | Not a scoring model; not auto-run; live inference pending teammate machine |
 | Explainable, human-in-the-loop output; no automatic cheating verdicts or rejection | from project start | |
 | Modular architecture: ingestion, audio, transcript and (future) video kept separate | from project start | |
 | Video-first data; audio + transcript prioritized for the MVP; raw video kept for later | 2026-09-29 | |
@@ -289,8 +295,8 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 
 | Decision | Current recommendation (not approved) |
 |---|---|
-| Final STT provider | faster-whisper, after the benchmark |
-| STT model size | benchmark `small` vs `medium` |
+| Final / production STT lock | optional baseline is faster-whisper small/CPU/INT8; revisit after staged pilots |
+| STT model size change (`medium` / `large`) | keep `small` until staged + teammate evidence says otherwise |
 | Hosted STT usage (even for public audio) | not without explicit approval |
 | Separate interviewer/candidate audio tracks | options documented in [staged-interviews.md](staged-interviews.md) |
 | Staged condition assignment (e.g. Latin square vs fixed order) | options documented |
@@ -384,4 +390,9 @@ actually validated and recorded in §5 and §19.
   evidence contract, STT adapters + benchmark harness, staged pilot tools, process-batch,
   cache-clean; 5 reliability/data-loss bugs fixed. 196 tests.
 - Created docs/PROJECT_STATE.md as the single source of truth.
+
+2026-11-01
+- Optional STT baseline wiring on `feature/stt-faster-whisper-baseline`: registry name
+  `faster-whisper-small-int8`, `services.resolve_transcriber`, docs/config updates.
+  Mocked tests only — no local weight download or live inference on the constrained laptop.
 ```
