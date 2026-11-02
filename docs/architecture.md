@@ -38,7 +38,7 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 | STT | optional approved baseline: faster-whisper small/CPU/INT8 via explicit `--stt` / `resolve_transcriber`; sidecar preferred; not auto-run ([stt-decision.md](stt-decision.md)) |
 | Video feature pipeline | shared team work; only the plug-in interface exists; no visual model chosen |
 | Model / fusion / scoring layer | not started; no algorithm, fusion method, thresholds or score chosen |
-| Review UI | not started |
+| Review UI | Meet overlay Phase 2 demo simulation (`extensions/meet-overlay/`); post-interview dashboard not merged |
 | API layer | not started; no framework chosen; `services.py` is the intended entry point |
 | Database | none; files (JSONL/CSV/JSON) only |
 | Production deployment / cloud | none |
