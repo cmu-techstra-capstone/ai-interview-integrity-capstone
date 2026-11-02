@@ -63,9 +63,24 @@ Meet + that loopback port.
 1. `chrome://extensions` → Developer mode → **Load unpacked**
 2. Select `extensions/meet-overlay/dist`
 3. Copy the extension ID into the API’s `INTERVIEW_INTEGRITY_API_ALLOWED_ORIGINS`
-4. Open `https://meet.google.com/...`
-5. Click the extension toolbar icon → floating launcher
-6. Choose **Demo Simulation** or **Offline Analysis**
+
+### Local harness (no Meet — preferred for quick UI changes)
+
+1. Click the extension toolbar icon on **any non-Meet tab**, **or** open  
+   `chrome-extension://<YOUR_EXTENSION_ID>/harness.html`
+2. The floating panel opens immediately on a plain local page
+3. Use **Demo Simulation** (no API) or **Offline Analysis** (needs localhost API)
+4. After `npm run build`, click **Reload** on the extension card, then refresh the harness tab
+
+```bash
+npm run harness   # prints these steps
+```
+
+### On Google Meet (integration check)
+
+1. Open `https://meet.google.com/...`
+2. Click the extension toolbar icon → floating launcher
+3. Choose **Demo Simulation** or **Offline Analysis**
 
 ## Expected demo flow
 
@@ -89,7 +104,7 @@ All demo content is labeled demonstration / synthetic.
 
 | Control | Behavior |
 |---|---|
-| Toolbar icon | Opens overlay on Meet |
+| Toolbar icon | Opens overlay on Meet; off Meet opens local harness |
 | Drag | Moves launcher / panel; stays in viewport |
 | Expand view / Restore compact | Changes floating panel size only |
 | Minimize / Escape | Collapses to launcher (in-memory state kept) |

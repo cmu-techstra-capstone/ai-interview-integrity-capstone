@@ -17,6 +17,20 @@ function isMeetUrl(url: string | undefined): boolean {
   return typeof url === "string" && url.startsWith(MEET_ORIGIN);
 }
 
+function isLocalHarnessUrl(url: string | undefined): boolean {
+  if (typeof url !== "string") return false;
+  try {
+    const u = new URL(url);
+    return (
+      u.protocol === "chrome-extension:" &&
+      u.hostname === chrome.runtime.id &&
+      (u.pathname === "/harness.html" || u.pathname.endsWith("/harness.html"))
+    );
+  } catch {
+    return false;
+  }
+}
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -48,16 +62,33 @@ async function openOverlayOnTab(tabId: number): Promise<void> {
 
 chrome.action.onClicked.addListener((tab) => {
   void (async () => {
-    if (tab.id == null || !isMeetUrl(tab.url)) {
+    // Local harness already auto-mounts the overlay — just focus/reload that tab.
+    if (tab.id != null && isLocalHarnessUrl(tab.url)) {
+      try {
+        await chrome.tabs.reload(tab.id);
+      } catch (err) {
+        console.warn("[Interview Integrity] Could not refresh local harness tab.", err);
+      }
       return;
     }
+
+    if (tab.id != null && isMeetUrl(tab.url)) {
+      try {
+        await openOverlayOnTab(tab.id);
+      } catch (err) {
+        console.warn(
+          "[Interview Integrity] Overlay unavailable. Wait for the Meet page to finish loading, then try again.",
+          err,
+        );
+      }
+      return;
+    }
+
+    // Not on Meet: open the local harness so Demo/Offline can be tested without Meet.
     try {
-      await openOverlayOnTab(tab.id);
+      await chrome.tabs.create({ url: chrome.runtime.getURL("harness.html") });
     } catch (err) {
-      console.warn(
-        "[Interview Integrity] Overlay unavailable. Wait for the Meet page to finish loading, then try again.",
-        err,
-      );
+      console.warn("[Interview Integrity] Could not open local harness page.", err);
     }
   })();
 });

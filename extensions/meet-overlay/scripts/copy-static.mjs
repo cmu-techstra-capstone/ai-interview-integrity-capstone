@@ -7,15 +7,20 @@ const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const extRoot = join(scriptsDir, "..");
 const dist = join(extRoot, "dist");
 
-// Background worker (second Vite pass; does not empty dist).
+// Background worker + local harness (do not empty dist).
 await build({
   configFile: join(extRoot, "vite.config.ts"),
   mode: "background",
+});
+await build({
+  configFile: join(extRoot, "vite.config.ts"),
+  mode: "harness",
 });
 
 mkdirSync(join(dist, "icons"), { recursive: true });
 cpSync(join(extRoot, "public", "icons"), join(dist, "icons"), { recursive: true });
 cpSync(join(extRoot, "public", "api-config.json"), join(dist, "api-config.json"));
+cpSync(join(extRoot, "public", "harness.html"), join(dist, "harness.html"));
 
 const manifest = {
   manifest_version: 3,

@@ -26,12 +26,14 @@ type PanelSize = "compact" | "wide";
 
 export type OverlayAppProps = {
   onClose: () => void;
+  /** When true, open the panel immediately (local harness). Default: launcher only. */
+  startOpen?: boolean;
 };
 
-export function OverlayApp({ onClose }: OverlayAppProps) {
+export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLElement | null>(null);
-  const [chromeMode, setChromeMode] = useState<ChromeMode>("launcher");
+  const [chromeMode, setChromeMode] = useState<ChromeMode>(startOpen ? "panel" : "launcher");
   const [panelSize, setPanelSize] = useState<PanelSize>("compact");
   const [mode, setMode] = useState<OverlayMode>("demo");
   const demo = useDemoSimulation();
@@ -49,7 +51,14 @@ export function OverlayApp({ onClose }: OverlayAppProps) {
       : { width: panelWidth, height: Math.min(panelHeight, window.innerHeight - 24) };
 
   const { position, setPosition, didDrag, dragHandlers } = useDraggable(
-    defaultLauncherPosition(LAUNCHER),
+    startOpen
+      ? clampPosition(
+          Math.max(12, window.innerWidth - Math.min(COMPACT_WIDTH, window.innerWidth - 24) - 24),
+          Math.max(12, window.innerHeight - Math.min(COMPACT_HEIGHT, window.innerHeight - 24) - 24),
+          Math.min(COMPACT_WIDTH, window.innerWidth - 24),
+          Math.min(COMPACT_HEIGHT, window.innerHeight - 24),
+        )
+      : defaultLauncherPosition(LAUNCHER),
     size,
   );
 

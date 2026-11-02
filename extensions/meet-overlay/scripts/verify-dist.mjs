@@ -7,6 +7,8 @@ const required = [
   "manifest.json",
   "content.js",
   "background.js",
+  "harness.js",
+  "harness.html",
   "api-config.json",
   "icons/icon-16.png",
   "icons/icon-48.png",

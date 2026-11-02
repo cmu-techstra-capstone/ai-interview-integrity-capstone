@@ -432,5 +432,6 @@ actually validated and recorded in §5 and §19.
   on common parent `6e9635c` (docs conflict resolved by retaining both).
 - Offline analysis service + analysis.v1 contract + Aditi detection boundary + Meet
   overlay transport-neutral mapping/tests (Phase 3 commit).
-- Phase 4: localhost FastAPI + Demo/Offline extension modes (working tree until approved commit).
+- Phase 4: localhost FastAPI + Demo/Offline extension modes
+  (`0f95f5e` — Connect FastAPI offline analysis to Google Meet extension).
 ```

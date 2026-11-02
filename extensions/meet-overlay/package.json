@@ -9,7 +9,8 @@
     "test": "vitest run",
     "build": "npm run typecheck && npm run test && vite build && node scripts/copy-static.mjs && node scripts/verify-dist.mjs",
     "verify": "node scripts/verify-dist.mjs",
-    "dev:build": "vite build --watch"
+    "dev:build": "vite build --watch",
+    "harness": "node scripts/print-harness.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",

@@ -43,10 +43,11 @@ export function isOverlayMounted(): boolean {
   return state != null && document.getElementById(HOST_ELEMENT_ID) != null;
 }
 
-export function mountOverlay(): void {
+export function mountOverlay(options?: { startOpen?: boolean }): void {
   const current = ensureHost();
   current.root.render(
     <OverlayApp
+      startOpen={options?.startOpen === true}
       onClose={() => {
         unmountOverlay();
       }}
