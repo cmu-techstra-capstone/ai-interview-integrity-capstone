@@ -1,9 +1,11 @@
-"""Provider-agnostic LLM interface (for generating controlled AI-assisted answers later).
+"""Provider-agnostic LLM interface (research use: controlled AI-written answers, rubric scoring).
 
 Nothing in the data pipeline depends on this package.
 """
 
 from .base import LLMClient, LLMConfigError, LLMResponse
-from .openrouter import OpenRouterClient
+from .cache import BudgetExceeded, CachedClient
+from .openrouter import OpenRouterClient, OpenRouterError, load_dotenv
 
-__all__ = ["LLMClient", "LLMConfigError", "LLMResponse", "OpenRouterClient"]
+__all__ = ["BudgetExceeded", "CachedClient", "LLMClient", "LLMConfigError", "LLMResponse",
+           "OpenRouterClient", "OpenRouterError", "load_dotenv"]

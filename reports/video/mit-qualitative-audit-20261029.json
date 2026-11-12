@@ -1,0 +1,18 @@
+{
+  "scope": "Qualitative visual inspection, not an annotated accuracy test",
+  "selection": "Longest example of each of four emitted event types in the 94-recording intermediate snapshot, plus the longest head-change and no-face events after all 138 recordings completed",
+  "review_material": "Six still frames per example, including a baseline frame and event boundary/interior frames; raw videos and contact sheets stay local",
+  "examples_inspected": 6,
+  "findings": {
+    "relative_head_change": "Visible head/posture reorientation is plausible, but neither its physical angle nor its cause is independently labeled.",
+    "relative_gaze_change": "Eye/head direction visibly varies; the footage does not establish what screen region or resource was being viewed.",
+    "no_face_detected": "The candidate remains in view in inspected event frames, including partial occlusion/shadow. Missing detection cannot be interpreted as the candidate leaving.",
+    "multiple_faces": "Only one face is visibly apparent in the inspected event stills. This is a possible detector false alarm, not verified additional-person presence.",
+    "opening_baseline_contamination": "In the full-cohort long head-change example, the opening baseline shows the candidate looking down and writing; later upright answering is marked as a long change. An unlabeled opening window cannot be assumed to be a valid normal-answering reference.",
+    "non_answer_segments": "The full-cohort longest no-face event includes standing up and an empty chair, followed by a return to the seat. Files include non-answer periods; those periods should not enter interview-answer event-rate or AI-use evaluation."
+  },
+  "event_precision": null,
+  "event_false_positive_rate": null,
+  "ai_assistance_labels": false,
+  "next_validation": "Independent timestamp annotations and full clips, including randomly sampled unflagged periods, are needed for event error rates."
+}

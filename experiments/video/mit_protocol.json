@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "type": "exploratory interview-domain transfer",
+  "preregistered": false,
+  "dataset": "MIT Interview Dataset, 138 videos from 69 participants",
+  "ai_assistance_labels": false,
+  "pilot": {
+    "recordings": ["P1", "PP1", "P3", "PP3", "P4", "PP4"],
+    "seconds_per_recording": 60,
+    "sample_fps": 5,
+    "selection": "first three available participant IDs; convenience engineering check",
+    "finding": "all measurable pilot heads triggered frozen camera-relative classifier"
+  },
+  "full_extraction": {
+    "recordings": "all 138",
+    "sample_fps": 2,
+    "workers": 2,
+    "reason": "sustained-event transfer and compute budget; different sampling from pilot",
+    "source_checks": "archive CRC, source and model SHA-256; no MIT label fitting"
+  },
+  "relative_events": {
+    "chosen_after_pilot": true,
+    "baseline": "first 30 seconds, single-face finite measurements",
+    "head_reference": "rotation medoid",
+    "gaze_reference": "normalized component-wise median gaze vector while head is near its baseline",
+    "gaze_calibration_head_gate_deg": 15,
+    "minimum_baseline_samples": 10,
+    "exclude_calibration_from_evaluation": true,
+    "head_angle_threshold_deg": 15,
+    "gaze_angle_threshold_deg": 15,
+    "sensitivity_thresholds_deg": [10, 15, 20, 25],
+    "minimum_event_seconds": 2,
+    "eye_gate": "one face, acceptable image quality, relative head below threshold",
+    "missing_calibration": "abstain; do not fill baseline using future evaluation frames"
+  },
+  "columbia_calibration_checks": {
+    "one_point": "0V/0H image per person for baseline; exclude it from all scores",
+    "five_point": "known center, +/-15H and +/-10V targets; exclude all five for every comparator",
+    "report": "same-cohort comparisons; 1000 participant-bootstrap replicates with seed 20261029",
+    "scope": "direction labels, no interview AI-use inference"
+  },
+  "mit_metrics": ["coverage", "observed event counts and rates", "baseline availability", "timing"],
+  "unavailable_metrics": ["AI-use AUROC", "AI-use precision/recall", "event false-positive rate without manual annotations"],
+  "privacy": "raw media and per-recording outputs stay in ignored local data paths"
+}
