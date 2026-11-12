@@ -1,0 +1,323 @@
+{
+  "type": "exploratory; synthetic AI-written answers vs real MIT answers (content channel only)",
+  "direction": "AUROC = P(synthetic scores higher than real); < 0.5 means synthetic scores lower",
+  "ai_assistance_probability": null,
+  "judge": [
+    "google/gemini-2.5-flash"
+  ],
+  "participants": 8,
+  "answers_scored": {
+    "real": 76,
+    "synthetic": 683
+  },
+  "unparseable": 1,
+  "evidence_quote_found_rate": {
+    "real": 0.9581,
+    "synthetic": 0.9746
+  },
+  "mean_scores": {
+    "REAL": {
+      "specificity": 2.47,
+      "genericness": 3.22,
+      "on_topic": 4.75,
+      "spoken_style": 4.5,
+      "composite": 3.38,
+      "n_words": 145.76
+    },
+    "AI_PERSONALIZED": {
+      "specificity": 2.99,
+      "genericness": 3.17,
+      "on_topic": 4.98,
+      "spoken_style": 2.52,
+      "composite": 3.09,
+      "n_words": 127.07
+    },
+    "AI_SPOKEN": {
+      "specificity": 2.88,
+      "genericness": 3.04,
+      "on_topic": 4.94,
+      "spoken_style": 4.02,
+      "composite": 3.08,
+      "n_words": 128.33
+    },
+    "AI_VERBATIM": {
+      "specificity": 2.09,
+      "genericness": 4.07,
+      "on_topic": 4.88,
+      "spoken_style": 2.22,
+      "composite": 3.99,
+      "n_words": 129.89
+    }
+  },
+  "auroc_all_synthetic": {
+    "specificity": {
+      "auroc": 0.5605,
+      "ci_low": 0.5123,
+      "ci_high": 0.6129,
+      "groups": 8
+    },
+    "genericness": {
+      "auroc": 0.552,
+      "ci_low": 0.5166,
+      "ci_high": 0.5928,
+      "groups": 8
+    },
+    "on_topic": {
+      "auroc": 0.5474,
+      "ci_low": 0.4995,
+      "ci_high": 0.6008,
+      "groups": 8
+    },
+    "spoken_style": {
+      "auroc": 0.1124,
+      "ci_low": 0.0752,
+      "ci_high": 0.1495,
+      "groups": 8
+    },
+    "composite": {
+      "auroc": 0.4969,
+      "ci_low": 0.4515,
+      "ci_high": 0.5455,
+      "groups": 8
+    },
+    "n_words": {
+      "auroc": 0.4408,
+      "ci_low": 0.417,
+      "ci_high": 0.4549,
+      "groups": 8
+    }
+  },
+  "auroc_by_condition": {
+    "AI_PERSONALIZED": {
+      "specificity": {
+        "auroc": 0.6643,
+        "ci_low": 0.6047,
+        "ci_high": 0.7156,
+        "groups": 8
+      },
+      "genericness": {
+        "auroc": 0.4789,
+        "ci_low": 0.4177,
+        "ci_high": 0.5441,
+        "groups": 8
+      },
+      "on_topic": {
+        "auroc": 0.5612,
+        "ci_low": 0.5152,
+        "ci_high": 0.614,
+        "groups": 8
+      },
+      "spoken_style": {
+        "auroc": 0.0461,
+        "ci_low": 0.0196,
+        "ci_high": 0.0787,
+        "groups": 8
+      },
+      "composite": {
+        "auroc": 0.4062,
+        "ci_low": 0.3488,
+        "ci_high": 0.4773,
+        "groups": 8
+      },
+      "n_words": {
+        "auroc": 0.4359,
+        "ci_low": 0.403,
+        "ci_high": 0.4544,
+        "groups": 8
+      }
+    },
+    "AI_SPOKEN": {
+      "specificity": {
+        "auroc": 0.6298,
+        "ci_low": 0.5803,
+        "ci_high": 0.6744,
+        "groups": 8
+      },
+      "genericness": {
+        "auroc": 0.4367,
+        "ci_low": 0.3974,
+        "ci_high": 0.4822,
+        "groups": 8
+      },
+      "on_topic": {
+        "auroc": 0.5486,
+        "ci_low": 0.4978,
+        "ci_high": 0.6032,
+        "groups": 8
+      },
+      "spoken_style": {
+        "auroc": 0.2741,
+        "ci_low": 0.1956,
+        "ci_high": 0.3504,
+        "groups": 8
+      },
+      "composite": {
+        "auroc": 0.3978,
+        "ci_low": 0.3566,
+        "ci_high": 0.4479,
+        "groups": 8
+      },
+      "n_words": {
+        "auroc": 0.4398,
+        "ci_low": 0.4132,
+        "ci_high": 0.4604,
+        "groups": 8
+      }
+    },
+    "AI_VERBATIM": {
+      "specificity": {
+        "auroc": 0.3867,
+        "ci_low": 0.3154,
+        "ci_high": 0.4705,
+        "groups": 8
+      },
+      "genericness": {
+        "auroc": 0.7413,
+        "ci_low": 0.6891,
+        "ci_high": 0.7871,
+        "groups": 8
+      },
+      "on_topic": {
+        "auroc": 0.5324,
+        "ci_low": 0.4821,
+        "ci_high": 0.5891,
+        "groups": 8
+      },
+      "spoken_style": {
+        "auroc": 0.0165,
+        "ci_low": 0.0057,
+        "ci_high": 0.0331,
+        "groups": 8
+      },
+      "composite": {
+        "auroc": 0.6877,
+        "ci_low": 0.6208,
+        "ci_high": 0.747,
+        "groups": 8
+      },
+      "n_words": {
+        "auroc": 0.4466,
+        "ci_low": 0.4265,
+        "ci_high": 0.4561,
+        "groups": 8
+      }
+    }
+  },
+  "auroc_by_generator": {
+    "anthropic/claude-haiku-5.5": {
+      "specificity": {
+        "auroc": 0.6941,
+        "ci_low": 0.6425,
+        "ci_high": 0.7511,
+        "groups": 8
+      },
+      "genericness": {
+        "auroc": 0.3575,
+        "ci_low": 0.3135,
+        "ci_high": 0.4044,
+        "groups": 8
+      },
+      "on_topic": {
+        "auroc": 0.5498,
+        "ci_low": 0.4973,
+        "ci_high": 0.6067,
+        "groups": 8
+      },
+      "spoken_style": {
+        "auroc": 0.1344,
+        "ci_low": 0.0832,
+        "ci_high": 0.189,
+        "groups": 8
+      },
+      "composite": {
+        "auroc": 0.3225,
+        "ci_low": 0.2717,
+        "ci_high": 0.3697,
+        "groups": 8
+      },
+      "n_words": {
+        "auroc": 0.443,
+        "ci_low": 0.4117,
+        "ci_high": 0.471,
+        "groups": 8
+      }
+    },
+    "meta-llama/llama-3.3-70b-instruct": {
+      "specificity": {
+        "auroc": 0.4569,
+        "ci_low": 0.4049,
+        "ci_high": 0.5032,
+        "groups": 8
+      },
+      "genericness": {
+        "auroc": 0.6601,
+        "ci_low": 0.619,
+        "ci_high": 0.7034,
+        "groups": 8
+      },
+      "on_topic": {
+        "auroc": 0.5357,
+        "ci_low": 0.4864,
+        "ci_high": 0.5938,
+        "groups": 8
+      },
+      "spoken_style": {
+        "auroc": 0.1272,
+        "ci_low": 0.0908,
+        "ci_high": 0.1594,
+        "groups": 8
+      },
+      "composite": {
+        "auroc": 0.6082,
+        "ci_low": 0.564,
+        "ci_high": 0.6601,
+        "groups": 8
+      },
+      "n_words": {
+        "auroc": 0.4287,
+        "ci_low": 0.3979,
+        "ci_high": 0.453,
+        "groups": 8
+      }
+    },
+    "openai/gpt-4o-mini": {
+      "specificity": {
+        "auroc": 0.5311,
+        "ci_low": 0.4751,
+        "ci_high": 0.5884,
+        "groups": 8
+      },
+      "genericness": {
+        "auroc": 0.6376,
+        "ci_low": 0.5912,
+        "ci_high": 0.6873,
+        "groups": 8
+      },
+      "on_topic": {
+        "auroc": 0.5567,
+        "ci_low": 0.5129,
+        "ci_high": 0.6052,
+        "groups": 8
+      },
+      "spoken_style": {
+        "auroc": 0.0757,
+        "ci_low": 0.0432,
+        "ci_high": 0.1096,
+        "groups": 8
+      },
+      "composite": {
+        "auroc": 0.5594,
+        "ci_low": 0.5066,
+        "ci_high": 0.6204,
+        "groups": 8
+      },
+      "n_words": {
+        "auroc": 0.4507,
+        "ci_low": 0.4193,
+        "ci_high": 0.4603,
+        "groups": 8
+      }
+    }
+  },
+  "repeat_exact_agreement": null
+}

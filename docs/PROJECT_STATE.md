@@ -1,7 +1,7 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-29** (research branch `model/video-behavior-research`: complete MIT video transfer, calibrated gaze and backbone comparisons; not yet published or integrated).
+> Last updated: **2026-11-05** (follow-up pattern prototype; earlier: 2026-10-29 (research branch `model/video-behavior-research`: complete MIT video transfer, calibrated gaze and backbone comparisons; not yet published or integrated)).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -397,6 +397,13 @@ See [aggregate Beemo report](../reports/beemo/paired-text-20261008.md).
   [broader video research](../reports/video/video-research-20261029.md).
   Raw media, weights and detailed outputs stay local/ignored; probability of AI
   assistance remains null.
+- **Follow-up pattern (2026-11-05, exploratory):** `src/interview_integrity/fusion/` aligns
+  local ASR words to the MIT speaker-labelled transcripts, joins the relative head/gaze
+  timeline and applies a deterministic rule (latency >= 2 s + look-away + fluent vs own
+  median). On MIT (no AI labels) it flags 18 of 324 fully measurable answers (5.6%),
+  clustered on hard behavioural questions. LLM reviewer-brief prompt and output guardrails
+  exist; no provider is wired. See [followup-pattern.md](followup-pattern.md) and
+  [the MIT report](../reports/fusion/mit-followup-pattern-20261105.md).
 
 ---
 
@@ -560,6 +567,19 @@ actually validated and recorded in §5 and §19.
 ## 19. Change Log
 
 ```text
+2026-11-12
+- Branch published to GitHub with demo export (fusion/demo_export.py), MIT reviewer-brief script
+  (experiments/fusion/brief_mit.py) and docs/demo-handoff.md for building the demo on PR #10.
+
+2026-11-05
+- Synthetic-positive pipeline (synthetic/, llm/openrouter implemented + cache): AI_VERBATIM /
+  AI_PERSONALIZED / AI_SPOKEN answers to MIT questions from 3 model families, blind content rubric by a
+  4th-family judge, participant-grouped AUROC. Content channel only; synthetic rows never become
+  assistance_label. Team approved sending MIT answer text to OpenRouter. 620 eligible answers / 69
+  participants. See synthetic-positives.md. Must run on the Mac (sandboxes cannot reach OpenRouter).
+- Timeline fusion prototype (fusion/turns, followup, llm_brief) + 24 tests; MIT run: 909 answer
+  windows, 569 with reliable timing, 18/324 flagged (5.6%). Not integrated into product APIs.
+
 2026-09-29
 - PR #1: data pipeline foundation (ingestion, audio, transcript interface, features, schema). 62 tests.
 - Repo moved to cmu-techstra-capstone org.
