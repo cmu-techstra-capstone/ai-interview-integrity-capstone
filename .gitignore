@@ -8,6 +8,11 @@ venv/
 build/
 dist/
 
+# Node / Chrome extension local installs and Vite caches
+node_modules/
+extensions/**/node_modules/
+extensions/**/.vite/
+
 # Secrets
 .env
 .env.*
@@ -17,9 +22,11 @@ dist/
 data/raw/*
 data/interim/*
 data/processed/*
+data/authorized_recordings/*
 !data/raw/.gitkeep
 !data/interim/.gitkeep
 !data/processed/.gitkeep
+!data/authorized_recordings/.gitkeep
 
 # Local temp cache for files pulled from shared storage
 .cache/

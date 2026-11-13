@@ -16,7 +16,6 @@ from . import services
 from .config import Settings
 from .pipeline import PipelineConfig
 from .storage.sources import AccessRequired
-from .transcription.sidecar import SidecarTranscriber
 
 EXIT_OK, EXIT_FAILED, EXIT_ACCESS = 0, 1, 2
 
@@ -26,11 +25,18 @@ def _err(msg: str) -> None:
 
 
 def _stt(args: argparse.Namespace):
-    if not getattr(args, "stt", None):
-        return None
-    from .transcription.registry import create_transcriber, parse_options
+    """Build an optional transcriber: --transcript sidecar wins; else --stt if set."""
+    from .transcription.registry import parse_options
 
-    return create_transcriber(args.stt, **parse_options(args.stt_option))
+    transcript = getattr(args, "transcript", None)
+    stt = getattr(args, "stt", None)
+    if not transcript and not stt:
+        return None
+    return services.resolve_transcriber(
+        transcript=transcript,
+        stt=stt,
+        stt_options=parse_options(getattr(args, "stt_option", None)) if stt else None,
+    )
 
 
 def _pipeline_config(args: argparse.Namespace) -> PipelineConfig:
@@ -64,14 +70,56 @@ def _print_batch(result: services.BatchResult, what: str) -> int:
 # ----------------------------------------------------------------------------- commands
 
 def _cmd_process(args):
-    transcriber = SidecarTranscriber(args.transcript) if args.transcript else _stt(args)
-    result = services.process_local_video(args.video, args.metadata, transcriber=transcriber,
-                                          out_dir=args.out_dir, config=_pipeline_config(args))
+    result = services.process_local_video(
+        args.video,
+        args.metadata,
+        transcriber=_stt(args),
+        out_dir=args.out_dir,
+        config=_pipeline_config(args),
+    )
     for s in result.samples:
         print(json.dumps(s.to_row(), indent=2))
     _print_issue_summary(result.issues)
     _err(f"\nWrote {len(result.samples)} row(s); dataset now has {result.dataset_rows} row(s) in {result.out_dir}/")
     return EXIT_OK
+
+
+def _cmd_analyze_offline(args):
+    """Offline analysis → API-facing contract JSON (no HTTP; detection unavailable by default)."""
+    from .transcription.registry import parse_options
+
+    result = services.analyze_offline_recording(
+        args.video,
+        args.metadata,
+        transcript=args.transcript,
+        stt=args.stt,
+        stt_options=parse_options(args.stt_option) if args.stt else None,
+        out_dir=args.out_dir,
+        config=_pipeline_config(args),
+        write_outputs=not args.no_write,
+    )
+    doc = result.to_analysis_dict()
+    print(json.dumps(doc, indent=2, sort_keys=True))
+    _print_issue_summary(result.issues)
+    if result.processing_error:
+        _err(f"processing_error: {result.processing_error}")
+        return EXIT_FAILED
+    det = (result.detection.status.value if result.detection else "n/a")
+    _err(
+        f"\nanalysis_id={result.analysis_id}; answers={len(result.samples)}; "
+        f"detection={det}; wrote analysis.json under {result.out_dir}/"
+        if not args.no_write
+        else f"\nanalysis_id={result.analysis_id}; answers={len(result.samples)}; detection={det}"
+    )
+    return EXIT_OK
+
+
+def _cmd_serve_api(args):
+    """Start the localhost-only FastAPI development server (never binds 0.0.0.0)."""
+    from .api.__main__ import main as api_main
+
+    # Environment already drives ApiSettings; flags are documented for operators.
+    return api_main([])
 
 
 def _cmd_process_batch(args):
@@ -218,8 +266,20 @@ def _add_pipeline_args(p: argparse.ArgumentParser, settings: Settings) -> None:
     p.add_argument("--min-pause", type=float, default=0.3, help="Minimum silence (s) counted as a pause")
     p.add_argument("--vad-threshold-dbfs", type=float, default=None,
                    help="Fixed VAD threshold; default adapts to each recording's level")
-    p.add_argument("--stt", help="Optional STT candidate when no transcript file is given (see 'stt-list')")
-    p.add_argument("--stt-option", action="append", metavar="KEY=VALUE", help="Option for the STT candidate")
+    p.add_argument(
+        "--stt",
+        help=(
+            "Optional STT when no --transcript / sidecar is given (see 'stt-list'). "
+            "Approved offline baseline: faster-whisper-small-int8 (or faster-whisper). "
+            "Not used unless set; package/weights are optional."
+        ),
+    )
+    p.add_argument(
+        "--stt-option",
+        action="append",
+        metavar="KEY=VALUE",
+        help="Option for --stt (e.g. allow_download=true, download_root=...). Downloads stay off unless allow_download=true",
+    )
 
 
 def _add_cache_args(p: argparse.ArgumentParser, settings: Settings) -> None:
@@ -242,6 +302,28 @@ def build_parser(settings: Settings | None = None) -> argparse.ArgumentParser:
     p.add_argument("--overwrite", action="store_true", help="Re-extract audio even if it exists")
     _add_pipeline_args(p, settings)
     p.set_defaults(func=_cmd_process)
+
+    ao = sub.add_parser(
+        "analyze-offline",
+        help="Offline recording analysis → analysis.v1 JSON contract (sidecar/STT/none; detection unavailable by default)",
+    )
+    ao.add_argument("--video", required=True, help="Path to an authorized local interview recording")
+    ao.add_argument("--metadata", required=True, help="Path to the recording metadata JSON")
+    ao.add_argument("--transcript", help="Existing sidecar transcript (.json or .txt); wins over --stt")
+    ao.add_argument("--overwrite", action="store_true", help="Re-extract audio even if it exists")
+    ao.add_argument(
+        "--no-write",
+        action="store_true",
+        help="Do not write samples.jsonl / analysis.json (stdout JSON only)",
+    )
+    _add_pipeline_args(ao, settings)
+    ao.set_defaults(func=_cmd_analyze_offline)
+
+    serve = sub.add_parser(
+        "serve-api",
+        help="Start localhost-only FastAPI development API (127.0.0.1; see docs/end-to-end-integration.md)",
+    )
+    serve.set_defaults(func=_cmd_serve_api)
 
     b = sub.add_parser("process-batch", help="Process every <name>.metadata.json + <name>.<video> in a directory")
     b.add_argument("--dir", required=True)

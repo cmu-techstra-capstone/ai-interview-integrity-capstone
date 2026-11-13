@@ -27,20 +27,40 @@ recording ─▶ ingestion ─┬─▶ audio pipeline ────────�
 | Staged tooling | `staged.py` | metadata templates, TSV label import, protocol validation |
 | Remote-data workflow | `storage/` | storage interface, bounded temp cache (+ stale cleanup), manifests, source-archive streaming |
 | Evidence contract | `evidence.py` | signal shape + per-modality quality status; no scoring |
-| Application layer | `services.py` | every operation as a function returning structured results; `cli.py` is a thin wrapper |
-| Configuration | `config.py` | `INTERVIEW_INTEGRITY_*` environment variables |
+| Application layer | `services.py` | every operation as a function returning structured results; `cli.py` is a thin wrapper; `analyze_offline_recording` |
+| Analysis contract | `analysis_contract.py` + Meet TS types | `analysis.v1` JSON for offline results → extension mapping |
+| Detection boundary | `detection/boundary.py` | Aditi adapter surface; default `model_unavailable` |
+| Localhost API | `api/` (FastAPI, optional `.[api]`) | loopback `GET /health`, `POST /v1/analyze-offline`, live session/chunk/stop |
+| Live audio processing | `live/` | in-memory sessions, PCM validation, STT windowing, research stubs |
+| Configuration | `config.py` + `api/config.py` | `INTERVIEW_INTEGRITY_*` environment variables |
 | Docker scaffolding | `Dockerfile`, `compose.yaml` | single app container, bind mounts only; not yet built (see [teammate-validation.md](teammate-validation.md)) |
+| Meet overlay | `extensions/meet-overlay/` | Demo / Offline / Live Audio; `tabCapture` + offscreen PCM chunks → localhost |
+
+## Live path (Phase 6)
+
+```text
+Meet tab audio → offscreen PCM chunks (~1.5s)
+      → service worker POST /v1/live/sessions/{id}/chunks
+      → in-memory buffer + STT on ~4–8s windows
+      → transcript + unassigned speech-window features
+      → floating Live Audio UI
+```
+
+Audio and transcript **research** adapters remain independent and typically
+`model_unavailable` until approved artifacts exist. Aditi detector stays unavailable.
+Video remains post-interview only. See [live-tab-audio-capture.md](live-tab-audio-capture.md).
 
 ## Planned / unresolved (not implemented)
 
 | Component | Status |
 |---|---|
-| Final STT implementation | candidates scaffolded; choice pending ([stt-decision.md](stt-decision.md)) |
+| STT | optional approved baseline: faster-whisper small/CPU/INT8; live uses same when weights present; `fake-live` for tests ([stt-decision.md](stt-decision.md)) |
 | Video feature pipeline | shared team work; only the plug-in interface exists; no visual model chosen |
-| Model / fusion / scoring layer | not started; no algorithm, fusion method, thresholds or score chosen |
-| Review UI | not started |
-| API layer | not started; no framework chosen; `services.py` is the intended entry point |
-| Database | none; files (JSONL/CSV/JSON) only |
+| Model / fusion / scoring layer | Aditi boundary only; no live fusion / cheating probability |
+| Research classifier artifacts | HANSEN / ALLSSTAR not bundled; live stubs return unavailable |
+| Review UI | Meet overlay demo + offline + live transcript; productized review still pending |
+| API layer | **localhost FastAPI implemented**; remote hosting / broader auth not approved |
+| Database | none; files (JSONL/CSV/JSON) only; live audio is memory-only |
 | Production deployment / cloud | none |
 
 ## Module boundaries
@@ -96,4 +116,5 @@ features in `features/registry.py`. Visual contributors: see
 [audio-features.md](audio-features.md) · [staged-interviews.md](staged-interviews.md) ·
 [evidence-contract.md](evidence-contract.md) · [stt-decision.md](stt-decision.md) ·
 [docker.md](docker.md) · [teammate-validation.md](teammate-validation.md) ·
+[end-to-end-integration.md](end-to-end-integration.md) ·
 [data-strategy.md](data-strategy.md) · [data-storage.md](data-storage.md) · [decisions.md](decisions.md)

@@ -1,7 +1,9 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-10-03** (through PR #5, branch `feature/docker-stt-staged-readiness`).
+> Last updated: **2026-11-12** (integration branch `feature/end-to-end-integration-v1`
+> Phase 6: Meet tab audio → bounded PCM HTTP chunks → localhost FastAPI → STT windows →
+> Live UI transcript; research adapters/Aditi remain unavailable-honest).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -69,17 +71,39 @@ Supporting infrastructure (implemented):
   intended entry point for a future API.
 - **Evidence contract:** `evidence.py` and [evidence-contract.md](evidence-contract.md).
   `confidence` is reserved and stays `None`.
+- **Google Meet overlay:** Chrome MV3 extension at `extensions/meet-overlay/`.
+  Floating launcher/panel on `meet.google.com` via content script + open Shadow DOM.
+  Modes: Demo Simulation, Offline Analysis, Live Audio (capture foundation).
+  Live STT/classifiers and audio→API transfer are **not** connected yet.
+  See [extensions/meet-overlay/README.md](../extensions/meet-overlay/README.md).
+- **Offline analysis + extension contract (integration branch):**
+  `services.analyze_offline_recording` builds `analysis.v1` (`analysis_contract.py`) from
+  existing pipeline outputs + descriptive `EvidenceSignal`s + Aditi detection boundary
+  (default `model_unavailable`). Meet overlay maps via `mapAnalysisContract.ts` /
+  `OfflineAnalysisPanel`. See [end-to-end-integration.md](end-to-end-integration.md).
+- **Localhost FastAPI (Phase 4):** optional `.[api]` extra; loopback-only
+  `GET /health` + `POST /v1/analyze-offline`; authorized `RECORDINGS_DIR`; Origin allowlist;
+  extension Demo Simulation vs Offline Analysis modes; host permissions Meet +
+  `127.0.0.1:8765` / `localhost:8765` only. **Not** a public server.
+- **Live Meet tab-audio Phase 6 (2026-11-12):** MV3 `tabCapture` + offscreen PCM
+  chunking (~1.5 s) → `POST /v1/live/sessions/.../chunks` → in-memory STT windows
+  (fake-live or optional faster-whisper) → Live UI transcript + unassigned speech-window
+  features. Research adapters and Aditi remain unavailable. No disk persistence / no
+  external upload. See [live-tab-audio-capture.md](live-tab-audio-capture.md).
 
 ### Planned (NOT implemented)
 
 | Component | Status |
 |---|---|
 | Video feature pipeline | not started; only the plug-in interface exists |
-| Selected STT implementation | candidates scaffolded; no provider approved |
-| Multimodal fusion / model / scoring | not started |
-| Review UI | not started |
-| API layer | not started; no framework chosen |
-| Persistent database | none; files only |
+| Selected STT implementation | optional baseline approved: faster-whisper small/CPU/INT8; live optional; real Meet+weights unverified here |
+| Multimodal fusion / model / scoring | not started; Aditi adapter boundary exists, no production detector |
+| Live research classifiers with artifacts | stubs only; HANSEN/ALLSSTAR not bundled |
+| Live answer segmentation | speech-window evidence only (unassigned) |
+| Post-interview review dashboard | separate branch `feature/frontend-review-mock` (not merged; out of scope for Meet overlay) |
+| Review UI (productized / live) | Meet overlay demo + offline + live transcript |
+| API layer | localhost FastAPI implemented; remote hosting / auth architecture not approved |
+| Persistent database | none; files only; live audio memory-only |
 | Production deployment | none |
 
 Details: [architecture.md](architecture.md).
@@ -94,6 +118,7 @@ Details: [architecture.md](architecture.md).
 - audio pipeline
 - dataset / storage processing
 - integration infrastructure (connecting transcript, audio and future video pipelines)
+- Google Meet Chrome extension frontend (overlay) and related API integration (API not built yet)
 
 ### Shared team responsibility
 - video pipeline (Aman contributes but is **not** the sole owner)
@@ -123,7 +148,8 @@ larger machine is expected to run the heavy validation in §17.
 
 | Status | What | Result |
 |---|---|---|
-| ✅ Verified locally (dev laptop) | `pytest -q` | **196 passed** (2026-10-03) |
+| ✅ Verified locally (dev laptop) | `pytest -q` (mocked STT; no weight download) | **249 passed** (2026-11-01 Phase 4) |
+| ✅ Verified locally | Meet overlay `npm test` + `npm run build` | **25 passed**; dist OK (Meet + loopback API only) |
 | ✅ Verified locally | `docker compose config` | valid (no image built or pulled) |
 | ✅ Verified locally | CLI smoke: `--help`, `stt-list`, `datasets status`, `staged template/validate`, `cache-clean` | OK |
 | ✅ Previously executed | Michigan processed from source (121/121, 0 failures) | on the dev laptop during PRs #3–#4, before the storage-limit rule |
@@ -191,17 +217,21 @@ Inventory with calculations: [audio-features.md](audio-features.md).
 ## 9. Transcript / STT Status
 
 - **Architecture:** provider-independent `Transcriber` interface plus a registry
-  (`transcription/registry.py`). Today the only production path is loading existing
-  transcripts (`SidecarTranscriber`).
-- **Candidates being evaluated:** faster-whisper, WhisperX (adapters with lazy imports;
-  packages **not installed**; faster-whisper won't download weights unless
-  `allow_download=true`), and hosted APIs (a placeholder that refuses to run without
-  explicit approval for external upload).
-- **Status:** benchmark tooling exists (`stt-eval`, `stt-benchmark`: WER, filler recall,
-  word-timestamp and speaker coverage, speed, memory). **No provider or model approved.**
-  Current recommendation, not approved: faster-whisper locally, chosen after the benchmark.
-- **Required validation:** 20-clip Michigan benchmark on the teammate machine
-  ([teammate-validation.md](teammate-validation.md) §4).
+  (`transcription/registry.py`). Sidecar transcripts remain preferred when present.
+  `services.resolve_transcriber()` selects sidecar > explicit STT > none.
+- **Optional approved baseline (2026-11-01):** `faster-whisper-small-int8` (and
+  `faster-whisper` with the same defaults): model `small`, device `cpu`, compute
+  `int8`, word timestamps on, **downloads off** unless `allow_download=true`. Selected
+  only via CLI `--stt` / explicit service arguments — **never** the silent default.
+  Optional extra: `.[stt-faster-whisper]` (pins `av>=11,<19`). Config:
+  [config/stt_baseline.faster_whisper_small_int8.json](../config/stt_baseline.faster_whisper_small_int8.json).
+- **Not approved:** WhisperX as default, hosted upload STT, diarization, production
+  model-size lock, any scoring/fusion tied to ASR text.
+- **Local test status:** mocked unit tests only on the constrained laptop. **No**
+  weight download and **no** live faster-whisper inference were run here.
+- **Benchmark tooling:** `stt-eval`, `stt-benchmark` unchanged. Leo's research-branch
+  20-clip Michigan run (WER ≈ 0.153 for small) is historical evidence, not laptop
+  validation. Teammate procedure: [teammate-validation.md](teammate-validation.md) §4.
 
 Details: [stt-decision.md](stt-decision.md).
 
@@ -213,6 +243,9 @@ Details: [stt-decision.md](stt-decision.md).
 - **Integration interface exists:** `FeatureExtractor` plug-ins with `visual_*` (behavioral)
   and `quality_*` (quality) namespaces. See
   [features/visual/README.md](../src/interview_integrity/features/visual/README.md).
+- **Stream quality (2026-11-05):** `VideoStreamQualityExtractor` adds ffprobe-only
+  `quality_video_*` fields (resolution, fps, codec, low-res flag, answer-window fit).
+  On by default via `PipelineConfig.include_video_stream_quality`. **No frames decoded.**
 - **No visual model selected or implemented:** no gaze, facial-expression, pose,
   face-recognition, deepfake or visual-cheating models. Raw video is preserved for
   future work.
@@ -223,8 +256,11 @@ Details: [stt-decision.md](stt-decision.md).
 
 | Area | Status |
 |---|---|
-| Service layer (`services.py`) | ✅ all operations; API-ready |
-| CLI (`cli.py`) | ✅ thin wrapper; commands: process, process-batch, process-remote, process-source, quality, split, staged …, stt-list/eval/benchmark, datasets …, storage-init, cache-clean |
+| Service layer (`services.py`) | ✅ all operations + `analyze_offline_recording`; API-ready |
+| Analysis contract (`analysis.v1`) | ✅ Python + TS types; golden example under `contracts/` |
+| Detection boundary | ✅ `detection/boundary.py`; default model unavailable; mocks in tests only |
+| Localhost API (`api/`) | ✅ FastAPI loopback; health + analyze-offline; path/origin guards |
+| CLI (`cli.py`) | ✅ thin wrapper; commands: process, analyze-offline, serve-api, process-batch, … |
 | Configuration (`config.py`) | ✅ `INTERVIEW_INTEGRITY_*` env vars |
 | Logging | ✅ standard `logging`, global `--log-level` |
 | Feature registry | ✅ 30 behavioral + 9 quality + provenance; test fails on unregistered features |
@@ -272,6 +308,7 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 
 | Decision | Approved | Notes |
 |---|---|---|
+| Optional offline STT baseline: faster-whisper `small` / CPU / INT8 + word timestamps; explicit selection only; downloads off by default | 2026-11-01 | Not a scoring model; not auto-run; live inference pending teammate machine |
 | Explainable, human-in-the-loop output; no automatic cheating verdicts or rejection | from project start | |
 | Modular architecture: ingestion, audio, transcript and (future) video kept separate | from project start | |
 | Video-first data; audio + transcript prioritized for the MVP; raw video kept for later | 2026-09-29 | |
@@ -282,6 +319,8 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 | Public datasets are processed by streaming from the official source, committing only lightweight features | 2026-09-29 | **supersedes** "use Google Drive for public datasets" (Drive access wasn't available; streaming avoids storing raw data anywhere). Drive remains an option for restricted/staged data |
 | Docker for containerization (no Kubernetes, DBs, servers) | 2026-10-03 | |
 | `docs/PROJECT_STATE.md` is the single source of truth, updated in the same PR as each meaningful change | 2026-10-03 | |
+| Initial live input = authorized Google Meet **tab audio** via Chrome `tabCapture` (explicit Start/Stop + consent; no mic/desktop picker by default) | 2026-11-12 | |
+| Live audio transport = Option A bounded localhost HTTP POST PCM chunks | 2026-11-12 | Inference uses larger STT windows than transport chunks |
 
 ---
 
@@ -289,8 +328,8 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 
 | Decision | Current recommendation (not approved) |
 |---|---|
-| Final STT provider | faster-whisper, after the benchmark |
-| STT model size | benchmark `small` vs `medium` |
+| Final / production STT lock | optional baseline is faster-whisper small/CPU/INT8; revisit after staged pilots |
+| STT model size change (`medium` / `large`) | keep `small` until staged + teammate evidence says otherwise |
 | Hosted STT usage (even for public audio) | not without explicit approval |
 | Separate interviewer/candidate audio tracks | options documented in [staged-interviews.md](staged-interviews.md) |
 | Staged condition assignment (e.g. Latin square vs fixed order) | options documented |
@@ -299,7 +338,11 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 | Shared storage for staged/restricted data (Drive, CMU Box, …) and access method (rclone / Drive API / Drive for Desktop) | Shared Drive + rclone suggested earlier |
 | Numeric dependency for pitch features (numpy / parselmouth / librosa) | numpy |
 | Database | none needed yet |
-| API framework | none chosen |
+| API framework | **Approved for localhost FastAPI** (Phase 4); remote hosting not approved |
+| Live audio → FastAPI transport | **Approved Option A** — bounded PCM HTTP POSTs implemented ([live-tab-audio-capture.md](live-tab-audio-capture.md)) |
+| Live research classifier artifacts | not bundled; adapters return unavailable |
+| Aditi model I/O, labels, calibration, fusion, thresholds | boundary listed; awaiting Aditi confirmation |
+| Meet capture / streaming / auth beyond Origin allowlist | not approved |
 | Baseline ML model | n/a |
 | Multimodal fusion strategy | n/a |
 | Scoring formula / confidence thresholds | n/a |
@@ -323,6 +366,7 @@ are merged and none have been reviewed.
 | [#3](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/3) | `feature/michigan-source-features` | #2 | Michigan from source, 121 clips | open |
 | [#4](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/4) | `feature/audio-backend-hardening` | #3 | audio/backend hardening, staged schema, quality | open |
 | [#5](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/5) | `feature/docker-stt-staged-readiness` | #4 | Docker, service layer, STT tooling, staged readiness, this file | open |
+| [#10](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/10) | `feature/end-to-end-integration-v1` | #5 | STT baseline + Meet overlay + localhost offline API + local harness | open |
 
 ---
 
@@ -359,9 +403,13 @@ actually validated and recorded in §5 and §19.
 
 ## 18. Immediate Next Steps
 
-1. **Teammate runs the STT benchmark and Docker validation** (validation guide §2 + §4). This unblocks the STT decision.
-2. **Team review and merge of PRs #1–#5**, in order.
-3. **Team decides the staged-pilot protocol** (condition assignment, audio tracks, retention, IRB), then records 2–3 pilots.
+1. **Teammate runs real faster-whisper + Meet verification** using
+   [LIVE_STT_TEAMMATE_TESTING.md](LIVE_STT_TEAMMATE_TESTING.md) (this laptop lacks package/weights).
+2. **Decide whether to vendor research classifier artifacts** for live audio/text adapters.
+3. **Teammate runs the STT benchmark and Docker validation** (validation guide §2 + §4).
+4. **Team review and merge of PRs #1–#5**, in order (PR #10 remains stacked on #5).
+5. **Team decides the staged-pilot protocol** (condition assignment, audio tracks, retention, IRB), then records 2–3 pilots.
+6. **Confirm Aditi model adapter contract** (see `ADITI_CONFIRMATION_NEEDED`).
 
 ---
 
@@ -384,4 +432,30 @@ actually validated and recorded in §5 and §19.
   evidence contract, STT adapters + benchmark harness, staged pilot tools, process-batch,
   cache-clean; 5 reliability/data-loss bugs fixed. 196 tests.
 - Created docs/PROJECT_STATE.md as the single source of truth.
+
+2026-11-01
+- Optional STT baseline wiring on `feature/stt-faster-whisper-baseline`: registry name
+  `faster-whisper-small-int8`, `services.resolve_transcriber`, docs/config updates.
+  Mocked tests only — no local weight download or live inference on the constrained laptop.
+- Meet overlay Phase 1 (branch feature/meet-overlay-extension-v1): MV3 Chrome extension
+  shell under extensions/meet-overlay/ — floating launcher/panel on meet.google.com,
+  open Shadow DOM, React+Vite, demo copy only. No capture, STT, model, or API calls.
+- Meet overlay Phase 2 (same branch): simulated interview UI — Start/Pause/Resume/Reset,
+  progressive transcript, detection fixture states, sample follow-ups, compact/expanded
+  floating sizes. Still no capture, STT, model inference, or backend calls.
+- Integration branch `feature/end-to-end-integration-v1`: merges both workstreams above
+  on common parent `6e9635c` (docs conflict resolved by retaining both).
+- Offline analysis service + analysis.v1 contract + Aditi detection boundary + Meet
+  overlay transport-neutral mapping/tests (Phase 3 commit).
+- Phase 4: localhost FastAPI + Demo/Offline extension modes
+  (`0f95f5e` — Connect FastAPI offline analysis to Google Meet extension).
+
+2026-11-12
+- Live Meet tab-audio capture foundation: Live Audio mode, consent + Start/Stop,
+  MV3 tabCapture + offscreen, AudioContext playback preserve.
+- Phase 6: Option A bounded PCM HTTP chunks → `/v1/live/sessions` API → STT windowing
+  (fake-live + optional faster-whisper) → Live UI transcript; research/Aditi unavailable;
+  no disk persistence; Demo/Offline preserved.
+- Teammate real-STT/Meet guide: docs/LIVE_STT_TEAMMATE_TESTING.md. Real Meet + weights
+  not verified on the constrained laptop.
 ```

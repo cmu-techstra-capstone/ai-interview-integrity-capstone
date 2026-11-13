@@ -12,10 +12,13 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
-# STT *candidates* for benchmarking only (no provider has been chosen). Heavy: install only
-# on a machine with disk space, never needed for the core pipeline or its tests.
-stt-faster-whisper = ["faster-whisper>=1.0"]
+dev = ["pytest>=8", "httpx>=0.27", "fastapi>=0.110", "uvicorn>=0.27", "pydantic>=2"]
+# Localhost-only development API (never binds 0.0.0.0 from our launcher).
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "pydantic>=2"]
+# Optional STT. Core pipeline and tests never require these. Install only on a machine
+# with enough disk (see docs/teammate-validation.md). av pin avoids faster-whisper + PyAV 19
+# decode breakage observed in Leo's benchmark (av 19 removed metadata_errors).
+stt-faster-whisper = ["faster-whisper>=1.0", "av>=11,<19"]
 stt-whisperx = ["whisperx>=3.1"]
 
 [project.scripts]

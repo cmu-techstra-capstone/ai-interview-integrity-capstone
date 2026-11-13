@@ -14,11 +14,21 @@ from pathlib import Path
 from typing import Any
 
 from ._fs import atomic_write_text
+from .analysis_contract import (
+    ANALYSIS_SCHEMA_VERSION,
+    AnalysisProvenance,
+    OfflineAnalysisDocument,
+    build_analysis_document,
+    build_evidence_for_sample,
+    new_analysis_id,
+)
 from .audio.extract import extract_audio
 from .datasets.io import load_jsonl, upsert_jsonl, write_csv, write_jsonl
 from .datasets.quality import QualityIssue, check_dataset, load_samples, summarize
 from .datasets.schema import InterviewSample
 from .datasets.splits import assign_splits, find_group_leakage
+from .detection.boundary import DetectionInference, DetectionModel, run_detection
+from .evidence import EvidenceSignal
 from .pipeline import PipelineConfig, process_video
 from .storage.cache import DEFAULT_MAX_BYTES, TemporaryCache, purge_stale_caches
 from .storage.manifest import FileStatus, ManifestEntry, load_manifest, save_manifest
@@ -38,14 +48,54 @@ class LeakageError(RuntimeError):
     pass
 
 
+def resolve_transcriber(
+    *,
+    transcript: str | Path | None = None,
+    stt: str | None = None,
+    stt_options: dict[str, Any] | None = None,
+) -> Transcriber | None:
+    """Choose a transcriber explicitly: sidecar file > named STT > none.
+
+    STT is never activated implicitly. Pass ``stt="faster-whisper-small-int8"`` (or
+    ``"faster-whisper"``) only when you intend to run the optional local baseline.
+    Sidecar transcripts always win when ``transcript`` is set.
+    """
+    if transcript is not None:
+        return SidecarTranscriber(transcript)
+    if not stt:
+        return None
+    from .transcription.registry import create_transcriber
+
+    return create_transcriber(stt, **(stt_options or {}))
+
+
 # ----------------------------------------------------------------------------- results
 
 @dataclass
 class ProcessResult:
+    """Result of processing one recording (and optional offline analysis enrichment).
+
+    Legacy fields (``samples``, ``dataset_rows``, ``out_dir``, ``issues``) are unchanged.
+    Optional analysis fields support the API-facing contract without a parallel service type.
+    """
+
     samples: list[InterviewSample]
     dataset_rows: int
     out_dir: Path
     issues: list[QualityIssue] = field(default_factory=list)
+    # --- offline analysis / API contract (optional; defaults preserve existing callers) ---
+    analysis_id: str | None = None
+    provenance: dict[str, Any] = field(default_factory=dict)
+    evidence_signals: list[EvidenceSignal] = field(default_factory=list)
+    detection: DetectionInference | None = None
+    analysis_document: OfflineAnalysisDocument | None = None
+    processing_error: str | None = None
+
+    def to_analysis_dict(self) -> dict[str, Any]:
+        """Machine-readable analysis contract (raises if document was not built)."""
+        if self.analysis_document is None:
+            raise ValueError("ProcessResult has no analysis_document; call analyze_offline_recording")
+        return self.analysis_document.to_dict()
 
 
 @dataclass
@@ -89,12 +139,123 @@ def process_local_video(
     metadata: str | Path | dict,
     *,
     transcriber: Transcriber | None = None,
+    transcript: str | Path | None = None,
+    stt: str | None = None,
+    stt_options: dict[str, Any] | None = None,
     out_dir: str | Path = "data/processed",
     config: PipelineConfig | None = None,
 ) -> ProcessResult:
+    if transcriber is None and (transcript is not None or stt):
+        transcriber = resolve_transcriber(transcript=transcript, stt=stt, stt_options=stt_options)
     samples = process_video(video, metadata, transcriber=transcriber, config=config)
     rows = _save_outputs(samples, out_dir)
     return ProcessResult(samples, rows, Path(out_dir), check_dataset(samples))
+
+
+def _transcript_mode(transcript: str | Path | None, stt: str | None) -> str:
+    if transcript is not None:
+        return "sidecar"
+    if stt:
+        return "stt"
+    return "none"
+
+
+def analyze_offline_recording(
+    video: str | Path,
+    metadata: str | Path | dict,
+    *,
+    transcript: str | Path | None = None,
+    stt: str | None = None,
+    stt_options: dict[str, Any] | None = None,
+    transcriber: Transcriber | None = None,
+    out_dir: str | Path = "data/processed",
+    config: PipelineConfig | None = None,
+    detection_model: DetectionModel | None = None,
+    write_outputs: bool = True,
+    analysis_id: str | None = None,
+) -> ProcessResult:
+    """Reusable offline analysis: ingest → STT/sidecar/none → features → evidence → contract.
+
+    - Sidecar transcript wins when ``transcript`` is set.
+    - Explicit ``stt`` (e.g. ``faster-whisper-small-int8``) is optional and never implicit.
+    - Works with no transcription model (linguistic features null; timing via VAD).
+    - Detection defaults to model-unavailable; does not fabricate scores.
+    - Processing failures are separated from detection unavailability via
+      ``processing_error`` vs ``detection.status``.
+    """
+    aid = analysis_id or new_analysis_id()
+    provenance = AnalysisProvenance(
+        schema_version=ANALYSIS_SCHEMA_VERSION,
+        analysis_id=aid,
+        source="offline_processing",
+        is_synthetic=False,
+        transcript_mode=_transcript_mode(transcript, stt),  # type: ignore[arg-type]
+        stt_requested=stt,
+        stt_options=dict(stt_options or {}),
+        video_path=str(video),
+        metadata_ref=str(metadata) if not isinstance(metadata, dict) else "<dict>",
+        transcript_path=str(transcript) if transcript is not None else None,
+    )
+
+    processing_error: str | None = None
+    samples: list[InterviewSample] = []
+    issues: list[QualityIssue] = []
+    rows = 0
+    out = Path(out_dir)
+
+    try:
+        if transcriber is None and (transcript is not None or stt):
+            transcriber = resolve_transcriber(transcript=transcript, stt=stt, stt_options=stt_options)
+        samples = process_video(video, metadata, transcriber=transcriber, config=config)
+        if write_outputs:
+            rows = _save_outputs(samples, out)
+        else:
+            rows = len(samples)
+        issues = check_dataset(samples)
+    except Exception as exc:  # noqa: BLE001 — surface as processing failure, not detection
+        processing_error = f"{type(exc).__name__}: {exc}"
+        log.error("offline analysis processing failed: %s", processing_error)
+        samples = []
+        issues = []
+        rows = 0
+
+    evidence: list[EvidenceSignal] = []
+    evidence_by_key: dict[str, list[EvidenceSignal]] = {}
+    for sample in samples:
+        key = "/".join(p for p in sample.key if p)
+        sample_issues = [i for i in issues if i.key == key or i.key.startswith(key)]
+        sigs = build_evidence_for_sample(sample, sample_issues or issues)
+        evidence.extend(sigs)
+        evidence_by_key[key] = sigs
+
+    # Detection boundary: unavailable by default; never confuses with processing_error.
+    detection = run_detection(samples, evidence_by_key, model=detection_model)
+    document = build_analysis_document(
+        samples,
+        issues,
+        detection,
+        provenance=provenance,
+        processing_error=processing_error,
+        errors=[processing_error] if processing_error else [],
+    )
+
+    if write_outputs:
+        # Always persist the contract (including failed processing) for review/debug.
+        out.mkdir(parents=True, exist_ok=True)
+        atomic_write_text(out / "analysis.json", document.to_json())
+
+    return ProcessResult(
+        samples=samples,
+        dataset_rows=rows,
+        out_dir=out,
+        issues=issues,
+        analysis_id=aid,
+        provenance=provenance.to_dict(),
+        evidence_signals=evidence,
+        detection=detection,
+        analysis_document=document,
+        processing_error=processing_error,
+    )
 
 
 def find_batch_recordings(directory: str | Path) -> list[dict[str, Path | None]]:
