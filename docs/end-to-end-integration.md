@@ -5,10 +5,11 @@ Worktree: sibling checkout `ai-interview-e2e-integration` (do not modify Agent 1
 
 This document describes what is **actually implemented**: offline voice analysis →
 `analysis.v1` → **localhost FastAPI** → Meet overlay **Demo Simulation** /
-**Offline Analysis** modes.
+**Offline Analysis** modes, plus the separate **Live Audio capture foundation**
+(tab audio hold only — see [live-tab-audio-capture.md](live-tab-audio-capture.md)).
 
-It does **not** claim live Meet capture, calibrated AI-cheating detection, remote hosting,
-or Aditi model inference.
+It does **not** claim live transcription, live classification, calibrated AI-cheating
+detection, remote hosting, or Aditi model inference.
 
 ## Unified architecture
 
@@ -62,6 +63,10 @@ Extension loopback URL: `extensions/meet-overlay/public/api-config.json`
 |---|---|---|
 | `GET` | `/health` | Liveness; reports detection model unavailable; **no** filesystem paths |
 | `POST` | `/v1/analyze-offline` | Offline analysis using **relative** paths under `RECORDINGS_DIR` |
+| `POST` | `/v1/live/sessions` | Start in-memory live audio session (consent + Meet affirmation) |
+| `POST` | `/v1/live/sessions/{id}/chunks` | Bounded PCM chunk; returns live transcript snapshot |
+| `GET` | `/v1/live/sessions/{id}` | Current live snapshot |
+| `POST` | `/v1/live/sessions/{id}/stop` | Stop + clear buffers |
 
 Request body:
 
@@ -116,12 +121,21 @@ STT: sidecar wins; explicit `--stt faster-whisper-small-int8` optional; neither 
 |---|---|
 | **Demo Simulation** | Synthetic fixtures; no API calls; labeled demo |
 | **Offline Analysis** | Explicit user request → service worker → localhost API → mapped results |
+| **Live Audio** | Consent + Start/Stop → PCM chunks → localhost live STT windows → transcript UI |
 
 Offline UI states: disconnected, connecting/processing, completed, validation error,
 backend unavailable, analysis failed.
 
+Live capture states: stopped, starting, capturing, permission_denied, interrupted, error.
+
 Content script never fetches arbitrary URLs; the service worker only calls the configured
-loopback base. Host permissions: Meet + `127.0.0.1:8765` + `localhost:8765` only.
+loopback base for offline analysis. Host permissions: Meet + `127.0.0.1:8765` +
+`localhost:8765`. Capture permissions: `tabCapture`, `offscreen` (no `desktopCapture`).
+
+Live PCM transport is **Option A** (bounded HTTP POSTs). Details:
+[live-tab-audio-capture.md](live-tab-audio-capture.md).
+Real faster-whisper + Meet teammate procedure:
+[LIVE_STT_TEAMMATE_TESTING.md](LIVE_STT_TEAMMATE_TESTING.md).
 
 ## Model-unavailable behavior
 

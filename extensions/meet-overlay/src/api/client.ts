@@ -10,9 +10,20 @@ import {
   isSafeRelativePath,
   type ApiClientConfig,
 } from "./config";
+import type { LiveApiResult, LiveSessionPayload } from "../types/liveApi";
 import type { AnalyzeOfflineRequestPayload, AnalyzeResult, HealthResult } from "./types";
 
 export type FetchLike = typeof fetch;
+
+export type LiveChunkPayload = {
+  sequence: number;
+  sampleRate: number;
+  channels: number;
+  encoding: "pcm_s16le";
+  pcmBase64: string;
+  durationMs: number;
+  clientRelStartMs?: number;
+};
 
 export class LocalApiClient {
   readonly config: ApiClientConfig;
@@ -27,6 +38,118 @@ export class LocalApiClient {
   private url(path: string): string {
     const base = assertLoopbackApiBaseUrl(this.config.apiBaseUrl, this.config.allowedHosts);
     return new URL(path, base).toString();
+  }
+
+  private async parseLive(res: Response): Promise<LiveApiResult> {
+    const data = (await res.json()) as {
+      ok?: boolean;
+      live?: LiveSessionPayload;
+      error?: { code?: string; message?: string };
+    };
+    if (!res.ok || data.ok === false) {
+      return {
+        ok: false,
+        error: {
+          code: data.error?.code || "live_failed",
+          message: data.error?.message || `Live request failed (${res.status})`,
+        },
+        live: data.live,
+      };
+    }
+    if (!data.live?.session_id) {
+      return {
+        ok: false,
+        error: { code: "invalid_response", message: "Live API returned no session payload" },
+      };
+    }
+    return { ok: true, live: data.live };
+  }
+
+  async liveStart(
+    payload: { consentConfirmed: boolean; meetTabConfirmed: boolean; stt?: string },
+    signal?: AbortSignal,
+  ): Promise<LiveApiResult> {
+    try {
+      const res = await this.fetchImpl(this.url("/v1/live/sessions"), {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          consent_confirmed: payload.consentConfirmed,
+          meet_tab_confirmed: payload.meetTabConfirmed,
+          stt: payload.stt || null,
+        }),
+        signal,
+      });
+      return await this.parseLive(res);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return { ok: false, error: { code: "aborted", message: "Request was cancelled" } };
+      }
+      return {
+        ok: false,
+        error: {
+          code: "backend_unavailable",
+          message: "Local API is unreachable. Is the localhost server running?",
+        },
+      };
+    }
+  }
+
+  async liveChunk(
+    sessionId: string,
+    chunk: LiveChunkPayload,
+    signal?: AbortSignal,
+  ): Promise<LiveApiResult> {
+    try {
+      const res = await this.fetchImpl(this.url(`/v1/live/sessions/${encodeURIComponent(sessionId)}/chunks`), {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sequence: chunk.sequence,
+          sample_rate: chunk.sampleRate,
+          channels: chunk.channels,
+          encoding: chunk.encoding,
+          pcm_base64: chunk.pcmBase64,
+          duration_ms: chunk.durationMs,
+          client_rel_start_ms: chunk.clientRelStartMs ?? null,
+        }),
+        signal,
+      });
+      return await this.parseLive(res);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return { ok: false, error: { code: "aborted", message: "Request was cancelled" } };
+      }
+      return {
+        ok: false,
+        error: {
+          code: "backend_unavailable",
+          message: "Local API is unreachable during live chunk upload",
+        },
+      };
+    }
+  }
+
+  async liveStop(sessionId: string, signal?: AbortSignal): Promise<LiveApiResult> {
+    try {
+      const res = await this.fetchImpl(this.url(`/v1/live/sessions/${encodeURIComponent(sessionId)}/stop`), {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        signal,
+      });
+      return await this.parseLive(res);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return { ok: false, error: { code: "aborted", message: "Request was cancelled" } };
+      }
+      return {
+        ok: false,
+        error: {
+          code: "backend_unavailable",
+          message: "Local API is unreachable while stopping the live session",
+        },
+      };
+    }
   }
 
   async health(signal?: AbortSignal): Promise<HealthResult> {

@@ -11,6 +11,7 @@ const root = path.dirname(fileURLToPath(import.meta.url));
  */
 export default defineConfig(({ mode }) => {
   const isBackground = mode === "background";
+  const isOffscreen = mode === "offscreen";
   const isHarness = mode === "harness";
 
   if (isBackground) {
@@ -25,6 +26,28 @@ export default defineConfig(({ mode }) => {
           entry: path.resolve(root, "src/background/service-worker.ts"),
           formats: ["es"],
           fileName: () => "background.js",
+        },
+        rollupOptions: {
+          output: {
+            inlineDynamicImports: true,
+          },
+        },
+      },
+    };
+  }
+
+  if (isOffscreen) {
+    return {
+      publicDir: false,
+      build: {
+        outDir: "dist",
+        emptyOutDir: false,
+        sourcemap: false,
+        minify: true,
+        lib: {
+          entry: path.resolve(root, "src/background/offscreen.ts"),
+          formats: ["es"],
+          fileName: () => "offscreen.js",
         },
         rollupOptions: {
           output: {

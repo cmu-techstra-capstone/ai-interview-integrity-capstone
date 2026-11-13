@@ -54,6 +54,13 @@ class ApiSettings:
     allowed_origins: tuple[str, ...] = ()
     # When True, TestClient / unit tests may skip Host header enforcement.
     relax_host_check: bool = False
+    # Live session limits (in-memory only; no disk retention).
+    live_max_sessions: int = 2
+    live_max_chunk_bytes: int = 256 * 1024
+    live_max_session_bytes: int = 8 * 1024 * 1024
+    live_session_ttl_seconds: float = 30 * 60
+    live_idle_ttl_seconds: float = 5 * 60
+    live_default_stt: str = "faster-whisper-small-int8"
     allowed_video_suffixes: tuple[str, ...] = (
         ".mp4",
         ".mov",
@@ -94,6 +101,24 @@ class ApiSettings:
 
         relax = (get("api_relax_host_check") or "").lower() in {"1", "true", "yes"}
 
+        def _int(name: str, default: int) -> int:
+            raw = get(name)
+            if not raw:
+                return default
+            try:
+                return int(raw)
+            except ValueError as exc:
+                raise ApiConfigError(f"{PREFIX}{name.upper()} must be an integer") from exc
+
+        def _float(name: str, default: float) -> float:
+            raw = get(name)
+            if not raw:
+                return default
+            try:
+                return float(raw)
+            except ValueError as exc:
+                raise ApiConfigError(f"{PREFIX}{name.upper()} must be a number") from exc
+
         return cls(
             host=host,
             port=port,
@@ -102,6 +127,12 @@ class ApiSettings:
             out_dir=Path(get("api_out_dir") or get("out_dir") or cls.out_dir),
             allowed_origins=_parse_origins(get("api_allowed_origins")),
             relax_host_check=relax,
+            live_max_sessions=_int("live_max_sessions", cls.live_max_sessions),
+            live_max_chunk_bytes=_int("live_max_chunk_bytes", cls.live_max_chunk_bytes),
+            live_max_session_bytes=_int("live_max_session_bytes", cls.live_max_session_bytes),
+            live_session_ttl_seconds=_float("live_session_ttl_seconds", cls.live_session_ttl_seconds),
+            live_idle_ttl_seconds=_float("live_idle_ttl_seconds", cls.live_idle_ttl_seconds),
+            live_default_stt=(get("live_default_stt") or cls.live_default_stt),
         )
 
     @property

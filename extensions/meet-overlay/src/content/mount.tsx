@@ -1,6 +1,6 @@
 import { createRoot, type Root } from "react-dom/client";
 import { OverlayApp } from "../components/OverlayApp";
-import { HOST_ELEMENT_ID } from "../types/messages";
+import { HOST_ELEMENT_ID, MessageType } from "../types/messages";
 import cssText from "../styles/overlay.css?inline";
 
 type MountState = {
@@ -59,6 +59,14 @@ export function unmountOverlay(): void {
   if (!state) return;
   const { root, host } = state;
   state = null;
+  // Best-effort stop so closing the overlay never leaves a dangling capture session.
+  try {
+    chrome.runtime.sendMessage({ type: MessageType.CAPTURE_STOP }, () => {
+      void chrome.runtime.lastError;
+    });
+  } catch {
+    /* service worker may be unavailable */
+  }
   root.unmount();
   host.remove();
 }

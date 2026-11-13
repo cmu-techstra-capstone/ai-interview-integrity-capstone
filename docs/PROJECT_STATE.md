@@ -1,9 +1,9 @@
 # AI-Powered Interview Integrity Monitoring Platform — Project State
 
 > **Single source of truth for the project's current technical state.**
-> Last updated: **2026-11-01** (integration branch `feature/end-to-end-integration-v1`
-> Phase 4: localhost FastAPI offline API + Demo/Offline extension modes; Meet capture and
-> Aditi inference still unavailable).
+> Last updated: **2026-11-12** (integration branch `feature/end-to-end-integration-v1`
+> Phase 6: Meet tab audio → bounded PCM HTTP chunks → localhost FastAPI → STT windows →
+> Live UI transcript; research adapters/Aditi remain unavailable-honest).
 > Rule: every meaningful change updates this file **in the same PR**. Don't delete past
 > decisions; mark them superseded and say why. If this file and the code disagree, the
 > code wins. Fix this file.
@@ -71,11 +71,10 @@ Supporting infrastructure (implemented):
   intended entry point for a future API.
 - **Evidence contract:** `evidence.py` and [evidence-contract.md](evidence-contract.md).
   `confidence` is reserved and stays `None`.
-- **Google Meet overlay (Phase 2 demo UI):** Chrome MV3 extension at
-  `extensions/meet-overlay/`. Floating launcher/panel on `meet.google.com` via content
-  script + open Shadow DOM. Includes simulated interview walkthrough (question,
-  transcript, detection fixtures, sample follow-ups). Demo UI only —
-  **no capture, no STT, no model inference, no backend calls**.
+- **Google Meet overlay:** Chrome MV3 extension at `extensions/meet-overlay/`.
+  Floating launcher/panel on `meet.google.com` via content script + open Shadow DOM.
+  Modes: Demo Simulation, Offline Analysis, Live Audio (capture foundation).
+  Live STT/classifiers and audio→API transfer are **not** connected yet.
   See [extensions/meet-overlay/README.md](../extensions/meet-overlay/README.md).
 - **Offline analysis + extension contract (integration branch):**
   `services.analyze_offline_recording` builds `analysis.v1` (`analysis_contract.py`) from
@@ -85,20 +84,26 @@ Supporting infrastructure (implemented):
 - **Localhost FastAPI (Phase 4):** optional `.[api]` extra; loopback-only
   `GET /health` + `POST /v1/analyze-offline`; authorized `RECORDINGS_DIR`; Origin allowlist;
   extension Demo Simulation vs Offline Analysis modes; host permissions Meet +
-  `127.0.0.1:8765` / `localhost:8765` only. **Not** a public server; **no** Meet capture.
+  `127.0.0.1:8765` / `localhost:8765` only. **Not** a public server.
+- **Live Meet tab-audio Phase 6 (2026-11-12):** MV3 `tabCapture` + offscreen PCM
+  chunking (~1.5 s) → `POST /v1/live/sessions/.../chunks` → in-memory STT windows
+  (fake-live or optional faster-whisper) → Live UI transcript + unassigned speech-window
+  features. Research adapters and Aditi remain unavailable. No disk persistence / no
+  external upload. See [live-tab-audio-capture.md](live-tab-audio-capture.md).
 
 ### Planned (NOT implemented)
 
 | Component | Status |
 |---|---|
 | Video feature pipeline | not started; only the plug-in interface exists |
-| Selected STT implementation | optional baseline approved: faster-whisper small/CPU/INT8 (explicit `--stt` only; not auto-run; live inference not validated on the laptop) |
+| Selected STT implementation | optional baseline approved: faster-whisper small/CPU/INT8; live optional; real Meet+weights unverified here |
 | Multimodal fusion / model / scoring | not started; Aditi adapter boundary exists, no production detector |
-| Meet overlay live capture / streaming | not started; offline localhost API only |
+| Live research classifiers with artifacts | stubs only; HANSEN/ALLSSTAR not bundled |
+| Live answer segmentation | speech-window evidence only (unassigned) |
 | Post-interview review dashboard | separate branch `feature/frontend-review-mock` (not merged; out of scope for Meet overlay) |
-| Review UI (productized / live) | Meet overlay demo + offline analysis modes |
+| Review UI (productized / live) | Meet overlay demo + offline + live transcript |
 | API layer | localhost FastAPI implemented; remote hosting / auth architecture not approved |
-| Persistent database | none; files only |
+| Persistent database | none; files only; live audio memory-only |
 | Production deployment | none |
 
 Details: [architecture.md](architecture.md).
@@ -238,6 +243,9 @@ Details: [stt-decision.md](stt-decision.md).
 - **Integration interface exists:** `FeatureExtractor` plug-ins with `visual_*` (behavioral)
   and `quality_*` (quality) namespaces. See
   [features/visual/README.md](../src/interview_integrity/features/visual/README.md).
+- **Stream quality (2026-11-05):** `VideoStreamQualityExtractor` adds ffprobe-only
+  `quality_video_*` fields (resolution, fps, codec, low-res flag, answer-window fit).
+  On by default via `PipelineConfig.include_video_stream_quality`. **No frames decoded.**
 - **No visual model selected or implemented:** no gaze, facial-expression, pose,
   face-recognition, deepfake or visual-cheating models. Raw video is preserved for
   future work.
@@ -311,6 +319,8 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 | Public datasets are processed by streaming from the official source, committing only lightweight features | 2026-09-29 | **supersedes** "use Google Drive for public datasets" (Drive access wasn't available; streaming avoids storing raw data anywhere). Drive remains an option for restricted/staged data |
 | Docker for containerization (no Kubernetes, DBs, servers) | 2026-10-03 | |
 | `docs/PROJECT_STATE.md` is the single source of truth, updated in the same PR as each meaningful change | 2026-10-03 | |
+| Initial live input = authorized Google Meet **tab audio** via Chrome `tabCapture` (explicit Start/Stop + consent; no mic/desktop picker by default) | 2026-11-12 | |
+| Live audio transport = Option A bounded localhost HTTP POST PCM chunks | 2026-11-12 | Inference uses larger STT windows than transport chunks |
 
 ---
 
@@ -329,6 +339,8 @@ GitHub               → code, configs, manifests, metadata schemas, docs, tiny 
 | Numeric dependency for pitch features (numpy / parselmouth / librosa) | numpy |
 | Database | none needed yet |
 | API framework | **Approved for localhost FastAPI** (Phase 4); remote hosting not approved |
+| Live audio → FastAPI transport | **Approved Option A** — bounded PCM HTTP POSTs implemented ([live-tab-audio-capture.md](live-tab-audio-capture.md)) |
+| Live research classifier artifacts | not bundled; adapters return unavailable |
 | Aditi model I/O, labels, calibration, fusion, thresholds | boundary listed; awaiting Aditi confirmation |
 | Meet capture / streaming / auth beyond Origin allowlist | not approved |
 | Baseline ML model | n/a |
@@ -354,6 +366,7 @@ are merged and none have been reviewed.
 | [#3](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/3) | `feature/michigan-source-features` | #2 | Michigan from source, 121 clips | open |
 | [#4](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/4) | `feature/audio-backend-hardening` | #3 | audio/backend hardening, staged schema, quality | open |
 | [#5](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/5) | `feature/docker-stt-staged-readiness` | #4 | Docker, service layer, STT tooling, staged readiness, this file | open |
+| [#10](https://github.com/cmu-techstra-capstone/ai-interview-integrity-capstone/pull/10) | `feature/end-to-end-integration-v1` | #5 | STT baseline + Meet overlay + localhost offline API + local harness | open |
 
 ---
 
@@ -390,11 +403,13 @@ actually validated and recorded in §5 and §19.
 
 ## 18. Immediate Next Steps
 
-1. **Teammate runs the STT benchmark and Docker validation** (validation guide §2 + §4). This unblocks the STT decision.
-2. **Team review and merge of PRs #1–#5**, in order.
-3. **Team decides the staged-pilot protocol** (condition assignment, audio tracks, retention, IRB), then records 2–3 pilots.
-4. **Approve HTTP framework / CORS / auth** (or keep library+CLI only) and optionally wire OverlayApp to offline panel mode — still no Meet capture until separately approved.
-5. **Confirm Aditi model adapter contract** (see `ADITI_CONFIRMATION_NEEDED`).
+1. **Teammate runs real faster-whisper + Meet verification** using
+   [LIVE_STT_TEAMMATE_TESTING.md](LIVE_STT_TEAMMATE_TESTING.md) (this laptop lacks package/weights).
+2. **Decide whether to vendor research classifier artifacts** for live audio/text adapters.
+3. **Teammate runs the STT benchmark and Docker validation** (validation guide §2 + §4).
+4. **Team review and merge of PRs #1–#5**, in order (PR #10 remains stacked on #5).
+5. **Team decides the staged-pilot protocol** (condition assignment, audio tracks, retention, IRB), then records 2–3 pilots.
+6. **Confirm Aditi model adapter contract** (see `ADITI_CONFIRMATION_NEEDED`).
 
 ---
 
@@ -434,4 +449,13 @@ actually validated and recorded in §5 and §19.
   overlay transport-neutral mapping/tests (Phase 3 commit).
 - Phase 4: localhost FastAPI + Demo/Offline extension modes
   (`0f95f5e` — Connect FastAPI offline analysis to Google Meet extension).
+
+2026-11-12
+- Live Meet tab-audio capture foundation: Live Audio mode, consent + Start/Stop,
+  MV3 tabCapture + offscreen, AudioContext playback preserve.
+- Phase 6: Option A bounded PCM HTTP chunks → `/v1/live/sessions` API → STT windowing
+  (fake-live + optional faster-whisper) → Live UI transcript; research/Aditi unavailable;
+  no disk persistence; Demo/Offline preserved.
+- Teammate real-STT/Meet guide: docs/LIVE_STT_TEAMMATE_TESTING.md. Real Meet + weights
+  not verified on the constrained laptop.
 ```

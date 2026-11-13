@@ -3,6 +3,7 @@ import { DEMO_SESSION } from "../data/demoScenarios";
 import { useDemoSimulation } from "../demo/useDemoSimulation";
 import { clampPosition, defaultLauncherPosition } from "../content/clamp";
 import { useDraggable } from "../content/useDraggable";
+import { useLiveCapture } from "../live/useLiveCapture";
 import { useOfflineAnalysis } from "../offline/useOfflineAnalysis";
 import { OfflineAnalysisPanel } from "../panel/OfflineAnalysisPanel";
 import { CurrentQuestion } from "./CurrentQuestion";
@@ -10,10 +11,13 @@ import { DetectionAnalysis } from "./DetectionAnalysis";
 import { FollowUpQuestions } from "./FollowUpQuestions";
 import { FullAnalysisLink } from "./FullAnalysisLink";
 import { CompactIcon, CloseIcon, ExpandIcon, MinimizeIcon } from "./icons";
+import { LiveCaptureControls } from "./LiveCaptureControls";
+import { LiveResultsPanel } from "./LiveResultsPanel";
 import { LiveTranscript } from "./LiveTranscript";
 import { ModeSwitcher, type OverlayMode } from "./ModeSwitcher";
 import { OfflineAnalysisControls } from "./OfflineAnalysisControls";
 import { SessionControls } from "./SessionControls";
+import { CaptureStatus } from "../types/capture";
 
 const LAUNCHER = 56;
 const COMPACT_WIDTH = 360;
@@ -38,6 +42,7 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
   const [mode, setMode] = useState<OverlayMode>("demo");
   const demo = useDemoSimulation();
   const offline = useOfflineAnalysis();
+  const live = useLiveCapture();
 
   const panelWidth =
     panelSize === "compact"
@@ -103,17 +108,45 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
     );
   }, [setPosition]);
 
+  const stopLiveIfNeeded = useCallback(async () => {
+    if (
+      live.snapshot.status === CaptureStatus.CAPTURING ||
+      live.snapshot.status === CaptureStatus.TRANSMITTING ||
+      live.snapshot.status === CaptureStatus.TRANSCRIBING ||
+      live.snapshot.status === CaptureStatus.STARTING
+    ) {
+      await live.stop();
+    }
+  }, [live]);
+
   const onModeChange = useCallback(
     (next: OverlayMode) => {
-      setMode(next);
-      if (next === "demo") {
-        offline.reset();
-      } else {
-        demo.reset();
-      }
+      void (async () => {
+        if (mode === "live" && next !== "live") {
+          await stopLiveIfNeeded();
+        }
+        setMode(next);
+        if (next === "demo") {
+          offline.reset();
+          live.resetLocal();
+        } else if (next === "offline") {
+          demo.reset();
+          live.resetLocal();
+        } else {
+          demo.reset();
+          offline.reset();
+        }
+      })();
     },
-    [demo, offline],
+    [demo, live, mode, offline, stopLiveIfNeeded],
   );
+
+  const handleClose = useCallback(() => {
+    void (async () => {
+      await stopLiveIfNeeded();
+      onClose();
+    })();
+  }, [onClose, stopLiveIfNeeded]);
 
   useEffect(() => {
     if (chromeMode !== "panel") return;
@@ -165,8 +198,11 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
   const headerSubtitle =
     mode === "demo"
       ? DEMO_SESSION.meetContext
-      : "Offline processed recording — not live Meet capture.";
-  const modeBadge = mode === "demo" ? DEMO_SESSION.modeLabel : "OFFLINE ANALYSIS";
+      : mode === "offline"
+        ? "Offline processed recording — not live Meet capture."
+        : "Live Meet tab audio — capture foundation only.";
+  const modeBadge =
+    mode === "demo" ? DEMO_SESSION.modeLabel : mode === "offline" ? "OFFLINE ANALYSIS" : "LIVE AUDIO";
 
   return (
     <div className="ii-root">
@@ -190,7 +226,13 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
           </div>
           <span
             className="ii-demo-badge"
-            title={mode === "demo" ? "Synthetic demonstration" : "Offline analysis mode"}
+            title={
+              mode === "demo"
+                ? "Synthetic demonstration"
+                : mode === "offline"
+                  ? "Offline analysis mode"
+                  : "Live tab audio capture foundation"
+            }
           >
             {modeBadge}
           </span>
@@ -234,7 +276,7 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
               className="ii-icon-btn"
               aria-label="Close Interview Integrity overlay"
               title="Close"
-              onClick={onClose}
+              onClick={handleClose}
               onPointerDown={(event) => event.stopPropagation()}
             >
               <CloseIcon />
@@ -284,7 +326,7 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
 
               <FullAnalysisLink />
             </>
-          ) : (
+          ) : mode === "offline" ? (
             <>
               <OfflineAnalysisControls
                 form={offline.form}
@@ -304,6 +346,19 @@ export function OverlayApp({ onClose, startOpen = false }: OverlayAppProps) {
                   localhost API. This mode never captures Google Meet audio or video.
                 </p>
               )}
+            </>
+          ) : (
+            <>
+              <LiveCaptureControls
+                consentConfirmed={live.consentConfirmed}
+                snapshot={live.snapshot}
+                errorMessage={live.errorMessage}
+                busy={live.busy}
+                onConsentChange={live.setConsentConfirmed}
+                onStart={() => void live.start()}
+                onStop={() => void live.stop()}
+              />
+              <LiveResultsPanel snapshot={live.snapshot} expanded={wide} />
             </>
           )}
         </div>

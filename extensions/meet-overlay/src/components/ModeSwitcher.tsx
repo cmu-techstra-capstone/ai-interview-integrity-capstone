@@ -1,4 +1,4 @@
-export type OverlayMode = "demo" | "offline";
+export type OverlayMode = "demo" | "offline" | "live";
 
 type Props = {
   mode: OverlayMode;
@@ -11,7 +11,7 @@ export function ModeSwitcher({ mode, onChange }: Props) {
       <div className="ii-section-head">
         <h2>Mode</h2>
       </div>
-      <div className="ii-btn-row" role="group" aria-label="Choose demo or offline analysis">
+      <div className="ii-btn-row" role="group" aria-label="Choose demo, offline, or live capture">
         <button
           type="button"
           className={mode === "demo" ? "ii-primary" : "ii-secondary"}
@@ -28,11 +28,21 @@ export function ModeSwitcher({ mode, onChange }: Props) {
         >
           Offline Analysis
         </button>
+        <button
+          type="button"
+          className={mode === "live" ? "ii-primary" : "ii-secondary"}
+          aria-pressed={mode === "live"}
+          onClick={() => onChange("live")}
+        >
+          Live Audio
+        </button>
       </div>
       <p className="ii-notice">
         {mode === "demo"
           ? "Synthetic fixtures only — no backend request and no Meet capture."
-          : "Uses the localhost offline API for authorized recordings — not live Meet monitoring."}
+          : mode === "offline"
+            ? "Uses the localhost offline API for authorized recordings — not live Meet monitoring."
+            : "Authorized Google Meet tab audio → localhost FastAPI chunks → live transcript. Research classifiers stay independent/unavailable unless artifacts are present."}
       </p>
     </section>
   );

@@ -7,10 +7,14 @@ const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const extRoot = join(scriptsDir, "..");
 const dist = join(extRoot, "dist");
 
-// Background worker + local harness (do not empty dist).
+// Background worker + offscreen capture + local harness (do not empty dist).
 await build({
   configFile: join(extRoot, "vite.config.ts"),
   mode: "background",
+});
+await build({
+  configFile: join(extRoot, "vite.config.ts"),
+  mode: "offscreen",
 });
 await build({
   configFile: join(extRoot, "vite.config.ts"),
@@ -21,13 +25,14 @@ mkdirSync(join(dist, "icons"), { recursive: true });
 cpSync(join(extRoot, "public", "icons"), join(dist, "icons"), { recursive: true });
 cpSync(join(extRoot, "public", "api-config.json"), join(dist, "api-config.json"));
 cpSync(join(extRoot, "public", "harness.html"), join(dist, "harness.html"));
+cpSync(join(extRoot, "public", "offscreen.html"), join(dist, "offscreen.html"));
 
 const manifest = {
   manifest_version: 3,
   name: "Interview Integrity — Meet Overlay",
-  version: "0.2.0",
+  version: "0.3.0",
   description:
-    "Floating Interview Integrity overlay for Google Meet. Demo simulation + localhost offline analysis — no Meet capture.",
+    "Floating Interview Integrity overlay for Google Meet. Demo, offline analysis, and authorized live tab-audio capture foundation.",
   action: {
     default_title: "Open Interview Integrity overlay",
     default_icon: {
@@ -54,7 +59,8 @@ const manifest = {
       run_at: "document_idle",
     },
   ],
-  // Meet page injection + loopback-only local API. No microphone/tabCapture/desktopCapture.
+  // tabCapture + offscreen for Meet tab audio only. No desktop picker / mic permission.
+  permissions: ["tabCapture", "offscreen"],
   host_permissions: [
     "https://meet.google.com/*",
     "http://127.0.0.1:8765/*",
@@ -68,6 +74,8 @@ for (const file of [
   "manifest.json",
   "content.js",
   "background.js",
+  "offscreen.js",
+  "offscreen.html",
   "api-config.json",
   "icons/icon-48.png",
 ]) {
