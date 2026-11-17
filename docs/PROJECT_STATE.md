@@ -567,6 +567,11 @@ actually validated and recorded in §5 and §19.
 ## 19. Change Log
 
 ```text
+2026-11-17
+- One-recording post-interview analysis: experiments/fusion/analyze_video.py (video + speaker-labelled
+  transcript -> dashboard JSON; fusion/analyze.py, fusion/transcript_input.py). P1 matches the batch run;
+  3-minute video from scratch in 27 s on 4 CPU cores.
+
 2026-11-12
 - Branch published to GitHub with demo export (fusion/demo_export.py), MIT reviewer-brief script
   (experiments/fusion/brief_mit.py) and docs/demo-handoff.md for building the demo on PR #10.

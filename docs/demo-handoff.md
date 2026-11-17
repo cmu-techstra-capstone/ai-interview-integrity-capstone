@@ -14,7 +14,48 @@ candidate used AI.
 | Demo export | `src/interview_integrity/fusion/demo_export.py` | Per-answer fragment with `analysis.v1`-shaped `evidence_signals` + a `followup_pattern` block (status, conditions, accepted brief or null). |
 | Synthetic positives (research, not needed for demo) | `src/interview_integrity/synthetic/`, `docs/synthetic-positives.md` | AI-written answers to MIT questions vs real answers; content rubric. Result: content alone only catches verbatim copying. |
 
-## Fastest demo: replay MIT results
+## One command: analyze one recorded interview (post-interview)
+
+`experiments/fusion/analyze_video.py` takes a video and a speaker-labelled transcript and writes one
+JSON for the dashboard. Run from the worktree root with `.venv-video` (MediaPipe, OpenCV, sklearn,
+onnxruntime). Model files are local: `data/models/video_research/` and
+`data/processed/video_research/phase3/` (see `experiments/video/README.md`).
+
+```bash
+# MIT demo: reuses cached measurements and ASR words, about 1 s
+.venv-video/bin/python experiments/fusion/analyze_video.py data/raw/video_research/mit/videos/P1.avi \
+    --transcript mit:P1 --brief --include-text --out data/processed/analyze/P1.json
+
+# New recording: transcript JSON with speaker names (times optional)
+.venv-video/bin/python experiments/fusion/analyze_video.py interview.mp4 \
+    --transcript interview.json --interviewer-name "Aditi Adgaonkar" --brief
+```
+
+- Transcript formats: MIT-style text, a JSON list of `{speaker, text, start?, end?, words?}`, or
+  `analysis.v1` `transcript_segments`. Names other than interviewer/candidate need `--interviewer-name`.
+- If the candidate's turns have no word timestamps, faster-whisper words are aligned to the transcript
+  (`uv pip install --python .venv-video/bin/python faster-whisper`; model path `--asr-model`).
+- `--brief` adds GPT reviewer briefs for flagged answers (needs `OPENROUTER_API_KEY` in `.env`).
+- Speed check (3-minute MIT video, 4 CPU cores, nothing cached): 27 s in total.
+- Verified: P1 gives the same answer windows, events and statuses as the batch MIT run.
+
+### JSON fields for the dashboard
+
+| Field | Show as |
+|---|---|
+| `status_counts` | header: how many answers suggest a follow-up |
+| `visual.events[]` (`type`, `start_s`, `end_s`) | look-away timeline across the whole video; click to seek |
+| `answers[].question_id`, `question_text` (with `--include-text`), `answer_start`, `answer_end` | one row per answer |
+| `answers[].followup_pattern.status` | `suggest_followup` / `no_pattern` / `insufficient_evidence` badge, never a score |
+| `answers[].followup_pattern.conditions[]` (`name`, `status`, `explanation`, `timestamps`) | checklist with seek links |
+| `answers[].followup_pattern.reviewer_brief` (`summary`, `alternative_explanations`, `suggested_followup_questions`) | GPT panel; `null` unless accepted by the guardrails |
+| `answers[].evidence_signals` | same shape as `analysis.v1` evidence signals |
+| `disclaimer`, `ai_assistance_probability` (always `null`) | footer text |
+
+The first 30 s are the visual baseline, so answers starting inside it are `insufficient_evidence`.
+For real interviews, start with ~30 s of normal conversation before the first question.
+
+## Replay all MIT results
 
 Raw MIT media, transcripts, ASR words and per-recording results are **not in git** (dataset terms;
 `data/` is ignored). They live on Leo's Mac under `techstra-video-research/data/processed/`. Run
