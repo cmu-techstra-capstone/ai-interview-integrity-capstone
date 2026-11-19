@@ -1,0 +1,9 @@
+# Self-test questions (read each aloud, word for word, before answering).
+# Suggested conditions: Q1-Q2 own answer; Q3-Q4 read an AI-written answer verbatim;
+# Q5-Q6 glance at own keyword notes and answer in own words. Record what you actually did.
+Tell me about a machine learning or infrastructure project you are proud of. What was your role?
+How would you debug a training job where the loss suddenly becomes NaN?
+How would you design a system to serve a large language model with low latency to many users?
+Explain the difference between data parallelism, tensor parallelism and pipeline parallelism, and when you would use each.
+How would you design a feature store for real-time machine learning predictions?
+After a deploy, the p99 latency of a Kubernetes service doubled. How would you investigate?

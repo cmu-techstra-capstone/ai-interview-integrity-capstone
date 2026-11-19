@@ -31,6 +31,10 @@ onnxruntime). Model files are local: `data/models/video_research/` and
     --transcript interview.json --interviewer-name "Aditi Adgaonkar" --brief
 ```
 
+- No transcript? Read the questions aloud from a list and pass `--questions file.txt` (one per line,
+  e.g. `experiments/fusion/selftest_questions.txt`). The questions are located in the faster-whisper
+  words; speech between questions is the answer. Missing questions are reported and skipped. On P1
+  this gives the same windows as the labelled transcript.
 - Transcript formats: MIT-style text, a JSON list of `{speaker, text, start?, end?, words?}`, or
   `analysis.v1` `transcript_segments`. Names other than interviewer/candidate need `--interviewer-name`.
 - If the candidate's turns have no word timestamps, faster-whisper words are aligned to the transcript
