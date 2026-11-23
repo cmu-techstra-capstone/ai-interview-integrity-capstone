@@ -1,0 +1,5 @@
+{
+  "apiBaseUrl": "http://127.0.0.1:8765",
+  "allowedHosts": ["127.0.0.1", "localhost"],
+  "notes": "Local development only. Change the port if your API uses a different INTERVIEW_INTEGRITY_API_PORT. Do not point this at remote hosts."
+}

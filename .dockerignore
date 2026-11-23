@@ -1,0 +1,55 @@
+# Keep the build context small and free of data. Only code/config/tests go into the image.
+.git
+.gitignore
+.venv
+venv
+**/__pycache__
+**/*.py[cod]
+*.egg-info
+.pytest_cache
+.cache
+.idea
+.vscode
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Data, outputs, notebooks and docs are not needed in the image (mount data at runtime)
+data
+processed
+notebooks
+docs
+ai-interview-integrity-capstone
+
+# Media, archives and model artifacts, wherever they are
+**/*.mp4
+**/*.m4v
+**/*.mov
+**/*.mkv
+**/*.avi
+**/*.webm
+**/*.wav
+**/*.mp3
+**/*.m4a
+**/*.flac
+**/*.ogg
+**/*.zip
+**/*.tar
+**/*.tar.gz
+**/*.tgz
+**/*.7z
+**/*.rar
+**/*.bin
+**/*.pt
+**/*.onnx
+**/*.safetensors
+**/*.npz
+**/*.parquet
+
+# Credentials
+**/credentials*.json
+**/client_secret*.json
+**/service_account*.json
+**/token*.json
+**/rclone.conf

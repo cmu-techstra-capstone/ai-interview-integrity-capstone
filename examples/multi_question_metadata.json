@@ -1,0 +1,24 @@
+{
+  "interview_id": "INT002",
+  "participant_id": "P002",
+  "source_dataset": "staged",
+  "session_notes": "Extra keys are preserved in ingest.json under 'extra'.",
+  "questions": [
+    {
+      "question_id": "Q01",
+      "question_text": "Tell me about a project you are proud of.",
+      "question_end": 4.2,
+      "answer_start": 5.0,
+      "answer_end": 48.7,
+      "assistance_label": "HUMAN_UNASSISTED"
+    },
+    {
+      "question_id": "Q02",
+      "question_text": "How would you design a URL shortener?",
+      "question_end": 55.1,
+      "answer_start": 58.3,
+      "answer_end": 121.0,
+      "assistance_label": "AI_VERBATIM"
+    }
+  ]
+}

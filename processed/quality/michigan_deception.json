@@ -1,0 +1,105 @@
+{
+  "samples": 121,
+  "errors": 0,
+  "warnings": 15,
+  "by_code": {
+    "error": {},
+    "warning": {
+      "CLIPPED_AUDIO": 5,
+      "EXTREME_SPEECH_RATE": 4,
+      "NOISY_RECORDING": 6
+    }
+  },
+  "issues": [
+    {
+      "severity": "warning",
+      "code": "EXTREME_SPEECH_RATE",
+      "key": "trial_lie_001/Q_NA",
+      "message": "speech_rate_wpm 59.259 outside (60.0, 260.0)"
+    },
+    {
+      "severity": "warning",
+      "code": "NOISY_RECORDING",
+      "key": "trial_lie_033/Q_NA",
+      "message": "low signal-to-noise ratio (10.01 dB); energy-based timing may be unreliable"
+    },
+    {
+      "severity": "warning",
+      "code": "NOISY_RECORDING",
+      "key": "trial_lie_034/Q_NA",
+      "message": "low signal-to-noise ratio (13.07 dB); energy-based timing may be unreliable"
+    },
+    {
+      "severity": "warning",
+      "code": "NOISY_RECORDING",
+      "key": "trial_lie_048/Q_NA",
+      "message": "low signal-to-noise ratio (12.76 dB); energy-based timing may be unreliable"
+    },
+    {
+      "severity": "warning",
+      "code": "EXTREME_SPEECH_RATE",
+      "key": "trial_lie_048/Q_NA",
+      "message": "speech_rate_wpm 31.25 outside (60.0, 260.0)"
+    },
+    {
+      "severity": "warning",
+      "code": "NOISY_RECORDING",
+      "key": "trial_lie_049/Q_NA",
+      "message": "low signal-to-noise ratio (13.02 dB); energy-based timing may be unreliable"
+    },
+    {
+      "severity": "warning",
+      "code": "NOISY_RECORDING",
+      "key": "trial_lie_051/Q_NA",
+      "message": "low signal-to-noise ratio (10.74 dB); energy-based timing may be unreliable"
+    },
+    {
+      "severity": "warning",
+      "code": "EXTREME_SPEECH_RATE",
+      "key": "trial_lie_058/Q_NA",
+      "message": "speech_rate_wpm 38.199 outside (60.0, 260.0)"
+    },
+    {
+      "severity": "warning",
+      "code": "EXTREME_SPEECH_RATE",
+      "key": "trial_truth_017/Q_NA",
+      "message": "speech_rate_wpm 287.879 outside (60.0, 260.0)"
+    },
+    {
+      "severity": "warning",
+      "code": "CLIPPED_AUDIO",
+      "key": "trial_truth_029/Q_NA",
+      "message": "clipping ratio 0.05834"
+    },
+    {
+      "severity": "warning",
+      "code": "CLIPPED_AUDIO",
+      "key": "trial_truth_031/Q_NA",
+      "message": "clipping ratio 0.06204"
+    },
+    {
+      "severity": "warning",
+      "code": "CLIPPED_AUDIO",
+      "key": "trial_truth_032/Q_NA",
+      "message": "clipping ratio 0.03998"
+    },
+    {
+      "severity": "warning",
+      "code": "CLIPPED_AUDIO",
+      "key": "trial_truth_033/Q_NA",
+      "message": "clipping ratio 0.06132"
+    },
+    {
+      "severity": "warning",
+      "code": "CLIPPED_AUDIO",
+      "key": "trial_truth_034/Q_NA",
+      "message": "clipping ratio 0.06925"
+    },
+    {
+      "severity": "warning",
+      "code": "NOISY_RECORDING",
+      "key": "trial_truth_049/Q_NA",
+      "message": "low signal-to-noise ratio (14.16 dB); energy-based timing may be unreliable"
+    }
+  ]
+}

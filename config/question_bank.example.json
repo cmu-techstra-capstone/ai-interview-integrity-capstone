@@ -1,0 +1,6 @@
+[
+  {"question_id": "Q01", "question_text": "Tell me about a project you are proud of and your role in it."},
+  {"question_id": "Q02", "question_text": "Describe a time you disagreed with a teammate. What happened?"},
+  {"question_id": "Q03", "question_text": "How would you design a URL shortener?"},
+  {"question_id": "Q04", "question_text": "Explain the difference between a process and a thread."}
+]

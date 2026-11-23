@@ -1,0 +1,14 @@
+{
+  "provider": "sidecar:trial_truth_003.txt",
+  "language": null,
+  "text": "But yes, I was there. Yep, I stayed. Uh ... Yep, prob -- yes, yes.",
+  "segments": [
+    {
+      "text": "But yes, I was there. Yep, I stayed. Uh ... Yep, prob -- yes, yes.",
+      "start": null,
+      "end": null,
+      "speaker": null,
+      "words": []
+    }
+  ]
+}

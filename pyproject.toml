@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "interview-integrity"
+version = "0.1.0"
+description = "Research prototype: explainable signals of possible real-time AI assistance in virtual interviews."
+readme = "README.md"
+requires-python = ">=3.10"
+# Runtime deliberately uses only the standard library (plus the ffmpeg/ffprobe binaries).
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "fastapi>=0.110", "uvicorn>=0.27", "pydantic>=2"]
+# Localhost-only development API (never binds 0.0.0.0 from our launcher).
+api = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "pydantic>=2"]
+# Optional STT. Core pipeline and tests never require these. Install only on a machine
+# with enough disk (see docs/teammate-validation.md). av pin avoids faster-whisper + PyAV 19
+# decode breakage observed in Leo's benchmark (av 19 removed metadata_errors).
+stt-faster-whisper = ["faster-whisper>=1.0", "av>=11,<19"]
+stt-whisperx = ["whisperx>=3.1"]
+
+[project.scripts]
+interview-integrity = "interview_integrity.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

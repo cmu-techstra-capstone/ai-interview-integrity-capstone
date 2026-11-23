@@ -1,0 +1,8 @@
+{
+  "interview_id": "INT001",
+  "participant_id": "P001",
+  "source_dataset": "staged",
+  "question_id": "Q01",
+  "question_text": "Why does software testing matter?",
+  "assistance_label": "HUMAN_UNASSISTED"
+}
