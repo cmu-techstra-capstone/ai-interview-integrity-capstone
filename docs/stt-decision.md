@@ -74,6 +74,36 @@ Variant: **whisper.cpp** runs the same Whisper models with Apple-silicon GPU acc
 It has the same accuracy and filler behavior as faster-whisper, so it's an option if
 CPU speed on a Mac becomes the bottleneck — **not selected**.
 
+## Benchmark evidence (research, 2026-10-07)
+
+`interview-integrity stt-benchmark` runs every candidate in
+[config/stt_candidates.example.json](../config/stt_candidates.example.json) on the same
+clips: streamed Michigan clips with human reference transcripts, or local
+`--audio-dir/--reference-dir`. It reports:
+
+| Factor | Measured by the benchmark | From the candidate config / this doc |
+|---|---|---|
+| WER / accuracy | `corpus_wer`, per-clip WER | |
+| Word timestamps | `word_timestamp_coverage` | |
+| Filler preservation | `filler_recall` | |
+| Speaker separation | `speaker_label_coverage` | |
+| Processing speed | `real_time_factor`, `model_load_seconds` | |
+| Memory | `peak_process_rss_mb` | |
+| Disk | | model download size (teammate measures `du -sh` of the model cache) |
+| CPU/GPU | | device in the candidate options |
+| Privacy | | `runs_locally`, `sends_audio_externally` (hosted is skipped unless approved) |
+| Cost | | `cost_note` |
+
+Four local configurations completed 20/20 Michigan clips each on 2026-10-07. Full
+results, environment, reproduced bugs and fixes are in
+[the validation report](../reports/pr5_validation/validation-20261007.md).
+On this narrow sample, small WER was 0.1534 versus medium 0.1593 and WhisperX 0.1711.
+The disfluency prompt reached 8/9 filler recall but emitted 25 fillers, so recall alone
+is misleading. These results do not approve a provider or establish interview-domain
+performance. Commands are in
+[teammate-validation.md](teammate-validation.md#4-stt-benchmark-downloads-models-several-gb).
+
+
 ## Still open (not approved by the baseline decision)
 
 - [x] Initial STT option: faster-whisper small / CPU / INT8 (optional, explicit)

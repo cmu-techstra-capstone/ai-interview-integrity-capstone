@@ -18,6 +18,7 @@ def test_dockerfile_basics():
     # dependency layer is installed before the source is copied (layer caching)
     assert text.index("install_deps.py") < text.index("COPY src ./src")
     sources = [l.split()[1] for l in _lines("Dockerfile") if l.startswith("COPY")]
+    assert "COPY Dockerfile .dockerignore compose.yaml ./" in text
     for src in sources:
         assert src not in (".", "./"), "never COPY the whole build context"
         assert not src.startswith(("data", "processed", ".git", ".venv", "notebooks")), src

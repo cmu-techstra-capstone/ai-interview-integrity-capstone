@@ -2,6 +2,7 @@
 .git
 .gitignore
 .venv
+.venv*
 venv
 **/__pycache__
 **/*.py[cod]
@@ -20,6 +21,7 @@ data
 processed
 notebooks
 docs
+reports
 ai-interview-integrity-capstone
 
 # Media, archives and model artifacts, wherever they are

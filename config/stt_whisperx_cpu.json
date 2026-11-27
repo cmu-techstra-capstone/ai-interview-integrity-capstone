@@ -1,0 +1,10 @@
+{
+  "candidates": [{
+    "name": "whisperx-small-aligned",
+    "transcriber": "whisperx",
+    "options": {"model_size": "small", "device": "cpu", "compute_type": "int8", "align": true, "diarize": false, "download_root": ".cache/models/faster-whisper"},
+    "runs_locally": true,
+    "sends_audio_externally": false,
+    "cost_note": "local CPU; no hosted audio upload"
+  }]
+}

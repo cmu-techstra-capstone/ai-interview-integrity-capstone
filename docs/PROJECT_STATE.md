@@ -62,7 +62,8 @@ Supporting infrastructure (implemented):
 - **Temporary local cache:** `TemporaryCache` caps usage at ≤ 500 MB, checks size before
   downloading, and always deletes on exit. `cache-clean` removes leftovers from killed runs.
 - **Docker:** `Dockerfile`, `.dockerignore`, `compose.yaml` (single app container, bind
-  mounts only, cache on tmpfs). **Scaffolded but never built** (see §17).
+  mounts only, cache on tmpfs). **Built and tested on Linux arm64** with local
+  configuration-copy fix and extras `dev,ml` on 2026-10-07 (see §5).
 - **Feature plug-ins:** `features/base.py` (`FeatureExtractor`, `AnswerContext`) with
   namespace, collision and scalar-value checks. `features/registry.py` tags every feature
   as behavioral, quality or provenance, with its modality.
@@ -153,10 +154,36 @@ larger machine is expected to run the heavy validation in §17.
 | ✅ Verified locally | `docker compose config` | valid (no image built or pulled) |
 | ✅ Verified locally | CLI smoke: `--help`, `stt-list`, `datasets status`, `staged template/validate`, `cache-clean` | OK |
 | ✅ Previously executed | Michigan processed from source (121/121, 0 failures) | on the dev laptop during PRs #3–#4, before the storage-limit rule |
-| ⏳ Teammate validation required | Docker build, pytest in container, CLI in container, Michigan regeneration, STT benchmark | see §17 |
-| ❌ Not yet executed | any real STT model, any staged recording, any video/visual processing | n/a |
+| ✅ Verified on teammate machine | Native `pytest -q` on PR #5 base | **196 passed**, 0 failures/skips; macOS arm64, Python 3.13.7 (2026-10-06) |
+| ✅ Verified on teammate machine | Michigan regeneration + independent quality check | **121 processed, 0 failed; 0 errors, 15 warnings across 14 clips**; `audio_duration` present in all rows (2026-10-06) |
+| ✅ Verified with local fixes | Native suite and Docker suite, including optional audio ML tests | **205 passed each**, 0 failures/errors/skips (2026-10-07) |
+| ✅ Verified after ALLSSTAR importer | Native suite, including 16 new importer tests | **221 passed**, 0 failures/errors/skips; 4.93 s (2026-10-07); Docker remains at the earlier 205-test image |
+| ✅ Verified after optional VAD/prosody research | Native suite, including 19 new tests and extractor smoke checks | **240 passed**, 0 failures/errors/skips; 14.19 s (2026-10-07); Docker still at the earlier 205-test image |
+| ✅ Verified after local recording prediction | Native suite, including 19 new inference tests | **259 passed**, 0 failures/errors/skips; 8.24 s (2026-10-07); Docker remains at 205 tests |
+| ✅ Verified after local transcript baseline | Native suite, including 35 new mechanics tests | **294 passed**, 0 failures/errors/skips; 10.27 s (2026-10-07); two offline ASR-to-detector smoke tests completed; Docker remains at 205 tests |
+| ✅ Verified after frozen-transcript comparison | Native suite, including 40 new comparison tests | **334 passed**, 0 failures/errors/skips; 11.27 s with clean exit on standalone rerun (2026-10-07). Earlier concurrent run passed assertions but aborted at native teardown; cause unresolved. Docker remains at 205 tests |
+| ✅ Verified after public paired-text benchmark | Native suite, including 35 new benchmark tests | **369 passed**, 0 failures/errors/skips; clean exit in 16.42 s (2026-10-08). Heavy encoder/head parity test isolated in a checked subprocess; earlier native teardown abort retained. Docker remains at 205 tests |
+| ✅ Executed locally | Beemo external written-text stress test | 200 frozen groups, three variants, three models; 1,800 rows, 0 inference errors, hashes verified. 90 common complete groups; six AUROCs cross-checked with scikit-learn; not audio/interview validation |
+| ✅ Verified after detector follow-up | Native tests, publisher cleanup and Fast-DetectGPT | **391 tests passed**, final clean exit in 16.69 s; 1,200 cleanup rows + 600 Fast-DetectGPT rows, 0 errors, exact same 90 groups. Both reports' AUROCs cross-checked; all 600 cleaned inputs match each publisher source. Smaller GPT-Neo baseline original/edited AUROC 0.8535/0.6116; Docker not rebuilt |
+| ✅ Verified after verbatim pilot mechanics | Native tests and partial local audio/ASR diagnostic | **418 tests passed**, clean exit, 23.59 s; two recordings and two pure-text controls transcribed/scored/repeated. Source/text hashes and scores identical; reading subsequently user-confirmed AI-verbatim, speaking independent; human self-script control still missing. First ASR teardown aborted; clean retry retained. No audio accuracy estimate; Docker not rebuilt |
+| ✅ Verified after Desklib integration | Native suite, strict architecture/loading checks and model/contrast-subset benchmark support | **426 tests passed**, 0 failures/errors/skips (2026-10-22); pinned 1.7 GB weights cached locally; Docker not rebuilt |
+| ✅ Verified after HANSEN research-only experiments | Native suite, including HANSEN archive parsing, leakage-audited baseline and aggregate-only CLI tests | **431 tests passed** (2026-10-26); no product API changes; Docker not rebuilt |
+| ✅ Executed locally | Desklib Beemo original-AI stress test | 200 frozen groups evaluated; 103 complete human/original-AI pairs; AUROC **0.8705** [0.8267, 0.9133], 92.2% paired ordering; written-text benchmark only |
+| ✅ Verified with local fixes | Docker build + container CLI smoke | Linux arm64 image, 288,175,847 bytes; help/dataset status/STT list/audio-baseline help OK (2026-10-07) |
+| ✅ Executed locally | 20-clip faster-whisper small, medium, prompted small benchmarks | 20/20 success each; WER 0.1534 / 0.1593 / 0.1462; see validation report for filler limitations |
+| ✅ Executed locally | WhisperX small aligned benchmark | **20/20 success**, WER 0.1711, filler recall 0/9; trusted CA/NLTK fix; diarization not tested |
+| ✅ Executed locally | ALLSSTAR reading/spontaneous audio baseline | 862 windows, 140 speakers; five-fold speaker-separated balanced accuracy **0.739**, reading F1 **0.488**, ROC AUC **0.812**; not an AI-use detector |
+| ✅ Executed locally | ALLSSTAR paired VAD/prosody comparison, eight arms | Same 862 windows/folds; original metrics reproduced exactly. Silero/prosody SVM: balanced accuracy **0.834**, F1 **0.663**, AUC **0.907**, FPR **12.3%**; exploratory, not an independent test |
+| ✅ Executed locally | Standalone video research | **7 focused tests passed**; two-worker public-clip smoke checks; all 138 MIT videos processed at 2 fps, 95,945 measurements, 0 errors. Full native suite/Docker not rerun. |
+| ❌ Not yet executed | Interview AI-assistance classifier training, staged cohort validation or video/backend integration | Direction/delivery-mode evaluation does not establish AI detection |
 
 Test growth: 62 (PR #1) → 80 (#2) → 83 (#3) → 136 (#4) → 196 (#5).
+
+Teammate validation details and reproduction commands:
+[native tests and Michigan report](../reports/pr5_validation/README.md).
+Follow-up: [Docker and STT validation](../reports/pr5_validation/validation-20261007.md).
+Audio model: [ALLSSTAR first experiment](../reports/allsstar/first-run-20261007.md).
+Follow-up model comparison: [VAD and prosody results](../reports/allsstar/prosody-vad-20261007.md).
 
 ---
 
@@ -164,7 +191,13 @@ Test growth: 62 (PR #1) → 80 (#2) → 83 (#3) → 136 (#4) → 196 (#5).
 
 | Dataset | Purpose | Status | AI-assistance label? | Notes |
 |---|---|---|---|---|
-| UMich Real-life Deception | supporting: deception/audio pipeline data | **processed** (121 clips: 61 deceptive, 60 truthful) | **No:** `UNKNOWN` | features in `processed/`; quality: 0 errors, 15 warnings (6 noisy, 5 clipped, 4 extreme rate); no speaker IDs; committed outputs predate the `audio_duration` column |
+| UMich Real-life Deception | supporting: deception/audio pipeline data | **regenerated locally 2026-10-06** (121 clips: 61 deceptive, 60 truthful) | **No:** `UNKNOWN` | features in `processed/`; `audio_duration` present in all 121 rows; quality: 0 errors, 15 warnings across 14 clips (6 noisy, 5 clipped, 4 extreme rate); no speaker IDs |
+| ALLSSTAR English | reading/spontaneous audio delivery research | **downloaded manually, ZIP CRC verified; NWS/ST1/ST2 imported and baseline fitted locally 2026-10-07** | **No** | local inventory: 1,163 WAV, 963 TextGrid, 140 speakers; ZIP 9.89 GiB; selected 418 recordings produced 862 windows (148 reading / 714 spontaneous), 0 decode failures; QNA excluded |
+| Beemo | external written-text detector stress test | **public parquet downloaded and paired benchmark completed locally 2026-10-08** | **AI-origin text labels, NOT verified real-time interview use** | 8,345,056-byte parquet, 2,187 groups; 200 selected before inference, three variants; 90 common complete groups. Human-edited AI text remains a project AI-assisted positive. No audio; training overlap not fully auditable |
+| HANSEN Turing Test | spoken-style human/original-LLM transcript stress test | **request submitted and 95 MB TT archive downloaded 2026-10-22; two research evaluations completed** | **Human vs generated spoken-style text; NOT interview-use ground truth** | Desklib: 3,472/11,594 scored (29.9%); AUROC 0.9941 on scored subset. TF-IDF/LR: leakage-audited, deduplicated test AUROC 0.9985 at 100% coverage. Research-only; not interview-use ground truth. |
+| MIT Interview Dataset | interview audio/video and component transfer testing | **located in Andrew email and downloaded 2026-10-29**; 138 videos / 69 people, approximately 13.3 locally decoded hours; all videos processed | **No AI-assistance label** | Video ZIP CRC and source hashes checked. P/PP is pre/post counseling. Valid answer windows and directed calibration are still needed. |
+| Cheating Scenario Dataset | head/eye direction components | 770 verified frames, 3 people; participant-separated experiments completed | **Direction labels only** | Scripted directions; not AI-use labels. |
+| Columbia Gaze | gaze-direction component validation | 1,176 images / 56 people; grouped classifier and known-target calibration comparisons completed | **Gaze-target labels only** | Center-calibrated S0 AUC 0.8824 on 1,120 scored images; calibration images excluded. |
 | DOLOS | supporting multimodal deception data | **access pending** | **No:** `UNKNOWN` | needs a ROSE Lab account + Release Agreement; 1,675 clips / 213 participants; academic, non-commercial |
 | Bag-of-Lies | supporting multimodal deception data | **access pending** | **No:** `UNKNOWN` | needs a licence signed by a CMU legal signatory → databases@iab-rubric.org; 6.14 GB |
 | Staged interviews | **the only AI-assistance ground truth** | **preparation** (tooling ready, nothing recorded) | **Yes** (4 conditions) | team-created, consenting participants only |
@@ -209,8 +242,38 @@ Inventory with calculations: [audio-features.md](audio-features.md).
 - Without word timestamps, timing comes from volume-based VAD; loud background noise counts as speech.
 - Interviewer and candidate aren't separated (needs separate tracks, timestamps or diarization).
 - Word-level timing, `speech_rate_cv` and filler accuracy depend on the future STT choice.
-- Pitch/F0 features aren't implemented; they need a numpy dependency approval.
+- Pitch/F0 variability is implemented only in the optional research workflow via
+  selected eGeMAPS descriptors; the standard pipeline still has no pitch extractor.
 - Michigan has no speaker IDs, so its splits can't guarantee speaker separation.
+
+### Research classifier
+
+The optional `modeling/audio_baseline.py` trains `READING` versus `SPONTANEOUS`
+delivery from 14 audio-only features, with optional transcript-derived rates. It
+requires explicit ground truth and known pseudonymous participants, separates
+quality/provenance from model inputs, and fits imputation/scaling inside grouped
+folds. Eight synthetic tests verify mechanics. The first real ALLSSTAR model is
+fitted locally: balanced accuracy 0.739, reading F1 0.488, ROC AUC 0.812. The
+spontaneous-to-reading false-positive rate is 27.9% at the default threshold;
+task and interview-domain generalization remain unvalidated. See the
+[experiment report](../reports/allsstar/first-run-20261007.md). Michigan deception
+labels cannot fill the delivery-label requirement.
+
+The optional `modeling/audio_experiment.py` preserves the original 862-window
+cohort and source checksums while comparing energy/Silero VAD with and without
+20 prosody descriptors, using Logistic Regression and RBF SVM. Original features
+and metrics reproduce exactly, and every arm uses identical speaker folds.
+Silero/prosody SVM reduces FPR to 12.3% with reading recall 79.1%; energy/prosody
+Logistic Regression has the highest balanced accuracy (0.837). No production
+selection is approved. Seven Silero no-speech windows and 20 generated listening
+examples await human audit. openSMILE commercial integration needs licence review.
+See [workflow](audio-delivery-experiment.md) and
+[results](../reports/allsstar/prosody-vad-20261007.md).
+
+Manual local prediction is now available through `modeling/audio_predict.py`.
+It uses the fixed Silero/prosody SVM and reports per-window decision margins,
+not probabilities. Personal smoke-test outputs remain private; they are not
+independent performance validation or permission to deploy the classifier.
 
 ---
 
@@ -235,6 +298,28 @@ Inventory with calculations: [audio-features.md](audio-features.md).
 
 Details: [stt-decision.md](stt-decision.md).
 
+Optional local research now also includes `modeling/transcript_baseline.py`:
+candidate-only audio -> existing faster-whisper small -> pinned pretrained HC3
+text detector. Its provisional ASR configuration is not a production STT decision.
+All inference is local; outputs stay ignored. The diagnostic personal examples
+had counterintuitive scores, so no detection accuracy, threshold, calibrated
+AI-assistance score, or deployment readiness is claimed. See
+[transcript baseline](transcript-baseline.md) and the four-condition pilot template.
+
+`modeling/text_comparison.py` adds a separate optional comparison of three pinned
+checkpoints on frozen sidecars, without another ASR pass or publisher-specific
+cleanup. Score semantics differ (MAGE machine=0; HC3 ChatGPT=1; SuperAnnotate one
+GENERATED sigmoid). All models still gave low scores to a colloquial synthetic
+AI answer. This remains diagnostic, not model selection or interview validation;
+see [text comparison](text-model-comparison.md).
+
+`modeling/beemo_benchmark.py` adds an optional public written-text benchmark,
+reusing these adapters without ASR or retraining. Paired AUROC decreases after
+expert editing for all three models; HC3 is near chance on the edited contrast.
+Length guards exclude 55% of selected groups from complete comparisons (only
+2 Closed QA groups remain), so report coverage and avoid a general accuracy claim.
+See [aggregate Beemo report](../reports/beemo/paired-text-20261008.md).
+
 ---
 
 ## 10. Video Pipeline Status
@@ -246,9 +331,15 @@ Details: [stt-decision.md](stt-decision.md).
 - **Stream quality (2026-11-05):** `VideoStreamQualityExtractor` adds ffprobe-only
   `quality_video_*` fields (resolution, fps, codec, low-res flag, answer-window fit).
   On by default via `PipelineConfig.include_video_stream_quality`. **No frames decoded.**
-- **No visual model selected or implemented:** no gaze, facial-expression, pose,
-  face-recognition, deepfake or visual-cheating models. Raw video is preserved for
-  future work.
+- **Research visual layer (Leo, merged via the research PR, 2026-11-27):** post-interview
+  head-pose (MediaPipe) and gaze (frozen Gaze360-trained MobileOne-S0) measurements,
+  baseline-relative look-away events, a deterministic follow-up rule (delayed start +
+  look-away + fluent vs own median) and an optional guarded LLM reviewer brief.
+  One command per recording: `experiments/fusion/analyze_video.py` -> dashboard JSON.
+  Not wired into the live Meet path; no face recognition, expression or deepfake models;
+  `ai_assistance_probability` stays null. Details: [demo-handoff.md](demo-handoff.md),
+  [followup-pattern.md](followup-pattern.md), [video report](../reports/video/video-research-20261029.md).
+  Gaze360-derived weights are non-commercial research only and stay out of Git.
 
 ---
 
@@ -265,7 +356,7 @@ Details: [stt-decision.md](stt-decision.md).
 | Logging | ✅ standard `logging`, global `--log-level` |
 | Feature registry | ✅ 30 behavioral + 9 quality + provenance; test fails on unregistered features |
 | Storage / cache | ✅ storage interface, local-folder backend, source-archive backend, bounded cache, stale-cache cleanup |
-| Docker | ⚠️ scaffolded, not built |
+| Docker | ✅ built and tested on Linux arm64, with local copy fix; extras `dev,ml` |
 | Dataset validation | ✅ schema, scalar-only features, atomic writes, leakage-safe splits (participant + recording + source checksum) |
 | Batch processing | ✅ `process-batch`, `process-remote`, `process-source`; per-recording failures recorded, never fatal |
 | Error handling | ✅ explicit errors for empty audio, impossible timing, schema violations, access-restricted datasets |
@@ -356,8 +447,15 @@ When one is resolved, move it to §13 with what was chosen and why.
 
 ## 15. PR / Branch Status
 
-Stacked PRs. Merge strictly in order **#1 → #2 → #3 → #4 → #5**. As of 2026-10-03, none
-are merged and none have been reviewed.
+**Current (2026-11-27):** PR #10 landed the end-to-end trunk on `main` (2026-11-23) and the stacked
+PRs #1-#5 were closed. Leo's research work (former PRs #6, #9, #11: audio/transcript research,
+HANSEN, video + follow-up + LLM brief, synthetic positives) is ported onto `main` in the branch
+`leo/research-on-main` for review. The table below is the historical stacked order.
+
+Stacked PRs. Integration dependency order is **#1 → #2 → #3 → #4 → #5 → #6**.
+All are open as of 2026-10-08; review status is not audited here. PR #6 targets
+PR #5's branch to isolate the research delta, not to duplicate it against main.
+No PR was merged or another author's branch changed during research publication.
 
 | PR | Branch | Base | Purpose | Status |
 |---|---|---|---|---|
@@ -391,11 +489,11 @@ are merged and none have been reviewed.
 Commands: [teammate-validation.md](teammate-validation.md). Remove items once they're
 actually validated and recorded in §5 and §19.
 
-- [ ] Docker image build (+ image size) (§2)
-- [ ] `pytest` inside Docker (§2)
-- [ ] Docker CLI smoke test (§2)
-- [ ] Michigan regeneration (adds `audio_duration`) + quality report (§3)
-- [ ] STT benchmark, 20 Michigan clips (§4)
+- [x] Docker image build (+ image size) (§2): local copy fix; 288,175,847 bytes, Linux arm64
+- [x] `pytest` inside Docker (§2): 205 passed, including optional ML tests
+- [x] Docker CLI smoke test (§2): help, dataset status, STT list, audio-baseline help
+- [x] Michigan regeneration (adds `audio_duration`) + quality report (§3): completed natively on 2026-10-06; results in §5 and §19
+- [x] STT benchmark, 20 Michigan clips (§4): four local configurations completed 20/20 each; limitations in validation report; no provider approved
 - [ ] Staged pilot dry run, once recordings exist (§5)
 - [ ] Future heavy dataset/model processing (DOLOS, Bag-of-Lies, visual work)
 
@@ -416,6 +514,30 @@ actually validated and recorded in §5 and §19.
 ## 19. Change Log
 
 ```text
+2026-11-27
+- Ported Leo's research workstream (former PRs #6/#9/#11) onto main after PR #10 landed:
+  156 files (142 new). Conflicts resolved in pyproject.toml (both extras kept), stt-decision.md
+  (main's approved baseline kept, research benchmark appended) and this file (main kept, research
+  summarised in sections 10 and 15).
+
+2026-11-17
+- One-recording post-interview analysis: experiments/fusion/analyze_video.py (video + speaker-labelled
+  transcript -> dashboard JSON; fusion/analyze.py, fusion/transcript_input.py). P1 matches the batch run;
+  3-minute video from scratch in 27 s on 4 CPU cores.
+
+2026-11-12
+- Branch published to GitHub with demo export (fusion/demo_export.py), MIT reviewer-brief script
+  (experiments/fusion/brief_mit.py) and docs/demo-handoff.md for building the demo on PR #10.
+
+2026-11-05
+- Synthetic-positive pipeline (synthetic/, llm/openrouter implemented + cache): AI_VERBATIM /
+  AI_PERSONALIZED / AI_SPOKEN answers to MIT questions from 3 model families, blind content rubric by a
+  4th-family judge, participant-grouped AUROC. Content channel only; synthetic rows never become
+  assistance_label. Team approved sending MIT answer text to OpenRouter. 620 eligible answers / 69
+  participants. See synthetic-positives.md. Must run on the Mac (sandboxes cannot reach OpenRouter).
+- Timeline fusion prototype (fusion/turns, followup, llm_brief) + 24 tests; MIT run: 909 answer
+  windows, 569 with reliable timing, 18/324 flagged (5.6%). Not integrated into product APIs.
+
 2026-09-29
 - PR #1: data pipeline foundation (ingestion, audio, transcript interface, features, schema). 62 tests.
 - Repo moved to cmu-techstra-capstone org.

@@ -1,0 +1,3841 @@
+{
+  "date": "2026-10-29",
+  "results": {
+    "component_metrics": {
+      "source_frames": 770,
+      "participants": {
+        "S1": 70,
+        "S2": 350,
+        "S3": 350
+      },
+      "quality_status": {
+        "ok": 504,
+        "eye_quality_low": 153,
+        "no_face_detected": 113
+      },
+      "median_measurement_ms": 9.258895499897335,
+      "p95_measurement_ms": 11.180801900013648,
+      "tasks": {
+        "head_deviation": {
+          "coverage_of_all_frames": 0.8532467532467533,
+          "eligible_frames": 657,
+          "features": [
+            "pose_x_deg",
+            "pose_y_deg",
+            "pose_z_deg"
+          ],
+          "classes": {
+            "3": 192,
+            "2": 148,
+            "1": 141,
+            "0": 62,
+            "4": 114
+          },
+          "models": {
+            "majority": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 70,
+                  "positives": 48,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.6857142857142857,
+                  "recall": 1.0,
+                  "f1": 0.8135593220338984,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 22,
+                    "fn": 0,
+                    "tp": 48
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 297,
+                  "positives": 206,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.6936026936026936,
+                  "recall": 1.0,
+                  "f1": 0.8190854870775348,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 91,
+                    "fn": 0,
+                    "tp": 206
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 290,
+                  "positives": 211,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.7275862068965517,
+                  "recall": 1.0,
+                  "f1": 0.8423153692614771,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 79,
+                    "fn": 0,
+                    "tp": 211
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 657,
+                "positives": 465,
+                "auroc": 0.5,
+                "balanced_accuracy": 0.5,
+                "precision": 0.7077625570776256,
+                "recall": 1.0,
+                "f1": 0.8288770053475936,
+                "fpr": 1.0,
+                "confusion": {
+                  "tn": 0,
+                  "fp": 192,
+                  "fn": 0,
+                  "tp": 465
+                }
+              }
+            },
+            "logistic": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 70,
+                  "positives": 48,
+                  "auroc": 0.5009469696969697,
+                  "balanced_accuracy": 0.7272727272727273,
+                  "precision": 0.96,
+                  "recall": 0.5,
+                  "f1": 0.6575342465753424,
+                  "fpr": 0.045454545454545456,
+                  "confusion": {
+                    "tn": 21,
+                    "fp": 1,
+                    "fn": 24,
+                    "tp": 24
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 297,
+                  "positives": 206,
+                  "auroc": 0.4774885308865892,
+                  "balanced_accuracy": 0.3501813720260322,
+                  "precision": 0.5823529411764706,
+                  "recall": 0.48058252427184467,
+                  "f1": 0.526595744680851,
+                  "fpr": 0.7802197802197802,
+                  "confusion": {
+                    "tn": 20,
+                    "fp": 71,
+                    "fn": 107,
+                    "tp": 99
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 290,
+                  "positives": 211,
+                  "auroc": 0.33589297498350235,
+                  "balanced_accuracy": 0.3643589897414362,
+                  "precision": 0.625,
+                  "recall": 0.45023696682464454,
+                  "f1": 0.5234159779614325,
+                  "fpr": 0.7215189873417721,
+                  "confusion": {
+                    "tn": 22,
+                    "fp": 57,
+                    "fn": 116,
+                    "tp": 95
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 657,
+                "positives": 465,
+                "auroc": 0.42170698924731187,
+                "balanced_accuracy": 0.3984711021505376,
+                "precision": 0.6282420749279539,
+                "recall": 0.46881720430107526,
+                "f1": 0.5369458128078818,
+                "fpr": 0.671875,
+                "confusion": {
+                  "tn": 63,
+                  "fp": 129,
+                  "fn": 247,
+                  "tp": 218
+                }
+              }
+            },
+            "hist_gradient_boosting": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 70,
+                  "positives": 48,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 1.0,
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 22,
+                    "fp": 0,
+                    "fn": 0,
+                    "tp": 48
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 297,
+                  "positives": 206,
+                  "auroc": 0.9929851701696361,
+                  "balanced_accuracy": 0.9865838045449695,
+                  "precision": 0.9903381642512077,
+                  "recall": 0.9951456310679612,
+                  "f1": 0.9927360774818402,
+                  "fpr": 0.02197802197802198,
+                  "confusion": {
+                    "tn": 89,
+                    "fp": 2,
+                    "fn": 1,
+                    "tp": 205
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 290,
+                  "positives": 211,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 0.9810126582278481,
+                  "precision": 0.985981308411215,
+                  "recall": 1.0,
+                  "f1": 0.9929411764705882,
+                  "fpr": 0.0379746835443038,
+                  "confusion": {
+                    "tn": 76,
+                    "fp": 3,
+                    "fn": 0,
+                    "tp": 211
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 657,
+                "positives": 465,
+                "auroc": 0.997339829749104,
+                "balanced_accuracy": 0.9859038978494623,
+                "precision": 0.9893390191897654,
+                "recall": 0.9978494623655914,
+                "f1": 0.9935760171306209,
+                "fpr": 0.026041666666666668,
+                "confusion": {
+                  "tn": 187,
+                  "fp": 5,
+                  "fn": 1,
+                  "tp": 464
+                }
+              }
+            }
+          },
+          "random_frame_split_DIAGNOSTIC_ONLY": {
+            "n": 165,
+            "positives": 117,
+            "auroc": 0.566417378917379,
+            "balanced_accuracy": 0.6223290598290598,
+            "precision": 0.8412698412698413,
+            "recall": 0.452991452991453,
+            "f1": 0.5888888888888889,
+            "fpr": 0.20833333333333334,
+            "confusion": {
+              "tn": 38,
+              "fp": 10,
+              "fn": 64,
+              "tp": 53
+            }
+          },
+          "shuffled_label_control": {
+            "n": 657,
+            "positives": 465,
+            "auroc": 0.4580309139784946,
+            "balanced_accuracy": 0.46023185483870965,
+            "precision": 0.6755952380952381,
+            "recall": 0.4881720430107527,
+            "f1": 0.5667915106117354,
+            "fpr": 0.5677083333333334,
+            "confusion": {
+              "tn": 83,
+              "fp": 109,
+              "fn": 238,
+              "tp": 227
+            }
+          }
+        },
+        "eye_deviation": {
+          "coverage_of_all_frames": 0.5857142857142857,
+          "eligible_frames": 451,
+          "features": [
+            "pose_x_deg",
+            "pose_y_deg",
+            "pose_z_deg",
+            "iris_a_x",
+            "iris_a_y",
+            "iris_b_x",
+            "iris_b_y",
+            "eye_a_open",
+            "eye_b_open"
+          ],
+          "classes": {
+            "8": 133,
+            "7": 121,
+            "5": 70,
+            "9": 85,
+            "6": 42
+          },
+          "models": {
+            "majority": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.7017543859649122,
+                  "recall": 1.0,
+                  "f1": 0.8247422680412371,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 17,
+                    "fn": 0,
+                    "tp": 40
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.7655502392344498,
+                  "recall": 1.0,
+                  "f1": 0.8672086720867209,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 49,
+                    "fn": 0,
+                    "tp": 160
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.6378378378378379,
+                  "recall": 1.0,
+                  "f1": 0.7788778877887789,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 67,
+                    "fn": 0,
+                    "tp": 118
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.5,
+                "balanced_accuracy": 0.5,
+                "precision": 0.70509977827051,
+                "recall": 1.0,
+                "f1": 0.8270481144343304,
+                "fpr": 1.0,
+                "confusion": {
+                  "tn": 0,
+                  "fp": 133,
+                  "fn": 0,
+                  "tp": 318
+                }
+              }
+            },
+            "logistic": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.8308823529411765,
+                  "balanced_accuracy": 0.8080882352941177,
+                  "precision": 0.9642857142857143,
+                  "recall": 0.675,
+                  "f1": 0.7941176470588235,
+                  "fpr": 0.058823529411764705,
+                  "confusion": {
+                    "tn": 16,
+                    "fp": 1,
+                    "fn": 13,
+                    "tp": 27
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.47793367346938775,
+                  "balanced_accuracy": 0.47952806122448977,
+                  "precision": 0.7551020408163265,
+                  "recall": 0.69375,
+                  "f1": 0.7231270358306189,
+                  "fpr": 0.7346938775510204,
+                  "confusion": {
+                    "tn": 13,
+                    "fp": 36,
+                    "fn": 49,
+                    "tp": 111
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.48191247154060207,
+                  "balanced_accuracy": 0.48052112319757145,
+                  "precision": 0.6172839506172839,
+                  "recall": 0.423728813559322,
+                  "f1": 0.5025125628140703,
+                  "fpr": 0.4626865671641791,
+                  "confusion": {
+                    "tn": 36,
+                    "fp": 31,
+                    "fn": 68,
+                    "tp": 50
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.524187828060718,
+                "balanced_accuracy": 0.5399583865323686,
+                "precision": 0.734375,
+                "recall": 0.5911949685534591,
+                "f1": 0.6550522648083623,
+                "fpr": 0.5112781954887218,
+                "confusion": {
+                  "tn": 65,
+                  "fp": 68,
+                  "fn": 130,
+                  "tp": 188
+                }
+              }
+            },
+            "hist_gradient_boosting": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.9161764705882353,
+                  "balanced_accuracy": 0.6852941176470588,
+                  "precision": 0.8,
+                  "recall": 0.9,
+                  "f1": 0.8470588235294118,
+                  "fpr": 0.5294117647058824,
+                  "confusion": {
+                    "tn": 8,
+                    "fp": 9,
+                    "fn": 4,
+                    "tp": 36
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.8688775510204082,
+                  "balanced_accuracy": 0.6492984693877552,
+                  "precision": 0.8277777777777777,
+                  "recall": 0.93125,
+                  "f1": 0.8764705882352941,
+                  "fpr": 0.6326530612244898,
+                  "confusion": {
+                    "tn": 18,
+                    "fp": 31,
+                    "fn": 11,
+                    "tp": 149
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.7742221097900329,
+                  "balanced_accuracy": 0.7649886162408297,
+                  "precision": 0.8347826086956521,
+                  "recall": 0.8135593220338984,
+                  "f1": 0.8240343347639485,
+                  "fpr": 0.2835820895522388,
+                  "confusion": {
+                    "tn": 48,
+                    "fp": 19,
+                    "fn": 22,
+                    "tp": 96
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.8193124320234548,
+                "balanced_accuracy": 0.7200193880928737,
+                "precision": 0.8264705882352941,
+                "recall": 0.8836477987421384,
+                "f1": 0.8541033434650456,
+                "fpr": 0.44360902255639095,
+                "confusion": {
+                  "tn": 74,
+                  "fp": 59,
+                  "fn": 37,
+                  "tp": 281
+                }
+              }
+            }
+          },
+          "random_frame_split_DIAGNOSTIC_ONLY": {
+            "n": 113,
+            "positives": 80,
+            "auroc": 0.6318181818181818,
+            "balanced_accuracy": 0.6831439393939394,
+            "precision": 0.9069767441860465,
+            "recall": 0.4875,
+            "f1": 0.6341463414634146,
+            "fpr": 0.12121212121212122,
+            "confusion": {
+              "tn": 29,
+              "fp": 4,
+              "fn": 41,
+              "tp": 39
+            }
+          },
+          "shuffled_label_control": {
+            "n": 451,
+            "positives": 318,
+            "auroc": 0.4466118125502435,
+            "balanced_accuracy": 0.47180451127819545,
+            "precision": 0.6824034334763949,
+            "recall": 0.5,
+            "f1": 0.5771324863883848,
+            "fpr": 0.556390977443609,
+            "confusion": {
+              "tn": 59,
+              "fp": 74,
+              "fn": 159,
+              "tp": 159
+            }
+          }
+        },
+        "eye_deviation_when_head_centered": {
+          "coverage_of_all_frames": 0.2,
+          "eligible_frames": 154,
+          "features": [
+            "pose_x_deg",
+            "pose_y_deg",
+            "pose_z_deg",
+            "iris_a_x",
+            "iris_a_y",
+            "iris_b_x",
+            "iris_b_y",
+            "eye_a_open",
+            "eye_b_open"
+          ],
+          "classes": {
+            "8": 73,
+            "7": 38,
+            "5": 17,
+            "9": 18,
+            "6": 8
+          },
+          "models": {
+            "majority": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.45,
+                  "recall": 1.0,
+                  "f1": 0.6206896551724138,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 11,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.0,
+                  "recall": 0.0,
+                  "f1": 0.0,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 29,
+                    "fp": 0,
+                    "fn": 38,
+                    "tp": 0
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.5,
+                  "balanced_accuracy": 0.5,
+                  "precision": 0.5074626865671642,
+                  "recall": 1.0,
+                  "f1": 0.6732673267326733,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 33,
+                    "fn": 0,
+                    "tp": 34
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.4640622357517335,
+                "balanced_accuracy": 0.46406223575173344,
+                "precision": 0.4942528735632184,
+                "recall": 0.5308641975308642,
+                "f1": 0.5119047619047619,
+                "fpr": 0.6027397260273972,
+                "confusion": {
+                  "tn": 29,
+                  "fp": 44,
+                  "fn": 38,
+                  "tp": 43
+                }
+              }
+            },
+            "logistic": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.46464646464646464,
+                  "balanced_accuracy": 0.5202020202020202,
+                  "precision": 0.5,
+                  "recall": 0.2222222222222222,
+                  "f1": 0.3076923076923077,
+                  "fpr": 0.18181818181818182,
+                  "confusion": {
+                    "tn": 9,
+                    "fp": 2,
+                    "fn": 7,
+                    "tp": 2
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.24591651542649728,
+                  "balanced_accuracy": 0.4605263157894737,
+                  "precision": 0.546875,
+                  "recall": 0.9210526315789473,
+                  "f1": 0.6862745098039216,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 29,
+                    "fn": 3,
+                    "tp": 35
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.3475935828877006,
+                  "balanced_accuracy": 0.46613190730837795,
+                  "precision": 0.4444444444444444,
+                  "recall": 0.23529411764705882,
+                  "f1": 0.3076923076923077,
+                  "fpr": 0.30303030303030304,
+                  "confusion": {
+                    "tn": 23,
+                    "fp": 10,
+                    "fn": 26,
+                    "tp": 8
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.4358193810248605,
+                "balanced_accuracy": 0.4969558599695586,
+                "precision": 0.5232558139534884,
+                "recall": 0.5555555555555556,
+                "f1": 0.5389221556886228,
+                "fpr": 0.5616438356164384,
+                "confusion": {
+                  "tn": 32,
+                  "fp": 41,
+                  "fn": 36,
+                  "tp": 45
+                }
+              }
+            },
+            "hist_gradient_boosting": {
+              "participant_folds": [
+                {
+                  "held_out_participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.8585858585858586,
+                  "balanced_accuracy": 0.7272727272727273,
+                  "precision": 0.6,
+                  "recall": 1.0,
+                  "f1": 0.75,
+                  "fpr": 0.5454545454545454,
+                  "confusion": {
+                    "tn": 5,
+                    "fp": 6,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "held_out_participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.455535390199637,
+                  "balanced_accuracy": 0.46007259528130673,
+                  "precision": 0.5185185185185185,
+                  "recall": 0.3684210526315789,
+                  "f1": 0.4307692307692308,
+                  "fpr": 0.4482758620689655,
+                  "confusion": {
+                    "tn": 16,
+                    "fp": 13,
+                    "fn": 24,
+                    "tp": 14
+                  }
+                },
+                {
+                  "held_out_participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.4260249554367202,
+                  "balanced_accuracy": 0.5708556149732621,
+                  "precision": 0.6470588235294118,
+                  "recall": 0.3235294117647059,
+                  "f1": 0.43137254901960786,
+                  "fpr": 0.18181818181818182,
+                  "confusion": {
+                    "tn": 27,
+                    "fp": 6,
+                    "fn": 23,
+                    "tp": 11
+                  }
+                }
+              ],
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.47809910366987995,
+                "balanced_accuracy": 0.5386436664975478,
+                "precision": 0.576271186440678,
+                "recall": 0.41975308641975306,
+                "f1": 0.4857142857142857,
+                "fpr": 0.3424657534246575,
+                "confusion": {
+                  "tn": 48,
+                  "fp": 25,
+                  "fn": 47,
+                  "tp": 34
+                }
+              }
+            }
+          },
+          "random_frame_split_DIAGNOSTIC_ONLY": {
+            "n": 39,
+            "positives": 21,
+            "auroc": 0.7804232804232804,
+            "balanced_accuracy": 0.75,
+            "precision": 0.8235294117647058,
+            "recall": 0.6666666666666666,
+            "f1": 0.7368421052631579,
+            "fpr": 0.16666666666666666,
+            "confusion": {
+              "tn": 15,
+              "fp": 3,
+              "fn": 7,
+              "tp": 14
+            }
+          },
+          "shuffled_label_control": {
+            "n": 154,
+            "positives": 81,
+            "auroc": 0.42702519871469646,
+            "balanced_accuracy": 0.4676137324539151,
+            "precision": 0.5043478260869565,
+            "recall": 0.7160493827160493,
+            "f1": 0.5918367346938775,
+            "fpr": 0.7808219178082192,
+            "confusion": {
+              "tn": 16,
+              "fp": 57,
+              "fn": 23,
+              "tp": 58
+            }
+          }
+        }
+      },
+      "ai_assistance_evaluated": false
+    },
+    "gaze_comparison": {
+      "iteration": "exploratory, after observing baseline failure; not a new untouched test set",
+      "model_training": "pretrained face mesh / pretrained Gaze360 MobileOne; own direction classifiers",
+      "tasks": {
+        "head_deviation": {
+          "n": 657,
+          "coverage": 0.8532467532467533,
+          "variants": {
+            "head_absolute_geometry/logistic": {
+              "pooled_oof": {
+                "n": 657,
+                "positives": 465,
+                "auroc": 0.9997871863799284,
+                "balanced_accuracy": 0.9935483870967742,
+                "precision": 1.0,
+                "recall": 0.9870967741935484,
+                "f1": 0.9935064935064936,
+                "fpr": 0.0,
+                "confusion": {
+                  "tn": 192,
+                  "fp": 0,
+                  "fn": 6,
+                  "tp": 459
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 70,
+                  "positives": 48,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 1.0,
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 22,
+                    "fp": 0,
+                    "fn": 0,
+                    "tp": 48
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 297,
+                  "positives": 206,
+                  "auroc": 0.9998399658593833,
+                  "balanced_accuracy": 0.9878640776699029,
+                  "precision": 1.0,
+                  "recall": 0.9757281553398058,
+                  "f1": 0.9877149877149877,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 91,
+                    "fp": 0,
+                    "fn": 5,
+                    "tp": 201
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 290,
+                  "positives": 211,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 0.9976303317535544,
+                  "precision": 1.0,
+                  "recall": 0.995260663507109,
+                  "f1": 0.997624703087886,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 79,
+                    "fp": 0,
+                    "fn": 1,
+                    "tp": 210
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "abs_pose_x_deg",
+                "abs_pose_y_deg",
+                "abs_pose_z_deg"
+              ]
+            },
+            "head_absolute_geometry/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 657,
+                "positives": 465,
+                "auroc": 0.9960965501792115,
+                "balanced_accuracy": 0.9805275537634408,
+                "precision": 0.9892241379310345,
+                "recall": 0.9870967741935484,
+                "f1": 0.9881593110871906,
+                "fpr": 0.026041666666666668,
+                "confusion": {
+                  "tn": 187,
+                  "fp": 5,
+                  "fn": 6,
+                  "tp": 459
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 70,
+                  "positives": 48,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 1.0,
+                  "precision": 1.0,
+                  "recall": 1.0,
+                  "f1": 1.0,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 22,
+                    "fp": 0,
+                    "fn": 0,
+                    "tp": 48
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 297,
+                  "positives": 206,
+                  "auroc": 0.995492371705964,
+                  "balanced_accuracy": 0.979942387709378,
+                  "precision": 0.9950248756218906,
+                  "recall": 0.970873786407767,
+                  "f1": 0.9828009828009828,
+                  "fpr": 0.01098901098901099,
+                  "confusion": {
+                    "tn": 90,
+                    "fp": 1,
+                    "fn": 6,
+                    "tp": 200
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 290,
+                  "positives": 211,
+                  "auroc": 0.9967604535365049,
+                  "balanced_accuracy": 0.9746835443037974,
+                  "precision": 0.9813953488372092,
+                  "recall": 1.0,
+                  "f1": 0.9906103286384976,
+                  "fpr": 0.05063291139240506,
+                  "confusion": {
+                    "tn": 75,
+                    "fp": 4,
+                    "fn": 0,
+                    "tp": 211
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "abs_pose_x_deg",
+                "abs_pose_y_deg",
+                "abs_pose_z_deg"
+              ]
+            }
+          }
+        },
+        "eye_deviation": {
+          "n": 451,
+          "coverage": 0.5857142857142857,
+          "variants": {
+            "iris_geometry/logistic": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.524187828060718,
+                "balanced_accuracy": 0.5399583865323686,
+                "precision": 0.734375,
+                "recall": 0.5911949685534591,
+                "f1": 0.6550522648083623,
+                "fpr": 0.5112781954887218,
+                "confusion": {
+                  "tn": 65,
+                  "fp": 68,
+                  "fn": 130,
+                  "tp": 188
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.8308823529411765,
+                  "balanced_accuracy": 0.8080882352941177,
+                  "precision": 0.9642857142857143,
+                  "recall": 0.675,
+                  "f1": 0.7941176470588235,
+                  "fpr": 0.058823529411764705,
+                  "confusion": {
+                    "tn": 16,
+                    "fp": 1,
+                    "fn": 13,
+                    "tp": 27
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.47793367346938775,
+                  "balanced_accuracy": 0.47952806122448977,
+                  "precision": 0.7551020408163265,
+                  "recall": 0.69375,
+                  "f1": 0.7231270358306189,
+                  "fpr": 0.7346938775510204,
+                  "confusion": {
+                    "tn": 13,
+                    "fp": 36,
+                    "fn": 49,
+                    "tp": 111
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.48191247154060207,
+                  "balanced_accuracy": 0.48052112319757145,
+                  "precision": 0.6172839506172839,
+                  "recall": 0.423728813559322,
+                  "f1": 0.5025125628140703,
+                  "fpr": 0.4626865671641791,
+                  "confusion": {
+                    "tn": 36,
+                    "fp": 31,
+                    "fn": 68,
+                    "tp": 50
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "iris_geometry/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.8193124320234548,
+                "balanced_accuracy": 0.7200193880928737,
+                "precision": 0.8264705882352941,
+                "recall": 0.8836477987421384,
+                "f1": 0.8541033434650456,
+                "fpr": 0.44360902255639095,
+                "confusion": {
+                  "tn": 74,
+                  "fp": 59,
+                  "fn": 37,
+                  "tp": 281
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.9161764705882353,
+                  "balanced_accuracy": 0.6852941176470588,
+                  "precision": 0.8,
+                  "recall": 0.9,
+                  "f1": 0.8470588235294118,
+                  "fpr": 0.5294117647058824,
+                  "confusion": {
+                    "tn": 8,
+                    "fp": 9,
+                    "fn": 4,
+                    "tp": 36
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.8688775510204082,
+                  "balanced_accuracy": 0.6492984693877552,
+                  "precision": 0.8277777777777777,
+                  "recall": 0.93125,
+                  "f1": 0.8764705882352941,
+                  "fpr": 0.6326530612244898,
+                  "confusion": {
+                    "tn": 18,
+                    "fp": 31,
+                    "fn": 11,
+                    "tp": 149
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.7742221097900329,
+                  "balanced_accuracy": 0.7649886162408297,
+                  "precision": 0.8347826086956521,
+                  "recall": 0.8135593220338984,
+                  "f1": 0.8240343347639485,
+                  "fpr": 0.2835820895522388,
+                  "confusion": {
+                    "tn": 48,
+                    "fp": 19,
+                    "fn": 22,
+                    "tp": 96
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "iris_only/logistic": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.585567692816948,
+                "balanced_accuracy": 0.5665460821865986,
+                "precision": 0.7573221757322176,
+                "recall": 0.5691823899371069,
+                "f1": 0.6499102333931778,
+                "fpr": 0.43609022556390975,
+                "confusion": {
+                  "tn": 75,
+                  "fp": 58,
+                  "fn": 137,
+                  "tp": 181
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.7647058823529411,
+                  "balanced_accuracy": 0.6227941176470588,
+                  "precision": 0.775,
+                  "recall": 0.775,
+                  "f1": 0.775,
+                  "fpr": 0.5294117647058824,
+                  "confusion": {
+                    "tn": 8,
+                    "fp": 9,
+                    "fn": 9,
+                    "tp": 31
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.5130102040816327,
+                  "balanced_accuracy": 0.46804846938775513,
+                  "precision": 0.7459016393442623,
+                  "recall": 0.56875,
+                  "f1": 0.6453900709219859,
+                  "fpr": 0.6326530612244898,
+                  "confusion": {
+                    "tn": 18,
+                    "fp": 31,
+                    "fn": 69,
+                    "tp": 91
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.5717176827725778,
+                  "balanced_accuracy": 0.6156716417910448,
+                  "precision": 0.7662337662337663,
+                  "recall": 0.5,
+                  "f1": 0.6051282051282051,
+                  "fpr": 0.26865671641791045,
+                  "confusion": {
+                    "tn": 49,
+                    "fp": 18,
+                    "fn": 59,
+                    "tp": 59
+                  }
+                }
+              ],
+              "features": [
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "iris_only/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.8126921076275594,
+                "balanced_accuracy": 0.7015652338393152,
+                "precision": 0.8125,
+                "recall": 0.89937106918239,
+                "f1": 0.8537313432835821,
+                "fpr": 0.49624060150375937,
+                "confusion": {
+                  "tn": 67,
+                  "fp": 66,
+                  "fn": 32,
+                  "tp": 286
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.9132352941176471,
+                  "balanced_accuracy": 0.6977941176470588,
+                  "precision": 0.8043478260869565,
+                  "recall": 0.925,
+                  "f1": 0.8604651162790697,
+                  "fpr": 0.5294117647058824,
+                  "confusion": {
+                    "tn": 8,
+                    "fp": 9,
+                    "fn": 3,
+                    "tp": 37
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.8448341836734693,
+                  "balanced_accuracy": 0.6524234693877551,
+                  "precision": 0.8287292817679558,
+                  "recall": 0.9375,
+                  "f1": 0.8797653958944281,
+                  "fpr": 0.6326530612244898,
+                  "confusion": {
+                    "tn": 18,
+                    "fp": 31,
+                    "fn": 10,
+                    "tp": 150
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.7788388565646346,
+                  "balanced_accuracy": 0.7254616746774601,
+                  "precision": 0.792,
+                  "recall": 0.8389830508474576,
+                  "f1": 0.8148148148148148,
+                  "fpr": 0.3880597014925373,
+                  "confusion": {
+                    "tn": 41,
+                    "fp": 26,
+                    "fn": 19,
+                    "tp": 99
+                  }
+                }
+              ],
+              "features": [
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "mobilegaze/logistic": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.7088712346904998,
+                "balanced_accuracy": 0.6813141343925853,
+                "precision": 0.8504273504273504,
+                "recall": 0.6257861635220126,
+                "f1": 0.7210144927536232,
+                "fpr": 0.2631578947368421,
+                "confusion": {
+                  "tn": 98,
+                  "fp": 35,
+                  "fn": 119,
+                  "tp": 199
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.975,
+                  "balanced_accuracy": 0.8580882352941177,
+                  "precision": 0.96875,
+                  "recall": 0.775,
+                  "f1": 0.8611111111111112,
+                  "fpr": 0.058823529411764705,
+                  "confusion": {
+                    "tn": 16,
+                    "fp": 1,
+                    "fn": 9,
+                    "tp": 31
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.8667091836734695,
+                  "balanced_accuracy": 0.7375,
+                  "precision": 1.0,
+                  "recall": 0.475,
+                  "f1": 0.6440677966101694,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 49,
+                    "fp": 0,
+                    "fn": 84,
+                    "tp": 76
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.6625347837085758,
+                  "balanced_accuracy": 0.6360991651909942,
+                  "precision": 0.7301587301587301,
+                  "recall": 0.7796610169491526,
+                  "f1": 0.7540983606557377,
+                  "fpr": 0.5074626865671642,
+                  "confusion": {
+                    "tn": 33,
+                    "fp": 34,
+                    "fn": 26,
+                    "tp": 92
+                  }
+                }
+              ],
+              "features": [
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg"
+              ]
+            },
+            "mobilegaze/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.6608502388045585,
+                "balanced_accuracy": 0.6553530051543954,
+                "precision": 0.7944785276073619,
+                "recall": 0.8144654088050315,
+                "f1": 0.8043478260869565,
+                "fpr": 0.5037593984962406,
+                "confusion": {
+                  "tn": 66,
+                  "fp": 67,
+                  "fn": 59,
+                  "tp": 259
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.9720588235294118,
+                  "balanced_accuracy": 0.8823529411764706,
+                  "precision": 0.9090909090909091,
+                  "recall": 1.0,
+                  "f1": 0.9523809523809523,
+                  "fpr": 0.23529411764705882,
+                  "confusion": {
+                    "tn": 13,
+                    "fp": 4,
+                    "fn": 0,
+                    "tp": 40
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.7029336734693877,
+                  "balanced_accuracy": 0.6292729591836734,
+                  "precision": 0.831081081081081,
+                  "recall": 0.76875,
+                  "f1": 0.7987012987012987,
+                  "fpr": 0.5102040816326531,
+                  "confusion": {
+                    "tn": 24,
+                    "fp": 25,
+                    "fn": 37,
+                    "tp": 123
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.6540602074373892,
+                  "balanced_accuracy": 0.6231975714647103,
+                  "precision": 0.7164179104477612,
+                  "recall": 0.8135593220338984,
+                  "f1": 0.7619047619047619,
+                  "fpr": 0.5671641791044776,
+                  "confusion": {
+                    "tn": 29,
+                    "fp": 38,
+                    "fn": 22,
+                    "tp": 96
+                  }
+                }
+              ],
+              "features": [
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg"
+              ]
+            },
+            "combined/logistic": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.6842578143471887,
+                "balanced_accuracy": 0.6795408332151132,
+                "precision": 0.8346153846153846,
+                "recall": 0.6823899371069182,
+                "f1": 0.7508650519031141,
+                "fpr": 0.3233082706766917,
+                "confusion": {
+                  "tn": 90,
+                  "fp": 43,
+                  "fn": 101,
+                  "tp": 217
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.9573529411764706,
+                  "balanced_accuracy": 0.9375,
+                  "precision": 1.0,
+                  "recall": 0.875,
+                  "f1": 0.9333333333333333,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 17,
+                    "fp": 0,
+                    "fn": 5,
+                    "tp": 35
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.7053571428571428,
+                  "balanced_accuracy": 0.6792091836734694,
+                  "precision": 0.9,
+                  "recall": 0.5625,
+                  "f1": 0.6923076923076923,
+                  "fpr": 0.20408163265306123,
+                  "confusion": {
+                    "tn": 39,
+                    "fp": 10,
+                    "fn": 70,
+                    "tp": 90
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.669365039210726,
+                  "balanced_accuracy": 0.6435618517581584,
+                  "precision": 0.736,
+                  "recall": 0.7796610169491526,
+                  "f1": 0.757201646090535,
+                  "fpr": 0.4925373134328358,
+                  "confusion": {
+                    "tn": 34,
+                    "fp": 33,
+                    "fn": 26,
+                    "tp": 92
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open",
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg",
+                "abs_pose_x_deg",
+                "abs_pose_y_deg",
+                "abs_pose_z_deg"
+              ]
+            },
+            "combined/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 451,
+                "positives": 318,
+                "auroc": 0.7588783278952098,
+                "balanced_accuracy": 0.7144157563720622,
+                "precision": 0.82,
+                "recall": 0.9025157232704403,
+                "f1": 0.8592814371257484,
+                "fpr": 0.47368421052631576,
+                "confusion": {
+                  "tn": 70,
+                  "fp": 63,
+                  "fn": 31,
+                  "tp": 287
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 57,
+                  "positives": 40,
+                  "auroc": 0.9735294117647059,
+                  "balanced_accuracy": 0.8573529411764705,
+                  "precision": 0.9047619047619048,
+                  "recall": 0.95,
+                  "f1": 0.926829268292683,
+                  "fpr": 0.23529411764705882,
+                  "confusion": {
+                    "tn": 13,
+                    "fp": 4,
+                    "fn": 2,
+                    "tp": 38
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 209,
+                  "positives": 160,
+                  "auroc": 0.8709183673469387,
+                  "balanced_accuracy": 0.7065688775510204,
+                  "precision": 0.8531073446327684,
+                  "recall": 0.94375,
+                  "f1": 0.8961424332344213,
+                  "fpr": 0.5306122448979592,
+                  "confusion": {
+                    "tn": 23,
+                    "fp": 26,
+                    "fn": 9,
+                    "tp": 151
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 185,
+                  "positives": 118,
+                  "auroc": 0.693270933468252,
+                  "balanced_accuracy": 0.6689855805717178,
+                  "precision": 0.7480916030534351,
+                  "recall": 0.8305084745762712,
+                  "f1": 0.7871485943775101,
+                  "fpr": 0.4925373134328358,
+                  "confusion": {
+                    "tn": 34,
+                    "fp": 33,
+                    "fn": 20,
+                    "tp": 98
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open",
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg",
+                "abs_pose_x_deg",
+                "abs_pose_y_deg",
+                "abs_pose_z_deg"
+              ]
+            }
+          }
+        },
+        "eye_deviation_when_head_centered": {
+          "n": 154,
+          "coverage": 0.2,
+          "variants": {
+            "iris_geometry/logistic": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.4358193810248605,
+                "balanced_accuracy": 0.4969558599695586,
+                "precision": 0.5232558139534884,
+                "recall": 0.5555555555555556,
+                "f1": 0.5389221556886228,
+                "fpr": 0.5616438356164384,
+                "confusion": {
+                  "tn": 32,
+                  "fp": 41,
+                  "fn": 36,
+                  "tp": 45
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.46464646464646464,
+                  "balanced_accuracy": 0.5202020202020202,
+                  "precision": 0.5,
+                  "recall": 0.2222222222222222,
+                  "f1": 0.3076923076923077,
+                  "fpr": 0.18181818181818182,
+                  "confusion": {
+                    "tn": 9,
+                    "fp": 2,
+                    "fn": 7,
+                    "tp": 2
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.24591651542649728,
+                  "balanced_accuracy": 0.4605263157894737,
+                  "precision": 0.546875,
+                  "recall": 0.9210526315789473,
+                  "f1": 0.6862745098039216,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 29,
+                    "fn": 3,
+                    "tp": 35
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.3475935828877006,
+                  "balanced_accuracy": 0.46613190730837795,
+                  "precision": 0.4444444444444444,
+                  "recall": 0.23529411764705882,
+                  "f1": 0.3076923076923077,
+                  "fpr": 0.30303030303030304,
+                  "confusion": {
+                    "tn": 23,
+                    "fp": 10,
+                    "fn": 26,
+                    "tp": 8
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "iris_geometry/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.47809910366987995,
+                "balanced_accuracy": 0.5386436664975478,
+                "precision": 0.576271186440678,
+                "recall": 0.41975308641975306,
+                "f1": 0.4857142857142857,
+                "fpr": 0.3424657534246575,
+                "confusion": {
+                  "tn": 48,
+                  "fp": 25,
+                  "fn": 47,
+                  "tp": 34
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.8585858585858586,
+                  "balanced_accuracy": 0.7272727272727273,
+                  "precision": 0.6,
+                  "recall": 1.0,
+                  "f1": 0.75,
+                  "fpr": 0.5454545454545454,
+                  "confusion": {
+                    "tn": 5,
+                    "fp": 6,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.455535390199637,
+                  "balanced_accuracy": 0.46007259528130673,
+                  "precision": 0.5185185185185185,
+                  "recall": 0.3684210526315789,
+                  "f1": 0.4307692307692308,
+                  "fpr": 0.4482758620689655,
+                  "confusion": {
+                    "tn": 16,
+                    "fp": 13,
+                    "fn": 24,
+                    "tp": 14
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.4260249554367202,
+                  "balanced_accuracy": 0.5708556149732621,
+                  "precision": 0.6470588235294118,
+                  "recall": 0.3235294117647059,
+                  "f1": 0.43137254901960786,
+                  "fpr": 0.18181818181818182,
+                  "confusion": {
+                    "tn": 27,
+                    "fp": 6,
+                    "fn": 23,
+                    "tp": 11
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "iris_only/logistic": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.35295112464062234,
+                "balanced_accuracy": 0.3661423981058684,
+                "precision": 0.42990654205607476,
+                "recall": 0.5679012345679012,
+                "f1": 0.48936170212765956,
+                "fpr": 0.8356164383561644,
+                "confusion": {
+                  "tn": 12,
+                  "fp": 61,
+                  "fn": 35,
+                  "tp": 46
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.7373737373737373,
+                  "balanced_accuracy": 0.5707070707070707,
+                  "precision": 0.5,
+                  "recall": 0.7777777777777778,
+                  "f1": 0.6086956521739131,
+                  "fpr": 0.6363636363636364,
+                  "confusion": {
+                    "tn": 4,
+                    "fp": 7,
+                    "fn": 2,
+                    "tp": 7
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.2422867513611615,
+                  "balanced_accuracy": 0.27631578947368424,
+                  "precision": 0.42,
+                  "recall": 0.5526315789473685,
+                  "f1": 0.4772727272727273,
+                  "fpr": 1.0,
+                  "confusion": {
+                    "tn": 0,
+                    "fp": 29,
+                    "fn": 17,
+                    "tp": 21
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.3368983957219251,
+                  "balanced_accuracy": 0.3859180035650624,
+                  "precision": 0.4186046511627907,
+                  "recall": 0.5294117647058824,
+                  "f1": 0.4675324675324675,
+                  "fpr": 0.7575757575757576,
+                  "confusion": {
+                    "tn": 8,
+                    "fp": 25,
+                    "fn": 16,
+                    "tp": 18
+                  }
+                }
+              ],
+              "features": [
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "iris_only/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.5747505496363944,
+                "balanced_accuracy": 0.5169964485032978,
+                "precision": 0.5365853658536586,
+                "recall": 0.8148148148148148,
+                "f1": 0.6470588235294118,
+                "fpr": 0.7808219178082192,
+                "confusion": {
+                  "tn": 16,
+                  "fp": 57,
+                  "fn": 15,
+                  "tp": 66
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.8888888888888888,
+                  "balanced_accuracy": 0.7272727272727273,
+                  "precision": 0.6,
+                  "recall": 1.0,
+                  "f1": 0.75,
+                  "fpr": 0.5454545454545454,
+                  "confusion": {
+                    "tn": 5,
+                    "fp": 6,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.6787658802177857,
+                  "balanced_accuracy": 0.5408348457350272,
+                  "precision": 0.5957446808510638,
+                  "recall": 0.7368421052631579,
+                  "f1": 0.6588235294117647,
+                  "fpr": 0.6551724137931034,
+                  "confusion": {
+                    "tn": 10,
+                    "fp": 19,
+                    "fn": 10,
+                    "tp": 28
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.4532085561497326,
+                  "balanced_accuracy": 0.44162210338680924,
+                  "precision": 0.47540983606557374,
+                  "recall": 0.8529411764705882,
+                  "f1": 0.6105263157894737,
+                  "fpr": 0.9696969696969697,
+                  "confusion": {
+                    "tn": 1,
+                    "fp": 32,
+                    "fn": 5,
+                    "tp": 29
+                  }
+                }
+              ],
+              "features": [
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open"
+              ]
+            },
+            "mobilegaze/logistic": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.7786233722306781,
+                "balanced_accuracy": 0.6949940808388297,
+                "precision": 0.717948717948718,
+                "recall": 0.691358024691358,
+                "f1": 0.7044025157232704,
+                "fpr": 0.3013698630136986,
+                "confusion": {
+                  "tn": 51,
+                  "fp": 22,
+                  "fn": 25,
+                  "tp": 56
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 0.9545454545454546,
+                  "precision": 0.9,
+                  "recall": 1.0,
+                  "f1": 0.9473684210526315,
+                  "fpr": 0.09090909090909091,
+                  "confusion": {
+                    "tn": 10,
+                    "fp": 1,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.8330308529945553,
+                  "balanced_accuracy": 0.6583484573502723,
+                  "precision": 0.673469387755102,
+                  "recall": 0.868421052631579,
+                  "f1": 0.7586206896551724,
+                  "fpr": 0.5517241379310345,
+                  "confusion": {
+                    "tn": 13,
+                    "fp": 16,
+                    "fn": 5,
+                    "tp": 33
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.7290552584670231,
+                  "balanced_accuracy": 0.6301247771836007,
+                  "precision": 0.7368421052631579,
+                  "recall": 0.4117647058823529,
+                  "f1": 0.5283018867924528,
+                  "fpr": 0.15151515151515152,
+                  "confusion": {
+                    "tn": 28,
+                    "fp": 5,
+                    "fn": 20,
+                    "tp": 14
+                  }
+                }
+              ],
+              "features": [
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg"
+              ]
+            },
+            "mobilegaze/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.756299678674108,
+                "balanced_accuracy": 0.719685438863521,
+                "precision": 0.7317073170731707,
+                "recall": 0.7407407407407407,
+                "f1": 0.7361963190184049,
+                "fpr": 0.3013698630136986,
+                "confusion": {
+                  "tn": 51,
+                  "fp": 22,
+                  "fn": 21,
+                  "tp": 60
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 0.9545454545454546,
+                  "precision": 0.9,
+                  "recall": 1.0,
+                  "f1": 0.9473684210526315,
+                  "fpr": 0.09090909090909091,
+                  "confusion": {
+                    "tn": 10,
+                    "fp": 1,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.7332123411978222,
+                  "balanced_accuracy": 0.6665154264972777,
+                  "precision": 0.6888888888888889,
+                  "recall": 0.8157894736842105,
+                  "f1": 0.7469879518072289,
+                  "fpr": 0.4827586206896552,
+                  "confusion": {
+                    "tn": 15,
+                    "fp": 14,
+                    "fn": 7,
+                    "tp": 31
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.7593582887700535,
+                  "balanced_accuracy": 0.6880570409982174,
+                  "precision": 0.7407407407407407,
+                  "recall": 0.5882352941176471,
+                  "f1": 0.6557377049180327,
+                  "fpr": 0.21212121212121213,
+                  "confusion": {
+                    "tn": 26,
+                    "fp": 7,
+                    "fn": 14,
+                    "tp": 20
+                  }
+                }
+              ],
+              "features": [
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg"
+              ]
+            },
+            "combined/logistic": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.730593607305936,
+                "balanced_accuracy": 0.6504312531709793,
+                "precision": 0.68,
+                "recall": 0.6296296296296297,
+                "f1": 0.6538461538461539,
+                "fpr": 0.3287671232876712,
+                "confusion": {
+                  "tn": 49,
+                  "fp": 24,
+                  "fn": 30,
+                  "tp": 51
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 0.898989898989899,
+                  "balanced_accuracy": 0.8333333333333333,
+                  "precision": 1.0,
+                  "recall": 0.6666666666666666,
+                  "f1": 0.8,
+                  "fpr": 0.0,
+                  "confusion": {
+                    "tn": 11,
+                    "fp": 0,
+                    "fn": 3,
+                    "tp": 6
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.7758620689655171,
+                  "balanced_accuracy": 0.572141560798548,
+                  "precision": 0.6111111111111112,
+                  "recall": 0.868421052631579,
+                  "f1": 0.717391304347826,
+                  "fpr": 0.7241379310344828,
+                  "confusion": {
+                    "tn": 8,
+                    "fp": 21,
+                    "fn": 5,
+                    "tp": 33
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.7272727272727274,
+                  "balanced_accuracy": 0.6310160427807486,
+                  "precision": 0.8,
+                  "recall": 0.35294117647058826,
+                  "f1": 0.4897959183673469,
+                  "fpr": 0.09090909090909091,
+                  "confusion": {
+                    "tn": 30,
+                    "fp": 3,
+                    "fn": 22,
+                    "tp": 12
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open",
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg",
+                "abs_pose_x_deg",
+                "abs_pose_y_deg",
+                "abs_pose_z_deg"
+              ]
+            },
+            "combined/hist_gradient_boosting": {
+              "pooled_oof": {
+                "n": 154,
+                "positives": 81,
+                "auroc": 0.7210383899881617,
+                "balanced_accuracy": 0.6874682902080163,
+                "precision": 0.7037037037037037,
+                "recall": 0.7037037037037037,
+                "f1": 0.7037037037037037,
+                "fpr": 0.3287671232876712,
+                "confusion": {
+                  "tn": 49,
+                  "fp": 24,
+                  "fn": 24,
+                  "tp": 57
+                }
+              },
+              "folds": [
+                {
+                  "participant": "S1",
+                  "n": 20,
+                  "positives": 9,
+                  "auroc": 1.0,
+                  "balanced_accuracy": 0.9545454545454546,
+                  "precision": 0.9,
+                  "recall": 1.0,
+                  "f1": 0.9473684210526315,
+                  "fpr": 0.09090909090909091,
+                  "confusion": {
+                    "tn": 10,
+                    "fp": 1,
+                    "fn": 0,
+                    "tp": 9
+                  }
+                },
+                {
+                  "participant": "S2",
+                  "n": 67,
+                  "positives": 38,
+                  "auroc": 0.66016333938294,
+                  "balanced_accuracy": 0.6665154264972777,
+                  "precision": 0.6888888888888889,
+                  "recall": 0.8157894736842105,
+                  "f1": 0.7469879518072289,
+                  "fpr": 0.4827586206896552,
+                  "confusion": {
+                    "tn": 15,
+                    "fp": 14,
+                    "fn": 7,
+                    "tp": 31
+                  }
+                },
+                {
+                  "participant": "S3",
+                  "n": 67,
+                  "positives": 34,
+                  "auroc": 0.6568627450980392,
+                  "balanced_accuracy": 0.6136363636363636,
+                  "precision": 0.6538461538461539,
+                  "recall": 0.5,
+                  "f1": 0.5666666666666667,
+                  "fpr": 0.2727272727272727,
+                  "confusion": {
+                    "tn": 24,
+                    "fp": 9,
+                    "fn": 17,
+                    "tp": 17
+                  }
+                }
+              ],
+              "features": [
+                "pose_x_deg",
+                "pose_y_deg",
+                "pose_z_deg",
+                "iris_a_x",
+                "iris_a_y",
+                "iris_b_x",
+                "iris_b_y",
+                "eye_a_open",
+                "eye_b_open",
+                "mobilegaze_yaw_deg",
+                "mobilegaze_pitch_deg",
+                "abs_mobilegaze_yaw_deg",
+                "abs_mobilegaze_pitch_deg",
+                "abs_pose_x_deg",
+                "abs_pose_y_deg",
+                "abs_pose_z_deg"
+              ]
+            }
+          }
+        }
+      },
+      "training_seconds": 1.0129609590003383,
+      "median_measurement_with_gaze_ms": 26.679208500013374,
+      "p95_measurement_with_gaze_ms": 27.60142324998469
+    },
+    "columbia_metrics": {
+      "dataset": "Columbia frontal-head 21-target subset",
+      "source_frames": 1176,
+      "eligible_frames": 1176,
+      "coverage": 1.0,
+      "participants": 56,
+      "quality_status": {
+        "ok": 1176
+      },
+      "task": "gaze target >=10 degrees vs central -5/0/+5 horizontal at zero vertical; head pose fixed zero",
+      "grouping": "5 folds, disjoint participants, shuffled group order with seed 42",
+      "variants": {
+        "iris_geometry/logistic": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.531639739229025,
+            "balanced_accuracy": 0.5178571428571429,
+            "precision": 0.8651162790697674,
+            "recall": 0.5535714285714286,
+            "f1": 0.6751361161524501,
+            "fpr": 0.5178571428571429,
+            "confusion": {
+              "tn": 81,
+              "fp": 87,
+              "fn": 450,
+              "tp": 558
+            }
+          },
+          "folds": [
+            {
+              "held_out_participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.5540123456790124,
+              "balanced_accuracy": 0.5277777777777778,
+              "precision": 0.8727272727272727,
+              "recall": 0.4444444444444444,
+              "f1": 0.588957055214724,
+              "fpr": 0.3888888888888889,
+              "confusion": {
+                "tn": 22,
+                "fp": 14,
+                "fn": 120,
+                "tp": 96
+              }
+            },
+            {
+              "held_out_participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.44949494949494945,
+              "balanced_accuracy": 0.43434343434343436,
+              "precision": 0.822429906542056,
+              "recall": 0.4444444444444444,
+              "f1": 0.5770491803278689,
+              "fpr": 0.5757575757575758,
+              "confusion": {
+                "tn": 14,
+                "fp": 19,
+                "fn": 110,
+                "tp": 88
+              }
+            },
+            {
+              "held_out_participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.534435261707989,
+              "balanced_accuracy": 0.5303030303030303,
+              "precision": 0.8695652173913043,
+              "recall": 0.6060606060606061,
+              "f1": 0.7142857142857143,
+              "fpr": 0.5454545454545454,
+              "confusion": {
+                "tn": 15,
+                "fp": 18,
+                "fn": 78,
+                "tp": 120
+              }
+            },
+            {
+              "held_out_participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.5726966636057544,
+              "balanced_accuracy": 0.5631313131313131,
+              "precision": 0.8819444444444444,
+              "recall": 0.6414141414141414,
+              "f1": 0.7426900584795322,
+              "fpr": 0.5151515151515151,
+              "confusion": {
+                "tn": 16,
+                "fp": 17,
+                "fn": 71,
+                "tp": 127
+              }
+            },
+            {
+              "held_out_participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.5583103764921946,
+              "balanced_accuracy": 0.5328282828282829,
+              "precision": 0.8698630136986302,
+              "recall": 0.6414141414141414,
+              "f1": 0.7383720930232558,
+              "fpr": 0.5757575757575758,
+              "confusion": {
+                "tn": 14,
+                "fp": 19,
+                "fn": 71,
+                "tp": 127
+              }
+            }
+          ]
+        },
+        "iris_geometry/hist_gradient_boosting": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.7964232568027211,
+            "balanced_accuracy": 0.535218253968254,
+            "precision": 0.866079295154185,
+            "recall": 0.9751984126984127,
+            "f1": 0.9174055062995801,
+            "fpr": 0.9047619047619048,
+            "confusion": {
+              "tn": 16,
+              "fp": 152,
+              "fn": 25,
+              "tp": 983
+            }
+          },
+          "folds": [
+            {
+              "held_out_participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.82445987654321,
+              "balanced_accuracy": 0.5555555555555556,
+              "precision": 0.8713692946058091,
+              "recall": 0.9722222222222222,
+              "f1": 0.9190371991247265,
+              "fpr": 0.8611111111111112,
+              "confusion": {
+                "tn": 5,
+                "fp": 31,
+                "fn": 6,
+                "tp": 210
+              }
+            },
+            {
+              "held_out_participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7535200489745943,
+              "balanced_accuracy": 0.48484848484848486,
+              "precision": 0.8533333333333334,
+              "recall": 0.9696969696969697,
+              "f1": 0.9078014184397163,
+              "fpr": 1.0,
+              "confusion": {
+                "tn": 0,
+                "fp": 33,
+                "fn": 6,
+                "tp": 192
+              }
+            },
+            {
+              "held_out_participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7820630547903276,
+              "balanced_accuracy": 0.5681818181818182,
+              "precision": 0.874439461883408,
+              "recall": 0.9848484848484849,
+              "f1": 0.9263657957244655,
+              "fpr": 0.8484848484848485,
+              "confusion": {
+                "tn": 5,
+                "fp": 28,
+                "fn": 3,
+                "tp": 195
+              }
+            },
+            {
+              "held_out_participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8275941230486685,
+              "balanced_accuracy": 0.5126262626262627,
+              "precision": 0.8603603603603603,
+              "recall": 0.9646464646464646,
+              "f1": 0.9095238095238095,
+              "fpr": 0.9393939393939394,
+              "confusion": {
+                "tn": 2,
+                "fp": 31,
+                "fn": 7,
+                "tp": 191
+              }
+            },
+            {
+              "held_out_participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8001989592898684,
+              "balanced_accuracy": 0.553030303030303,
+              "precision": 0.8705357142857143,
+              "recall": 0.9848484848484849,
+              "f1": 0.9241706161137441,
+              "fpr": 0.8787878787878788,
+              "confusion": {
+                "tn": 4,
+                "fp": 29,
+                "fn": 3,
+                "tp": 195
+              }
+            }
+          ]
+        },
+        "mobilegaze/logistic": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.796691940665155,
+            "balanced_accuracy": 0.7098214285714286,
+            "precision": 0.9390243902439024,
+            "recall": 0.6875,
+            "f1": 0.7938144329896907,
+            "fpr": 0.26785714285714285,
+            "confusion": {
+              "tn": 123,
+              "fp": 45,
+              "fn": 315,
+              "tp": 693
+            }
+          },
+          "folds": [
+            {
+              "held_out_participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.8245884773662552,
+              "balanced_accuracy": 0.7662037037037037,
+              "precision": 0.9666666666666667,
+              "recall": 0.6712962962962963,
+              "f1": 0.7923497267759563,
+              "fpr": 0.1388888888888889,
+              "confusion": {
+                "tn": 31,
+                "fp": 5,
+                "fn": 71,
+                "tp": 145
+              }
+            },
+            {
+              "held_out_participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7832874196510561,
+              "balanced_accuracy": 0.6717171717171717,
+              "precision": 0.927536231884058,
+              "recall": 0.6464646464646465,
+              "f1": 0.7619047619047619,
+              "fpr": 0.30303030303030304,
+              "confusion": {
+                "tn": 23,
+                "fp": 10,
+                "fn": 70,
+                "tp": 128
+              }
+            },
+            {
+              "held_out_participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7618610345883073,
+              "balanced_accuracy": 0.6792929292929293,
+              "precision": 0.9256756756756757,
+              "recall": 0.6919191919191919,
+              "f1": 0.791907514450867,
+              "fpr": 0.3333333333333333,
+              "confusion": {
+                "tn": 22,
+                "fp": 11,
+                "fn": 61,
+                "tp": 137
+              }
+            },
+            {
+              "held_out_participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8339455157636976,
+              "balanced_accuracy": 0.7297979797979798,
+              "precision": 0.9455782312925171,
+              "recall": 0.702020202020202,
+              "f1": 0.8057971014492754,
+              "fpr": 0.24242424242424243,
+              "confusion": {
+                "tn": 25,
+                "fp": 8,
+                "fn": 59,
+                "tp": 139
+              }
+            },
+            {
+              "held_out_participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7727272727272727,
+              "balanced_accuracy": 0.696969696969697,
+              "precision": 0.9290322580645162,
+              "recall": 0.7272727272727273,
+              "f1": 0.8158640226628895,
+              "fpr": 0.3333333333333333,
+              "confusion": {
+                "tn": 22,
+                "fp": 11,
+                "fn": 54,
+                "tp": 144
+              }
+            }
+          ]
+        },
+        "mobilegaze/hist_gradient_boosting": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.7973710317460317,
+            "balanced_accuracy": 0.5337301587301587,
+            "precision": 0.8656716417910447,
+            "recall": 0.9781746031746031,
+            "f1": 0.9184909175593852,
+            "fpr": 0.9107142857142857,
+            "confusion": {
+              "tn": 15,
+              "fp": 153,
+              "fn": 22,
+              "tp": 986
+            }
+          },
+          "folds": [
+            {
+              "held_out_participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.8155221193415638,
+              "balanced_accuracy": 0.5162037037037037,
+              "precision": 0.8613445378151261,
+              "recall": 0.9490740740740741,
+              "f1": 0.9030837004405287,
+              "fpr": 0.9166666666666666,
+              "confusion": {
+                "tn": 3,
+                "fp": 33,
+                "fn": 11,
+                "tp": 205
+              }
+            },
+            {
+              "held_out_participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7767829813284359,
+              "balanced_accuracy": 0.5202020202020202,
+              "precision": 0.8622222222222222,
+              "recall": 0.9797979797979798,
+              "f1": 0.91725768321513,
+              "fpr": 0.9393939393939394,
+              "confusion": {
+                "tn": 2,
+                "fp": 31,
+                "fn": 4,
+                "tp": 194
+              }
+            },
+            {
+              "held_out_participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.769895928986838,
+              "balanced_accuracy": 0.5681818181818182,
+              "precision": 0.874439461883408,
+              "recall": 0.9848484848484849,
+              "f1": 0.9263657957244655,
+              "fpr": 0.8484848484848485,
+              "confusion": {
+                "tn": 5,
+                "fp": 28,
+                "fn": 3,
+                "tp": 195
+              }
+            },
+            {
+              "held_out_participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8479491888582797,
+              "balanced_accuracy": 0.5404040404040404,
+              "precision": 0.8672566371681416,
+              "recall": 0.98989898989899,
+              "f1": 0.9245283018867925,
+              "fpr": 0.9090909090909091,
+              "confusion": {
+                "tn": 3,
+                "fp": 30,
+                "fn": 2,
+                "tp": 196
+              }
+            },
+            {
+              "held_out_participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7835935108662381,
+              "balanced_accuracy": 0.5252525252525253,
+              "precision": 0.8634361233480177,
+              "recall": 0.98989898989899,
+              "f1": 0.9223529411764706,
+              "fpr": 0.9393939393939394,
+              "confusion": {
+                "tn": 2,
+                "fp": 31,
+                "fn": 2,
+                "tp": 196
+              }
+            }
+          ]
+        },
+        "combined/logistic": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.7986996882086168,
+            "balanced_accuracy": 0.7142857142857142,
+            "precision": 0.9397590361445783,
+            "recall": 0.6964285714285714,
+            "f1": 0.8,
+            "fpr": 0.26785714285714285,
+            "confusion": {
+              "tn": 123,
+              "fp": 45,
+              "fn": 306,
+              "tp": 702
+            }
+          },
+          "folds": [
+            {
+              "held_out_participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.8350051440329218,
+              "balanced_accuracy": 0.7615740740740741,
+              "precision": 0.9612903225806452,
+              "recall": 0.6898148148148148,
+              "f1": 0.8032345013477089,
+              "fpr": 0.16666666666666666,
+              "confusion": {
+                "tn": 30,
+                "fp": 6,
+                "fn": 67,
+                "tp": 149
+              }
+            },
+            {
+              "held_out_participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7825221916131008,
+              "balanced_accuracy": 0.7222222222222222,
+              "precision": 0.9444444444444444,
+              "recall": 0.6868686868686869,
+              "f1": 0.7953216374269005,
+              "fpr": 0.24242424242424243,
+              "confusion": {
+                "tn": 25,
+                "fp": 8,
+                "fn": 62,
+                "tp": 136
+              }
+            },
+            {
+              "held_out_participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7591062136516681,
+              "balanced_accuracy": 0.6792929292929293,
+              "precision": 0.9225806451612903,
+              "recall": 0.7222222222222222,
+              "f1": 0.8101983002832861,
+              "fpr": 0.36363636363636365,
+              "confusion": {
+                "tn": 21,
+                "fp": 12,
+                "fn": 55,
+                "tp": 143
+              }
+            },
+            {
+              "held_out_participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8370064279155188,
+              "balanced_accuracy": 0.7323232323232323,
+              "precision": 0.9459459459459459,
+              "recall": 0.7070707070707071,
+              "f1": 0.8092485549132948,
+              "fpr": 0.24242424242424243,
+              "confusion": {
+                "tn": 25,
+                "fp": 8,
+                "fn": 58,
+                "tp": 140
+              }
+            },
+            {
+              "held_out_participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7765534129170493,
+              "balanced_accuracy": 0.6717171717171717,
+              "precision": 0.9241379310344827,
+              "recall": 0.6767676767676768,
+              "f1": 0.7813411078717201,
+              "fpr": 0.3333333333333333,
+              "confusion": {
+                "tn": 22,
+                "fp": 11,
+                "fn": 64,
+                "tp": 134
+              }
+            }
+          ]
+        },
+        "combined/hist_gradient_boosting": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.8465726568405139,
+            "balanced_accuracy": 0.5719246031746031,
+            "precision": 0.8757875787578758,
+            "recall": 0.9652777777777778,
+            "f1": 0.9183577159037282,
+            "fpr": 0.8214285714285714,
+            "confusion": {
+              "tn": 30,
+              "fp": 138,
+              "fn": 35,
+              "tp": 973
+            }
+          },
+          "folds": [
+            {
+              "held_out_participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.8948045267489713,
+              "balanced_accuracy": 0.5486111111111112,
+              "precision": 0.8697478991596639,
+              "recall": 0.9583333333333334,
+              "f1": 0.9118942731277533,
+              "fpr": 0.8611111111111112,
+              "confusion": {
+                "tn": 5,
+                "fp": 31,
+                "fn": 9,
+                "tp": 207
+              }
+            },
+            {
+              "held_out_participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8088460361187634,
+              "balanced_accuracy": 0.5429292929292929,
+              "precision": 0.8681818181818182,
+              "recall": 0.9646464646464646,
+              "f1": 0.9138755980861244,
+              "fpr": 0.8787878787878788,
+              "confusion": {
+                "tn": 4,
+                "fp": 29,
+                "fn": 7,
+                "tp": 191
+              }
+            },
+            {
+              "held_out_participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7972145699418427,
+              "balanced_accuracy": 0.5757575757575758,
+              "precision": 0.8767123287671232,
+              "recall": 0.9696969696969697,
+              "f1": 0.920863309352518,
+              "fpr": 0.8181818181818182,
+              "confusion": {
+                "tn": 6,
+                "fp": 27,
+                "fn": 6,
+                "tp": 192
+              }
+            },
+            {
+              "held_out_participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.9014386287113559,
+              "balanced_accuracy": 0.6388888888888888,
+              "precision": 0.8935185185185185,
+              "recall": 0.9747474747474747,
+              "f1": 0.9323671497584541,
+              "fpr": 0.696969696969697,
+              "confusion": {
+                "tn": 10,
+                "fp": 23,
+                "fn": 5,
+                "tp": 193
+              }
+            },
+            {
+              "held_out_participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8259871441689624,
+              "balanced_accuracy": 0.5555555555555556,
+              "precision": 0.8715596330275229,
+              "recall": 0.9595959595959596,
+              "f1": 0.9134615384615384,
+              "fpr": 0.8484848484848485,
+              "confusion": {
+                "tn": 5,
+                "fp": 28,
+                "fn": 8,
+                "tp": 190
+              }
+            }
+          ]
+        }
+      },
+      "ai_assistance_evaluated": false,
+      "shuffled_label_control": {
+        "n": 1176,
+        "positives": 1008,
+        "auroc": 0.5029939058956916,
+        "balanced_accuracy": 0.5,
+        "precision": 0.8571428571428571,
+        "recall": 0.4642857142857143,
+        "f1": 0.6023166023166023,
+        "fpr": 0.4642857142857143,
+        "confusion": {
+          "tn": 90,
+          "fp": 78,
+          "fn": 540,
+          "tp": 468
+        }
+      },
+      "CSD_trained_model_external_Columbia_test": {
+        "n": 1176,
+        "positives": 1008,
+        "auroc": 0.7541985544217688,
+        "balanced_accuracy": 0.6483134920634921,
+        "precision": 0.952914798206278,
+        "recall": 0.42162698412698413,
+        "f1": 0.5845942228335625,
+        "fpr": 0.125,
+        "confusion": {
+          "tn": 147,
+          "fp": 21,
+          "fn": 583,
+          "tp": 425
+        }
+      },
+      "median_measurement_ms": 28.5091045000172,
+      "p95_measurement_ms": 29.640457750019777
+    },
+    "nested_threshold_metrics": {
+      "protocol": "5 outer participant folds; threshold chosen from 3 inner participant folds within each training fold only",
+      "feature_file_sha256": "c5cd5fa1b9d5791960bb97f560d27e851796756a8c8e8c3b599fe5c584f30daf",
+      "nominal_training_FPR_target": 0.1,
+      "features": [
+        "pose_x_deg",
+        "pose_y_deg",
+        "pose_z_deg",
+        "iris_a_x",
+        "iris_a_y",
+        "iris_b_x",
+        "iris_b_y",
+        "eye_a_open",
+        "eye_b_open",
+        "mobilegaze_yaw_deg",
+        "mobilegaze_pitch_deg",
+        "abs_mobilegaze_yaw_deg",
+        "abs_mobilegaze_pitch_deg"
+      ],
+      "models": {
+        "combined_logistic": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.7986996882086168,
+            "balanced_accuracy": 0.6904761904761905,
+            "precision": 0.9726315789473684,
+            "recall": 0.4583333333333333,
+            "f1": 0.6230613621038436,
+            "fpr": 0.07738095238095238,
+            "confusion": {
+              "tn": 155,
+              "fp": 13,
+              "fn": 546,
+              "tp": 462
+            }
+          },
+          "folds": [
+            {
+              "participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "inner_chosen_threshold": 0.7579598884159541,
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.8350051440329218,
+              "balanced_accuracy": 0.712962962962963,
+              "precision": 1.0,
+              "recall": 0.42592592592592593,
+              "f1": 0.5974025974025974,
+              "fpr": 0.0,
+              "confusion": {
+                "tn": 36,
+                "fp": 0,
+                "fn": 124,
+                "tp": 92
+              }
+            },
+            {
+              "participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "inner_chosen_threshold": 0.6875910075205686,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7825221916131008,
+              "balanced_accuracy": 0.6590909090909091,
+              "precision": 0.9560439560439561,
+              "recall": 0.4393939393939394,
+              "f1": 0.6020761245674741,
+              "fpr": 0.12121212121212122,
+              "confusion": {
+                "tn": 29,
+                "fp": 4,
+                "fn": 111,
+                "tp": 87
+              }
+            },
+            {
+              "participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "inner_chosen_threshold": 0.7204390244911009,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7591062136516681,
+              "balanced_accuracy": 0.6717171717171717,
+              "precision": 0.9454545454545454,
+              "recall": 0.5252525252525253,
+              "f1": 0.6753246753246753,
+              "fpr": 0.18181818181818182,
+              "confusion": {
+                "tn": 27,
+                "fp": 6,
+                "fn": 94,
+                "tp": 104
+              }
+            },
+            {
+              "participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "inner_chosen_threshold": 0.712551849992568,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8370064279155188,
+              "balanced_accuracy": 0.7095959595959596,
+              "precision": 0.979381443298969,
+              "recall": 0.4797979797979798,
+              "f1": 0.6440677966101694,
+              "fpr": 0.06060606060606061,
+              "confusion": {
+                "tn": 31,
+                "fp": 2,
+                "fn": 103,
+                "tp": 95
+              }
+            },
+            {
+              "participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "inner_chosen_threshold": 0.7744741233945213,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7765534129170493,
+              "balanced_accuracy": 0.696969696969697,
+              "precision": 0.9882352941176471,
+              "recall": 0.42424242424242425,
+              "f1": 0.5936395759717314,
+              "fpr": 0.030303030303030304,
+              "confusion": {
+                "tn": 32,
+                "fp": 1,
+                "fn": 114,
+                "tp": 84
+              }
+            }
+          ],
+          "participant_bootstrap_95_percent": {
+            "auroc": [
+              0.7621852560468632,
+              0.8362850174792139
+            ],
+            "fpr": [
+              0.03571428571428571,
+              0.125
+            ],
+            "recall": [
+              0.42160218253968257,
+              0.49407242063492063
+            ]
+          },
+          "bootstrap_scope": "1000 resamples of participant groups in fixed OOF predictions; models not refitted"
+        },
+        "combined_balanced_HGB": {
+          "pooled_oof": {
+            "n": 1176,
+            "positives": 1008,
+            "auroc": 0.8413849914965986,
+            "balanced_accuracy": 0.7619047619047619,
+            "precision": 0.9789983844911146,
+            "recall": 0.6011904761904762,
+            "f1": 0.7449293177627535,
+            "fpr": 0.07738095238095238,
+            "confusion": {
+              "tn": 155,
+              "fp": 13,
+              "fn": 402,
+              "tp": 606
+            }
+          },
+          "folds": [
+            {
+              "participants": [
+                "0001",
+                "0004",
+                "0006",
+                "0013",
+                "0014",
+                "0020",
+                "0027",
+                "0034",
+                "0037",
+                "0045",
+                "0051",
+                "0055"
+              ],
+              "inner_chosen_threshold": 0.840498617778686,
+              "n": 252,
+              "positives": 216,
+              "auroc": 0.8815586419753086,
+              "balanced_accuracy": 0.8148148148148149,
+              "precision": 1.0,
+              "recall": 0.6296296296296297,
+              "f1": 0.7727272727272727,
+              "fpr": 0.0,
+              "confusion": {
+                "tn": 36,
+                "fp": 0,
+                "fn": 80,
+                "tp": 136
+              }
+            },
+            {
+              "participants": [
+                "0005",
+                "0007",
+                "0009",
+                "0018",
+                "0028",
+                "0031",
+                "0035",
+                "0042",
+                "0047",
+                "0048",
+                "0053"
+              ],
+              "inner_chosen_threshold": 0.8063959561658701,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8125956535047443,
+              "balanced_accuracy": 0.755050505050505,
+              "precision": 0.9689922480620154,
+              "recall": 0.6313131313131313,
+              "f1": 0.764525993883792,
+              "fpr": 0.12121212121212122,
+              "confusion": {
+                "tn": 29,
+                "fp": 4,
+                "fn": 73,
+                "tp": 125
+              }
+            },
+            {
+              "participants": [
+                "0010",
+                "0012",
+                "0016",
+                "0017",
+                "0025",
+                "0026",
+                "0032",
+                "0033",
+                "0049",
+                "0050",
+                "0054"
+              ],
+              "inner_chosen_threshold": 0.7465668480042076,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.7894092439546985,
+              "balanced_accuracy": 0.7121212121212122,
+              "precision": 0.9428571428571428,
+              "recall": 0.6666666666666666,
+              "f1": 0.7810650887573964,
+              "fpr": 0.24242424242424243,
+              "confusion": {
+                "tn": 25,
+                "fp": 8,
+                "fn": 66,
+                "tp": 132
+              }
+            },
+            {
+              "participants": [
+                "0002",
+                "0003",
+                "0022",
+                "0024",
+                "0030",
+                "0036",
+                "0038",
+                "0040",
+                "0041",
+                "0044",
+                "0046"
+              ],
+              "inner_chosen_threshold": 0.8304423396725149,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8986838077747169,
+              "balanced_accuracy": 0.7676767676767677,
+              "precision": 1.0,
+              "recall": 0.5353535353535354,
+              "f1": 0.6973684210526315,
+              "fpr": 0.0,
+              "confusion": {
+                "tn": 33,
+                "fp": 0,
+                "fn": 92,
+                "tp": 106
+              }
+            },
+            {
+              "participants": [
+                "0008",
+                "0011",
+                "0015",
+                "0019",
+                "0021",
+                "0023",
+                "0029",
+                "0039",
+                "0043",
+                "0052",
+                "0056"
+              ],
+              "inner_chosen_threshold": 0.881572143727518,
+              "n": 231,
+              "positives": 198,
+              "auroc": 0.8204775022956842,
+              "balanced_accuracy": 0.7550505050505051,
+              "precision": 0.9907407407407407,
+              "recall": 0.5404040404040404,
+              "f1": 0.6993464052287581,
+              "fpr": 0.030303030303030304,
+              "confusion": {
+                "tn": 32,
+                "fp": 1,
+                "fn": 91,
+                "tp": 107
+              }
+            }
+          ],
+          "participant_bootstrap_95_percent": {
+            "auroc": [
+              0.8106533889597507,
+              0.8685203638747165
+            ],
+            "fpr": [
+              0.03571428571428571,
+              0.125
+            ],
+            "recall": [
+              0.5625,
+              0.6378968253968254
+            ]
+          },
+          "bootstrap_scope": "1000 resamples of participant groups in fixed OOF predictions; models not refitted"
+        }
+      },
+      "interpretation": "Exploratory follow-up on the same cohort; independent final interview validation still required.",
+      "exported_threshold": 0.7563159389684535
+    }
+  },
+  "video_pipeline_checks": {
+    "final_demo_default": {
+      "source_filename": "openface_default.wmv",
+      "source_sha256": "b6c4879cbe14f85412d33be9c0854d3920aacc26f90115868c94e40f836a316c",
+      "source_fps": 15.0,
+      "sample_fps": 5,
+      "sampled_frames": 96,
+      "analyzed_seconds": 19.2,
+      "elapsed_seconds": 3.0197968339998624,
+      "quality_status": {
+        "ok": 95,
+        "eye_quality_low": 1
+      },
+      "median_inference_ms": 29.64281250001477,
+      "p95_inference_ms": 31.52242700014085,
+      "minimum_event_seconds": 2,
+      "events": [],
+      "ai_assistance_probability": null,
+      "interpretation": "Direction/missing-detection events for review; no interview AI-use ground truth.",
+      "face_loss_semantics": "No face detected can be absence, occlusion, lighting, or detector failure."
+    },
+    "final_demo_multiface": {
+      "source_filename": "openface_multi_face.avi",
+      "source_sha256": "e8b09c6b28f0d3d8d00029e82eb6cfecbad665c94a75804f948bef0c4cb5f613",
+      "source_fps": 30.0,
+      "sample_fps": 5,
+      "sampled_frames": 117,
+      "analyzed_seconds": 23.4,
+      "elapsed_seconds": 2.4150650840001617,
+      "quality_status": {
+        "multiple_faces": 72,
+        "ok": 43,
+        "eye_quality_low": 2
+      },
+      "median_inference_ms": 12.19866599967645,
+      "p95_inference_ms": 34.29177499992875,
+      "minimum_event_seconds": 2,
+      "events": [
+        {
+          "type": "multiple_faces",
+          "start_s": 0.0,
+          "end_s": 5.6,
+          "duration_s": 5.6
+        },
+        {
+          "type": "multiple_faces",
+          "start_s": 7.8,
+          "end_s": 11.0,
+          "duration_s": 3.2
+        }
+      ],
+      "ai_assistance_probability": null,
+      "interpretation": "Direction/missing-detection events for review; no interview AI-use ground truth.",
+      "face_loss_semantics": "No face detected can be absence, occlusion, lighting, or detector failure."
+    },
+    "demo_black": {
+      "source_filename": "black_3s.mp4",
+      "source_sha256": "92a86d25a16ce286adcaca43366ef5c2de6ddc03db21a1a8a987ae2f252df01d",
+      "source_fps": 20.0,
+      "sample_fps": 5.0,
+      "sampled_frames": 15,
+      "analyzed_seconds": 3.0,
+      "elapsed_seconds": 0.03062329200020031,
+      "quality_status": {
+        "no_face_detected": 15
+      },
+      "median_inference_ms": 1.5036659997349489,
+      "p95_inference_ms": 1.7912043999785958,
+      "minimum_event_seconds": 2.0,
+      "events": [
+        {
+          "type": "no_face_detected",
+          "start_s": 0.0,
+          "end_s": 3.0,
+          "duration_s": 3.0
+        }
+      ],
+      "ai_assistance_probability": null,
+      "interpretation": "Direction/missing-detection events for review; no interview AI-use ground truth.",
+      "face_loss_semantics": "No face detected can be absence, occlusion, lighting, or detector failure."
+    }
+  },
+  "source_note": "Aggregate metrics only. Public images, per-frame features, model weights and row-level results are stored locally in ignored data directories."
+}

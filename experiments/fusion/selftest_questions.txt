@@ -1,0 +1,9 @@
+# Self-test questions (read each aloud, word for word, before answering).
+# Suggested conditions: Q1-Q2 own answer; Q3-Q4 read an AI-written answer verbatim;
+# Q5-Q6 glance at own keyword notes and answer in own words. Record what you actually did.
+What is the bias variance tradeoff?
+What is the difference between a process and a thread?
+How does the attention mechanism in a Transformer work?
+Explain how consistent hashing works and why it is used in distributed systems.
+What is batch normalization and why does it help training?
+What happens when you type a URL into a browser and press Enter?
