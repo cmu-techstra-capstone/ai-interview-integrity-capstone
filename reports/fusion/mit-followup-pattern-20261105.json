@@ -1,0 +1,218 @@
+{
+  "type": "exploratory; MIT interviews have no AI-assistance labels",
+  "interpretation": "suggest rate on ordinary interviews approximates how often the rule flags normal answers",
+  "ai_assistance_probability": null,
+  "recordings": 138,
+  "recordings_with_visual_timeline": 138,
+  "answer_windows": 909,
+  "windows_with_reliable_timing": 569,
+  "latency_s": {
+    "n": 569,
+    "median": 0.98,
+    "p10": 0.32,
+    "p90": 2.46,
+    "share_ge_2s": 0.167
+  },
+  "default_config": {
+    "min_latency_s": 2.0,
+    "look_window_into_answer_s": 3.0,
+    "min_visual_coverage": 0.5,
+    "sample_fps": 2.0,
+    "long_pause_s": 1.0,
+    "min_answer_words": 15,
+    "min_answers_for_self_baseline": 3,
+    "read_like_threshold": 0.5,
+    "ai_like_text_threshold": 0.5
+  },
+  "default_result": {
+    "answers": 909,
+    "status": {
+      "no_pattern": 544,
+      "suggest_followup": 18,
+      "insufficient_evidence": 347
+    },
+    "fully_measurable": 562,
+    "suggest_rate_among_fully_measurable": 0.032
+  },
+  "conditions": {
+    "delayed_start": {
+      "met": 95,
+      "not_met": 474,
+      "unmeasurable": 340,
+      "met_rate_among_measurable": 0.167
+    },
+    "look_away": {
+      "met": 157,
+      "not_met": 226,
+      "unmeasurable": 526,
+      "met_rate_among_measurable": 0.4099
+    },
+    "fluent_answer": {
+      "met": 161,
+      "not_met": 270,
+      "unmeasurable": 478,
+      "met_rate_among_measurable": 0.3735
+    },
+    "read_like_delivery": {
+      "met": 0,
+      "not_met": 0,
+      "unmeasurable": 909,
+      "met_rate_among_measurable": null
+    },
+    "ai_like_text": {
+      "met": 0,
+      "not_met": 0,
+      "unmeasurable": 909,
+      "met_rate_among_measurable": null
+    }
+  },
+  "recordings_with_any_suggestion": 15,
+  "max_suggestions_in_one_recording": 2,
+  "sensitivity_grid": [
+    {
+      "min_latency_s": 1.0,
+      "look_window_into_answer_s": 2.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 505,
+        "suggest_followup": 33,
+        "insufficient_evidence": 371
+      },
+      "fully_measurable": 538,
+      "suggest_rate_among_fully_measurable": 0.0613
+    },
+    {
+      "min_latency_s": 1.0,
+      "look_window_into_answer_s": 3.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 502,
+        "suggest_followup": 35,
+        "insufficient_evidence": 372
+      },
+      "fully_measurable": 537,
+      "suggest_rate_among_fully_measurable": 0.0652
+    },
+    {
+      "min_latency_s": 1.0,
+      "look_window_into_answer_s": 5.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 498,
+        "suggest_followup": 37,
+        "insufficient_evidence": 374
+      },
+      "fully_measurable": 535,
+      "suggest_rate_among_fully_measurable": 0.0692
+    },
+    {
+      "min_latency_s": 1.5,
+      "look_window_into_answer_s": 2.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 527,
+        "suggest_followup": 25,
+        "insufficient_evidence": 357
+      },
+      "fully_measurable": 552,
+      "suggest_rate_among_fully_measurable": 0.0453
+    },
+    {
+      "min_latency_s": 1.5,
+      "look_window_into_answer_s": 3.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 525,
+        "suggest_followup": 27,
+        "insufficient_evidence": 357
+      },
+      "fully_measurable": 552,
+      "suggest_rate_among_fully_measurable": 0.0489
+    },
+    {
+      "min_latency_s": 1.5,
+      "look_window_into_answer_s": 5.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 521,
+        "suggest_followup": 29,
+        "insufficient_evidence": 359
+      },
+      "fully_measurable": 550,
+      "suggest_rate_among_fully_measurable": 0.0527
+    },
+    {
+      "min_latency_s": 2.0,
+      "look_window_into_answer_s": 2.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 544,
+        "suggest_followup": 18,
+        "insufficient_evidence": 347
+      },
+      "fully_measurable": 562,
+      "suggest_rate_among_fully_measurable": 0.032
+    },
+    {
+      "min_latency_s": 2.0,
+      "look_window_into_answer_s": 3.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 544,
+        "suggest_followup": 18,
+        "insufficient_evidence": 347
+      },
+      "fully_measurable": 562,
+      "suggest_rate_among_fully_measurable": 0.032
+    },
+    {
+      "min_latency_s": 2.0,
+      "look_window_into_answer_s": 5.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 541,
+        "suggest_followup": 20,
+        "insufficient_evidence": 348
+      },
+      "fully_measurable": 561,
+      "suggest_rate_among_fully_measurable": 0.0357
+    },
+    {
+      "min_latency_s": 3.0,
+      "look_window_into_answer_s": 2.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 555,
+        "suggest_followup": 12,
+        "insufficient_evidence": 342
+      },
+      "fully_measurable": 567,
+      "suggest_rate_among_fully_measurable": 0.0212
+    },
+    {
+      "min_latency_s": 3.0,
+      "look_window_into_answer_s": 3.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 555,
+        "suggest_followup": 12,
+        "insufficient_evidence": 342
+      },
+      "fully_measurable": 567,
+      "suggest_rate_among_fully_measurable": 0.0212
+    },
+    {
+      "min_latency_s": 3.0,
+      "look_window_into_answer_s": 5.0,
+      "answers": 909,
+      "status": {
+        "no_pattern": 553,
+        "suggest_followup": 13,
+        "insufficient_evidence": 343
+      },
+      "fully_measurable": 566,
+      "suggest_rate_among_fully_measurable": 0.023
+    }
+  ],
+  "asr_model": "faster-whisper-base.en"
+}

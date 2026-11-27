@@ -33,6 +33,7 @@ class WhisperXTranscriber(Transcriber):
         self._wx = import_optional("whisperx", "stt-whisperx")
         self.model_size, self.device, self.language = model_size, device, language
         self.batch_size, self.align, self.diarize, self.hf_token = batch_size, align, diarize, hf_token
+        self._align_models = {}
         self._model = self._wx.load_model(model_size, device, compute_type=compute_type,
                                           language=language, download_root=download_root)
 
@@ -42,7 +43,9 @@ class WhisperXTranscriber(Transcriber):
         result = self._model.transcribe(audio, batch_size=self.batch_size)
         language = result.get("language", self.language)
         if self.align:
-            align_model, meta = wx.load_align_model(language_code=language, device=self.device)
+            if language not in self._align_models:
+                self._align_models[language] = wx.load_align_model(language_code=language, device=self.device)
+            align_model, meta = self._align_models[language]
             result = wx.align(result["segments"], align_model, meta, audio, self.device,
                               return_char_alignments=False)
         if self.diarize and self.hf_token:

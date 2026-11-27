@@ -32,6 +32,7 @@ COPY src ./src
 RUN pip install --no-deps .
 
 # 3) Small non-media files needed by tests/CLI.
+COPY Dockerfile .dockerignore compose.yaml ./
 COPY tests ./tests
 COPY config ./config
 COPY manifests ./manifests

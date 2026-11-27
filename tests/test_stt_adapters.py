@@ -79,7 +79,10 @@ def test_whisperx_adapter_with_alignment_and_diarization(monkeypatch):
 
     wx.load_model = lambda size, device, **kw: Model()
     wx.load_audio = lambda p: "AUDIO"
-    wx.load_align_model = lambda language_code, device: ("ALIGN", {"lang": language_code})
+    def load_align(language_code, device):
+        seen["align_loads"] = seen.get("align_loads", 0) + 1
+        return "ALIGN", {"lang": language_code}
+    wx.load_align_model = load_align
     wx.align = lambda segs, m, meta, audio, device, return_char_alignments: {"segments": [
         {"start": 0.0, "end": 1.0, "text": "hello there",
          "words": [{"word": "hello", "start": 0.0, "end": 0.4, "score": 0.9},
@@ -101,7 +104,10 @@ def test_whisperx_adapter_with_alignment_and_diarization(monkeypatch):
 
     wx.assign_word_speakers = assign
     monkeypatch.setitem(sys.modules, "whisperx", wx)
-    tr = create_transcriber("whisperx", diarize=True, hf_token="hf_x").transcribe("a.wav")
+    transcriber = create_transcriber("whisperx", diarize=True, hf_token="hf_x")
+    tr = transcriber.transcribe("a.wav")
+    transcriber.transcribe("b.wav")
+    assert seen["align_loads"] == 1
     assert tr.has_word_timestamps and tr.segments[0].speaker == "SPEAKER_00" and seen["token"] == "hf_x"
 
 
@@ -157,9 +163,22 @@ def test_benchmark_compares_candidates(tmp_path):
     assert report["keeps"]["speaker_label_coverage"] == 1.0 and report["keeps"]["word_timestamp_coverage"] == 1.0
     assert report["drops"]["filler_recall"] == 0.0 and report["drops"]["word_timestamp_coverage"] == 0.0
     assert report["flaky"]["clips"] == 1 and "c2" in report["flaky"]["failures"]
+    assert report["flaky"]["status"] == "partial"
+    assert report["flaky"]["attempted_clips"] == 2 and report["flaky"]["failed_clips"] == 1
     assert report["broken"]["status"] == "unavailable"
     assert report["cloud"]["status"] == "skipped"  # external upload not approved
     assert report["keeps"]["real_time_factor"] is not None
+
+
+def test_benchmark_all_decode_failures_are_failed(tmp_path):
+    ref = Transcript.from_dict({"text": "hello"})
+    clips = [Clip("bad", tmp_path / "bad.wav", ref, 1.0)]
+    report = run_benchmark([Candidate("broken", "fake")], clips,
+                           lambda name, **opts: FakeSTT("hello", fail_on="bad"))
+    result = report["results"][0]
+    assert result["status"] == "failed"
+    assert result["clips"] == 0 and result["failed_clips"] == 1
+    assert result["real_time_factor"] is None
 
 
 @requires_ffmpeg

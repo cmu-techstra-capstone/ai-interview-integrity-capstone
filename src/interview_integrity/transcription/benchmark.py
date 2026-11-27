@@ -98,7 +98,11 @@ def run_benchmark(
             log.info("%s: %s done", cand.name, clip.clip_id)
 
         summary = summarize_scores(scores) if scores else {"clips": 0}
+        if failures:
+            entry["status"] = "partial" if scores else "failed"
         entry.update(
+            attempted_clips=len(clips),
+            failed_clips=len(failures),
             model_load_seconds=round(load_seconds, 2),
             audio_seconds=round(audio, 2),
             transcribe_seconds=round(wall, 2),

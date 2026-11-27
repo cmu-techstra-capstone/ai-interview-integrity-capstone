@@ -1,0 +1,43 @@
+{
+  "scenario_subset": {
+    "selected_images": 770,
+    "files": 1540,
+    "downloaded_bytes": 39431320,
+    "sequences": {
+      "S1": 70,
+      "S2C": 70,
+      "S2D": 70,
+      "S2L": 70,
+      "S2R": 70,
+      "S2U": 70,
+      "S3C": 70,
+      "S3D": 70,
+      "S3L": 70,
+      "S3R": 70,
+      "S3U": 70
+    },
+    "errors": []
+  },
+  "verification": {
+    "scenario_images_and_annotations_verified": 1540,
+    "columbia_images_verified": 1176
+  },
+  "columbia": {
+    "url": "https://ceal.cs.columbia.edu/static/materials/columbiagaze/columbia_gaze_data_set.zip",
+    "archive_bytes": 2378561401,
+    "transferred_bytes": 490477512,
+    "saved_bytes": 541304432,
+    "participants": 56,
+    "images": 1176
+  },
+  "models": {
+    "face_landmarker.task": {
+      "bytes": 3758596,
+      "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff"
+    },
+    "mobileone_s0_gaze.onnx": {
+      "bytes": 4974521,
+      "sha256": "8b4fdc4e3da44733c9a82e7776b411e4a39f94e8e285aee0fc85a548a55f7d9f"
+    }
+  }
+}
