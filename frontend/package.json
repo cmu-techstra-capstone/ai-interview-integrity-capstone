@@ -7,7 +7,8 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "build:standalone": "npm run build && node scripts/build-preview.mjs"
+    "build:standalone": "npm run build && node scripts/build-preview.mjs",
+    "test": "esbuild src/videoAnalysis.test.ts --bundle --platform=node --format=esm --outfile=.test-build/videoAnalysis.test.mjs --log-level=warning && node --test .test-build/videoAnalysis.test.mjs"
   },
   "dependencies": {
     "react": "^19.2.0",

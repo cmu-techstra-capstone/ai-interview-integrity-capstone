@@ -26,7 +26,19 @@ import {
   Printer,
   MoreHorizontal,
   RotateCcw,
+  Eye,
+  Sparkles,
+  Upload,
 } from "lucide-react";
+import {
+  AnalysisImportError,
+  conditionLabel,
+  eventLabel,
+  eventsIn,
+  followupLabel,
+  followupTone,
+  importAnalysis,
+} from "./videoAnalysis";
 import {
   band,
   createDemoInterviews,
@@ -248,6 +260,100 @@ function Compare({
     </div>
   );
 }
+function VideoTimeline({
+  analysis,
+  answer,
+  total,
+  time,
+  onSeek,
+}: {
+  analysis: NonNullable<Interview["videoAnalysis"]>;
+  answer: Answer;
+  total: number;
+  time: number;
+  onSeek: (t: number) => void;
+}) {
+  const span = Math.max(total, answer.end, ...analysis.events.map((e) => e.end), 1);
+  const pct = (t: number) => `${Math.min(100, Math.max(0, (t / span) * 100))}%`;
+  const width = (a: number, b: number) =>
+    `${Math.max(0.4, ((Math.min(b, span) - Math.max(a, 0)) / span) * 100)}%`;
+  // Include a few seconds before the answer so look-away during the pause is shown.
+  const nearby = eventsIn(analysis.events, answer.start, answer.end, 5);
+  if (!analysis.available)
+    return (
+      <div className="empty small">
+        Video was not analysed for this recording, so look-away cannot be shown.
+      </div>
+    );
+  return (
+    <div className="video-timeline">
+      <div className="timeline-head">
+        <Eye size={14} />
+        <span>
+          Look-away across the recording · {analysis.events.length} event
+          {analysis.events.length === 1 ? "" : "s"}
+        </span>
+      </div>
+      <div className="timeline-strip" role="group" aria-label="Look-away timeline">
+        {analysis.calibrationSeconds ? (
+          <span
+            className="timeline-calibration"
+            style={{ left: 0, width: width(0, analysis.calibrationSeconds) }}
+            title={`Baseline period: first ${analysis.calibrationSeconds}s`}
+          />
+        ) : null}
+        <span
+          className="timeline-answer"
+          style={{ left: pct(answer.start), width: width(answer.start, answer.end) }}
+          title={`${answer.id} answer window`}
+        />
+        {analysis.events.map((e, k) => (
+          <button
+            key={`${e.type}-${e.start}-${k}`}
+            className={`timeline-event ${e.type}`}
+            style={{ left: pct(e.start), width: width(e.start, e.end) }}
+            aria-label={`${eventLabel(e.type)} at ${fmtTime(e.start)}`}
+            title={`${eventLabel(e.type)} ${fmtTime(e.start)}–${fmtTime(e.end)}`}
+            onClick={() => onSeek(e.start)}
+          />
+        ))}
+        <span className="timeline-playhead" style={{ left: pct(time) }} />
+      </div>
+      <div className="timeline-legend">
+        <span><i className="relative_gaze_change" />Gaze away</span>
+        <span><i className="relative_head_change" />Head turned</span>
+        <span><i className="no_face_detected" />Face not visible</span>
+        <span><i className="answer" />This answer</span>
+      </div>
+      <h4 className="timeline-subhead">Near this answer</h4>
+      {nearby.length ? (
+        <ul className="timeline-events">
+          {nearby.map((e, k) => (
+            <li key={`${e.start}-${k}`}>
+              <button className="timestamp" onClick={() => onSeek(e.start)}>
+                <Clock3 size={12} />
+                {fmtTime(e.start)}–{fmtTime(e.end)}
+                <ArrowRight size={12} />
+              </button>
+              <span>
+                {eventLabel(e.type)} · {(e.end - e.start).toFixed(1)}s
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="timeline-none">No sustained look-away near this answer.</p>
+      )}
+      <p className="timeline-note">
+        Changes are measured against this candidate&apos;s own baseline
+        {analysis.calibrationSeconds
+          ? ` (first ${analysis.calibrationSeconds}s)`
+          : ""}
+        . Looking away is common while thinking and is not evidence on its own.
+      </p>
+    </div>
+  );
+}
 export default function App() {
   const [interviews, setInterviews] = useState<Interview[]>(initial.interviews),
     [reviews, setReviews] = useState<Reviews>(initial.reviews);
@@ -284,6 +390,11 @@ export default function App() {
   const ready = i.processing === "Ready",
     score = (s: Interview, q: Answer) =>
       s.processing === "Ready" ? q.score : null;
+  // Imported video analyses have no score; their follow-up status decides attention.
+  const needsAttention = (s: Interview, q: Answer) =>
+    q.followup
+      ? q.followup.status === "suggest_followup"
+      : (score(s, q) ?? -1) >= 3 || score(s, q) === null;
   const review = reviews[reviewKey(i.id, a.id)] || emptyReview;
   const reviewedCount = i.answers.filter(
     (q) => reviews[reviewKey(i.id, q.id)]?.reviewed,
@@ -291,10 +402,21 @@ export default function App() {
   const followupCount = i.answers.filter(
     (q) => reviews[reviewKey(i.id, q.id)]?.followup,
   ).length;
+  // Follow-up condition behind an imported "fusion_*" signal, if any.
+  const conditionOf = (q: Answer, signalName: string) =>
+    q.followup?.conditions.find((c) => `fusion_${c.name}` === signalName);
+  const conditionStatusText = {
+    met: "Met",
+    not_met: "Not met",
+    unmeasurable: "Not measurable",
+  } as const;
+  // Optional context signals that were never provided add noise; hide them.
+  const shownSignals = a.signals.filter((s) => {
+    const c = conditionOf(a, s.signal_name);
+    return !(c && !c.required && c.status === "unmeasurable");
+  });
   const needCount = i.answers.filter(
-    (q) =>
-      !reviews[reviewKey(i.id, q.id)]?.reviewed &&
-      ((score(i, q) ?? -1) >= 3 || score(i, q) === null),
+    (q) => !reviews[reviewKey(i.id, q.id)]?.reviewed && needsAttention(i, q),
   ).length;
   const sessionDuration = Math.max(...i.answers.map((q) => q.end)) + 35;
   const maxTime = media[i.id] ? duration : sessionDuration;
@@ -328,7 +450,10 @@ export default function App() {
     const q =
       s.answers.find(
         (q) =>
-          !reviews[reviewKey(s.id, q.id)]?.reviewed && (score(s, q) ?? 0) >= 3,
+          !reviews[reviewKey(s.id, q.id)]?.reviewed &&
+          (q.followup
+            ? q.followup.status === "suggest_followup"
+            : (score(s, q) ?? 0) >= 3),
       ) || s.answers[0];
     setSelectedQ(q.id);
     setTime(q.start);
@@ -462,6 +587,28 @@ export default function App() {
         rows.map((s) => (s.id === i.id ? { ...s, completedAt: null } : s)),
       );
   };
+  const importVideoAnalysis = async (file: File) => {
+    try {
+      const imported = importAnalysis(JSON.parse(await file.text()), file.name);
+      setInterviews((rows) => [
+        imported,
+        ...rows.filter((r) => r.id !== imported.id),
+      ]);
+      const flagged = imported.answers.filter(
+        (q) => q.followup?.status === "suggest_followup",
+      ).length;
+      setToast(
+        `Imported ${imported.candidate}: ${imported.answers.length} answers, ${flagged} suggesting a follow-up. Attach the recording to play it.`,
+      );
+      openInterview(imported);
+    } catch (e) {
+      setToast(
+        e instanceof AnalysisImportError
+          ? `Could not import: ${e.message}`
+          : "Could not import: the file is not valid analysis JSON.",
+      );
+    }
+  };
   const attach = (file: File) => {
     setPlaying(false);
     setDuration(sessionDuration);
@@ -570,8 +717,7 @@ export default function App() {
   const shownQuestions = i.answers.filter(
     (q) =>
       !questionFilter ||
-      (!reviews[reviewKey(i.id, q.id)]?.reviewed &&
-        ((score(i, q) ?? -1) >= 3 || score(i, q) === null)),
+      (!reviews[reviewKey(i.id, q.id)]?.reviewed && needsAttention(i, q)),
   );
   const summary = route.page === "summary";
   const qualityLabel =
@@ -788,6 +934,26 @@ export default function App() {
                 </div>
               )}
             </div>
+            {route.page === "interviews" && (
+              <div className="heading-actions">
+                <label
+                  className="secondary import-analysis"
+                  title="Import the JSON written by experiments/fusion/analyze_video.py"
+                >
+                  <Upload size={15} />
+                  Import video analysis
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void importVideoAnalysis(f);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+            )}
             {(route.page === "review" || summary) && (
               <div className="heading-actions">
                 {summary ? (
@@ -1134,11 +1300,17 @@ export default function App() {
                       </div>
                       <p>{q.question}</p>
                       <div>
-                        <Badge color={tone(score(i, q))}>
-                          {score(i, q) === null
-                            ? "Unscored"
-                            : `${score(i, q)}/9`}
-                        </Badge>
+                        {q.followup ? (
+                          <Badge color={followupTone[q.followup.status]}>
+                            {followupLabel[q.followup.status]}
+                          </Badge>
+                        ) : (
+                          <Badge color={tone(score(i, q))}>
+                            {score(i, q) === null
+                              ? "Unscored"
+                              : `${score(i, q)}/9`}
+                          </Badge>
+                        )}
                         <small>{fmtTime(q.start)}</small>
                       </div>
                     </button>
@@ -1168,17 +1340,47 @@ export default function App() {
                           className={q.id === a.id ? "selected" : ""}
                           onClick={() => selectQuestion(q)}
                         >
-                          <strong>
-                            {score(i, q) === null ? "N/A" : score(i, q)}
-                          </strong>
-                          <div>
-                            <span
-                              className={tone(score(i, q))}
-                              style={{
-                                height: `${score(i, q) === null ? 0 : (Number(score(i, q)) / 9) * 100}%`,
-                              }}
-                            />
-                          </div>
+                          {q.followup ? (
+                            <>
+                              <strong
+                                title={followupLabel[q.followup.status]}
+                                className="followup-chart-label"
+                              >
+                                {q.followup.status === "suggest_followup"
+                                  ? "Ask"
+                                  : q.followup.status === "no_pattern"
+                                    ? "—"
+                                    : "N/A"}
+                              </strong>
+                              <div>
+                                <span
+                                  className={followupTone[q.followup.status]}
+                                  style={{
+                                    height:
+                                      q.followup.status === "suggest_followup"
+                                        ? "100%"
+                                        : q.followup.status === "no_pattern"
+                                          ? "18%"
+                                          : "0%",
+                                  }}
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <strong>
+                                {score(i, q) === null ? "N/A" : score(i, q)}
+                              </strong>
+                              <div>
+                                <span
+                                  className={tone(score(i, q))}
+                                  style={{
+                                    height: `${score(i, q) === null ? 0 : (Number(score(i, q)) / 9) * 100}%`,
+                                  }}
+                                />
+                              </div>
+                            </>
+                          )}
                           <small>{q.id}</small>
                         </button>
                       ))}
@@ -1442,7 +1644,7 @@ export default function App() {
                 </div>
                 <aside className="review-right">
                   <Panel
-                    title="Review signal"
+                    title={a.followup ? "Follow-up check" : "Review signal"}
                     action={
                       <button
                         className="icon-btn"
@@ -1453,24 +1655,78 @@ export default function App() {
                       </button>
                     }
                   >
-                    <div className={`score-display ${tone(score(i, a))}`}>
-                      <strong>
-                        {score(i, a) === null ? "N/A" : score(i, a)}
-                      </strong>
-                      <span>/9</span>
-                      <Badge color={tone(score(i, a))}>
-                        {band(score(i, a))}
-                      </Badge>
-                    </div>
-                    <div className="score-scale">
-                      {Array.from({ length: 11 }, (_, j) => (
-                        <span
-                          key={j}
-                          className={`${tone(j)} ${score(i, a) === j ? "marker" : ""}`}
-                        />
-                      ))}
-                    </div>
-                    <div className="score-spacer" />
+                    {a.followup ? (
+                      <div className="followup-panel">
+                        <Badge color={followupTone[a.followup.status]}>
+                          {followupLabel[a.followup.status]}
+                        </Badge>
+                        <p className="followup-note">
+                          {a.followup.status === "suggest_followup"
+                            ? "All required conditions were met. Consider a follow-up question."
+                            : a.followup.status === "no_pattern"
+                              ? "At least one required condition was not met."
+                              : "At least one required condition could not be measured."}
+                        </p>
+                        <ul className="condition-list">
+                          {a.followup.conditions
+                            .filter((c) => c.required)
+                            .map((c) => (
+                              <li key={c.name} className={`condition ${c.status}`}>
+                                <span className="condition-mark" aria-hidden="true">
+                                  {c.status === "met"
+                                    ? "✓"
+                                    : c.status === "not_met"
+                                      ? "✕"
+                                      : "?"}
+                                </span>
+                                <div>
+                                  <b>
+                                    {conditionLabel[c.name] ||
+                                      c.name.replaceAll("_", " ")}
+                                    <span className="sr-only">: {c.status}</span>
+                                  </b>
+                                  <p>{c.explanation}</p>
+                                  {c.timestamps[0] && (
+                                    <button
+                                      className="timestamp"
+                                      onClick={() => seek(c.timestamps[0][0])}
+                                    >
+                                      <Clock3 size={12} />
+                                      {fmtTime(c.timestamps[0][0])}–
+                                      {fmtTime(c.timestamps[0][1])}
+                                      <ArrowRight size={12} />
+                                    </button>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                        </ul>
+                        <p className="followup-disclaimer">
+                          {i.videoAnalysis?.disclaimer}
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className={`score-display ${tone(score(i, a))}`}>
+                          <strong>
+                            {score(i, a) === null ? "N/A" : score(i, a)}
+                          </strong>
+                          <span>/9</span>
+                          <Badge color={tone(score(i, a))}>
+                            {band(score(i, a))}
+                          </Badge>
+                        </div>
+                        <div className="score-scale">
+                          {Array.from({ length: 11 }, (_, j) => (
+                            <span
+                              key={j}
+                              className={`${tone(j)} ${score(i, a) === j ? "marker" : ""}`}
+                            />
+                          ))}
+                        </div>
+                        <div className="score-spacer" />
+                      </>
+                    )}
                   </Panel>
                   <Panel title="Observations">
                     <div className="tabs" role="tablist" aria-label="Modality">
@@ -1503,45 +1759,135 @@ export default function App() {
                         </button>
                       ))}
                     </div>
-                    {tab === "visual" ? (
+                    {tab === "visual" && !i.videoAnalysis ? (
                       <div className="empty small">
                         Video analysis unavailable.
                       </div>
                     ) : !ready ? (
                       <div className="empty small">Analysis unavailable.</div>
                     ) : (
-                      a.signals
-                        .filter((s) => s.modality === tab)
-                        .map((s) => (
-                          <div className="observation" key={s.signal_name}>
-                            <div>
-                              <h4>{s.signal_name.replaceAll("_", " ")}</h4>
-                              <b>{s.value === null ? "N/A" : s.value}</b>
+                      <>
+                        {tab === "visual" && i.videoAnalysis && (
+                          <VideoTimeline
+                            analysis={i.videoAnalysis}
+                            answer={a}
+                            total={maxTime}
+                            time={time}
+                            onSeek={seek}
+                          />
+                        )}
+                        {shownSignals
+                          .filter((s) => s.modality === tab)
+                          .map((s) => (
+                            <div className="observation" key={s.signal_name}>
+                              <div>
+                                <h4>
+                                  {(
+                                    conditionLabel[
+                                      s.signal_name.replace(/^fusion_/, "")
+                                    ] || s.signal_name
+                                  ).replaceAll("_", " ")}
+                                </h4>
+                                <b>
+                                  {conditionOf(a, s.signal_name)
+                                    ? conditionStatusText[
+                                        conditionOf(a, s.signal_name)!.status
+                                      ]
+                                    : s.value === null
+                                      ? "N/A"
+                                      : s.value}
+                                </b>
+                              </div>
+                              <p>
+                                {i.videoAnalysis
+                                  ? s.explanation
+                                  : s.value === null
+                                    ? "Not measurable with available data."
+                                    : s.signal_name === "long_pause_count"
+                                      ? "Pauses of at least one second."
+                                      : s.signal_name === "speech_rate"
+                                        ? "Words per minute across this answer."
+                                        : "Words in the supplied transcript."}
+                              </p>
+                              {s.supporting_timestamps[0] && (
+                                <button
+                                  className="timestamp"
+                                  onClick={() =>
+                                    seek(s.supporting_timestamps[0][0])
+                                  }
+                                >
+                                  <Clock3 size={12} />
+                                  {fmtTime(s.supporting_timestamps[0][0])}–
+                                  {fmtTime(s.supporting_timestamps[0][1])}
+                                  <ArrowRight size={12} />
+                                </button>
+                              )}
                             </div>
-                            <p>
-                              {s.value === null
-                                ? "Not measurable with available data."
-                                : s.signal_name === "long_pause_count"
-                                  ? "Pauses of at least one second."
-                                  : s.signal_name === "speech_rate"
-                                    ? "Words per minute across this answer."
-                                    : "Words in the supplied transcript."}
-                            </p>
-                            <button
-                              className="timestamp"
-                              onClick={() =>
-                                seek(s.supporting_timestamps[0][0])
-                              }
-                            >
-                              <Clock3 size={12} />
-                              {fmtTime(s.supporting_timestamps[0][0])}–
-                              {fmtTime(s.supporting_timestamps[0][1])}
-                              <ArrowRight size={12} />
-                            </button>
+                          ))}
+                        {!shownSignals.some((s) => s.modality === tab) && (
+                          <div className="empty small">
+                            No {tab === "transcript" ? "text" : tab} observations for
+                            this answer.
                           </div>
-                        ))
+                        )}
+                      </>
                     )}
                   </Panel>
+                  {a.followup?.reviewerBrief && (
+                    <Panel title="Reviewer brief">
+                      <div className="reviewer-brief">
+                        <p className="brief-summary">
+                          <Sparkles size={14} />
+                          {a.followup.reviewerBrief.summary}
+                        </p>
+                        {a.followup.reviewerBrief.suggested_followup_questions
+                          .length > 0 && (
+                          <>
+                            <h4>Suggested follow-up questions</h4>
+                            <ol className="brief-questions">
+                              {a.followup.reviewerBrief.suggested_followup_questions.map(
+                                (q) => (
+                                  <li key={q}>
+                                    <span>{q}</span>
+                                    <button
+                                      className="text-btn"
+                                      onClick={() =>
+                                        updateReview({
+                                          notes: review.notes
+                                            ? `${review.notes}\n${q}`
+                                            : q,
+                                          followup: true,
+                                        })
+                                      }
+                                    >
+                                      Add to notes
+                                    </button>
+                                  </li>
+                                ),
+                              )}
+                            </ol>
+                          </>
+                        )}
+                        {a.followup.reviewerBrief.alternative_explanations
+                          .length > 0 && (
+                          <>
+                            <h4>Other possible explanations</h4>
+                            <ul className="brief-list">
+                              {a.followup.reviewerBrief.alternative_explanations.map(
+                                (t) => (
+                                  <li key={t}>{t}</li>
+                                ),
+                              )}
+                            </ul>
+                          </>
+                        )}
+                        <p className="brief-footnote">
+                          Generated from the measured conditions only. It is not
+                          a judgement about the candidate.
+                        </p>
+                      </div>
+                    </Panel>
+                  )}
                   <div
                     className={`quality-box ${i.quality === "Good" ? "" : "limited"}`}
                   >
@@ -1676,11 +2022,17 @@ export default function App() {
                           >
                             {q.id} · {fmtTime(q.start)} <ArrowRight size={13} />
                           </button>
-                          <Badge color={tone(score(i, q))}>
-                            {score(i, q) === null
-                              ? "Unscored"
-                              : `${score(i, q)}/9 · ${band(score(i, q))}`}
-                          </Badge>
+                          {q.followup ? (
+                            <Badge color={followupTone[q.followup.status]}>
+                              {followupLabel[q.followup.status]}
+                            </Badge>
+                          ) : (
+                            <Badge color={tone(score(i, q))}>
+                              {score(i, q) === null
+                                ? "Unscored"
+                                : `${score(i, q)}/9 · ${band(score(i, q))}`}
+                            </Badge>
+                          )}
                         </div>
                         <h4>{q.question}</h4>
                         <p>

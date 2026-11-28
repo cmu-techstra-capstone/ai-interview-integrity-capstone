@@ -1,0 +1,728 @@
+{
+  "schema": "followup_pattern.v1",
+  "recording_id": "DEMO-SYNTHETIC",
+  "disclaimer": "Unvalidated review rule. It suggests where a follow-up question may help; it does not indicate that the candidate used AI.",
+  "status_counts": {
+    "suggest_followup": 1,
+    "no_pattern": 3
+  },
+  "answers": [
+    {
+      "recording_id": "DEMO-SYNTHETIC",
+      "question_id": "q01",
+      "question_end": 43.0,
+      "answer_start": 45.5,
+      "answer_end": 53.8,
+      "evidence_signals": [
+        {
+          "signal_name": "fusion_delayed_start",
+          "modality": "audio",
+          "value": 2.5,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              43.0,
+              45.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Answer started 2.50 s after the question ended.",
+          "source_features": [
+            "fusion_delayed_start"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q01"
+        },
+        {
+          "signal_name": "fusion_look_away",
+          "modality": "visual",
+          "value": 3.5,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              43.5,
+              47.0
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Sustained gaze change from own baseline overlapping 43.0-48.5 s for 3.5 s.",
+          "source_features": [
+            "fusion_look_away"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q01"
+        },
+        {
+          "signal_name": "fusion_fluent_answer",
+          "modality": "audio",
+          "value": 0.0,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              45.5,
+              53.8
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Fillers 0.0/100 words (own median 15.4); long pauses 0.0/min (own median 9.3).",
+          "source_features": [
+            "fusion_fluent_answer"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q01"
+        },
+        {
+          "signal_name": "fusion_read_like_delivery",
+          "modality": "audio",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "Read-like delivery (audio model) score not provided.",
+          "source_features": [
+            "fusion_read_like_delivery"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q01"
+        },
+        {
+          "signal_name": "fusion_ai_like_text",
+          "modality": "transcript",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "AI-like text (transcript model) score not provided.",
+          "source_features": [
+            "fusion_ai_like_text"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q01"
+        }
+      ],
+      "followup_pattern": {
+        "schema": "followup_pattern.v1",
+        "status": "suggest_followup",
+        "ai_assistance_probability": null,
+        "disclaimer": "Unvalidated review rule. It suggests where a follow-up question may help; it does not indicate that the candidate used AI.",
+        "conditions": [
+          {
+            "name": "delayed_start",
+            "required": true,
+            "status": "met",
+            "value": 2.5,
+            "threshold": ">= 2 s",
+            "explanation": "Answer started 2.50 s after the question ended.",
+            "timestamps": [
+              [
+                43.0,
+                45.5
+              ]
+            ]
+          },
+          {
+            "name": "look_away",
+            "required": true,
+            "status": "met",
+            "value": 3.5,
+            "threshold": "sustained (>= 2 s) head or gaze change >= 15 deg from own baseline",
+            "explanation": "Sustained gaze change from own baseline overlapping 43.0-48.5 s for 3.5 s.",
+            "timestamps": [
+              [
+                43.5,
+                47.0
+              ]
+            ]
+          },
+          {
+            "name": "fluent_answer",
+            "required": true,
+            "status": "met",
+            "value": 0.0,
+            "threshold": "filler rate and long-pause rate both <= candidate's own median answer",
+            "explanation": "Fillers 0.0/100 words (own median 15.4); long pauses 0.0/min (own median 9.3).",
+            "timestamps": [
+              [
+                45.5,
+                53.8
+              ]
+            ]
+          },
+          {
+            "name": "read_like_delivery",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "Read-like delivery (audio model) score not provided.",
+            "timestamps": []
+          },
+          {
+            "name": "ai_like_text",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "AI-like text (transcript model) score not provided.",
+            "timestamps": []
+          }
+        ],
+        "reviewer_brief_status": "accepted",
+        "reviewer_brief": {
+          "summary": "The answer began 2.5 s after the question, with a sustained gaze change during the pause, followed by a fluent answer.",
+          "observations": [
+            {
+              "text": "Gaze moved away from the candidate's own baseline.",
+              "timestamps": [
+                [
+                  43.5,
+                  47.0
+                ]
+              ]
+            }
+          ],
+          "alternative_explanations": [
+            "Thinking before answering",
+            "Looking at notes or a resume",
+            "Camera placed to one side"
+          ],
+          "suggested_followup_questions": [
+            "What was the hardest technical decision on that project, and why?",
+            "What would you do differently if you ran it again?"
+          ],
+          "limitations": [
+            "The rule is unvalidated and was not trained on real AI-assisted answers."
+          ]
+        },
+        "brief_violations": []
+      },
+      "question_text": "Tell me about a project you led."
+    },
+    {
+      "recording_id": "DEMO-SYNTHETIC",
+      "question_id": "q02",
+      "question_end": 100.0,
+      "answer_start": 100.4,
+      "answer_end": 122.7,
+      "evidence_signals": [
+        {
+          "signal_name": "fusion_delayed_start",
+          "modality": "audio",
+          "value": 0.4,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              100.0,
+              100.4
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Answer started 0.40 s after the question ended.",
+          "source_features": [
+            "fusion_delayed_start"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q02"
+        },
+        {
+          "signal_name": "fusion_look_away",
+          "modality": "visual",
+          "value": 0.0,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "No sustained head/gaze change between 100.0 s and 103.4 s.",
+          "source_features": [
+            "fusion_look_away"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q02"
+        },
+        {
+          "signal_name": "fusion_fluent_answer",
+          "modality": "audio",
+          "value": 30.77,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              100.4,
+              122.7
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Fillers 30.8/100 words (own median 15.4); long pauses 21.5/min (own median 9.3).",
+          "source_features": [
+            "fusion_fluent_answer"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q02"
+        },
+        {
+          "signal_name": "fusion_read_like_delivery",
+          "modality": "audio",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "Read-like delivery (audio model) score not provided.",
+          "source_features": [
+            "fusion_read_like_delivery"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q02"
+        },
+        {
+          "signal_name": "fusion_ai_like_text",
+          "modality": "transcript",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "AI-like text (transcript model) score not provided.",
+          "source_features": [
+            "fusion_ai_like_text"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q02"
+        }
+      ],
+      "followup_pattern": {
+        "schema": "followup_pattern.v1",
+        "status": "no_pattern",
+        "ai_assistance_probability": null,
+        "disclaimer": "Unvalidated review rule. It suggests where a follow-up question may help; it does not indicate that the candidate used AI.",
+        "conditions": [
+          {
+            "name": "delayed_start",
+            "required": true,
+            "status": "not_met",
+            "value": 0.4,
+            "threshold": ">= 2 s",
+            "explanation": "Answer started 0.40 s after the question ended.",
+            "timestamps": [
+              [
+                100.0,
+                100.4
+              ]
+            ]
+          },
+          {
+            "name": "look_away",
+            "required": true,
+            "status": "not_met",
+            "value": 0.0,
+            "threshold": "sustained (>= 2 s) head or gaze change >= 15 deg from own baseline",
+            "explanation": "No sustained head/gaze change between 100.0 s and 103.4 s.",
+            "timestamps": []
+          },
+          {
+            "name": "fluent_answer",
+            "required": true,
+            "status": "not_met",
+            "value": 30.77,
+            "threshold": "filler rate and long-pause rate both <= candidate's own median answer",
+            "explanation": "Fillers 30.8/100 words (own median 15.4); long pauses 21.5/min (own median 9.3).",
+            "timestamps": [
+              [
+                100.4,
+                122.7
+              ]
+            ]
+          },
+          {
+            "name": "read_like_delivery",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "Read-like delivery (audio model) score not provided.",
+            "timestamps": []
+          },
+          {
+            "name": "ai_like_text",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "AI-like text (transcript model) score not provided.",
+            "timestamps": []
+          }
+        ],
+        "reviewer_brief_status": "not_requested",
+        "reviewer_brief": null,
+        "brief_violations": []
+      },
+      "question_text": "How would you debug a training job whose loss becomes NaN?"
+    },
+    {
+      "recording_id": "DEMO-SYNTHETIC",
+      "question_id": "q03",
+      "question_end": 150.1,
+      "answer_start": 150.5,
+      "answer_end": 169.8,
+      "evidence_signals": [
+        {
+          "signal_name": "fusion_delayed_start",
+          "modality": "audio",
+          "value": 0.4,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              150.1,
+              150.5
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Answer started 0.40 s after the question ended.",
+          "source_features": [
+            "fusion_delayed_start"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q03"
+        },
+        {
+          "signal_name": "fusion_look_away",
+          "modality": "visual",
+          "value": 0.0,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "No sustained head/gaze change between 150.1 s and 153.5 s.",
+          "source_features": [
+            "fusion_look_away"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q03"
+        },
+        {
+          "signal_name": "fusion_fluent_answer",
+          "modality": "audio",
+          "value": 30.77,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              150.5,
+              169.8
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Fillers 30.8/100 words (own median 15.4); long pauses 18.7/min (own median 9.3).",
+          "source_features": [
+            "fusion_fluent_answer"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q03"
+        },
+        {
+          "signal_name": "fusion_read_like_delivery",
+          "modality": "audio",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "Read-like delivery (audio model) score not provided.",
+          "source_features": [
+            "fusion_read_like_delivery"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q03"
+        },
+        {
+          "signal_name": "fusion_ai_like_text",
+          "modality": "transcript",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "AI-like text (transcript model) score not provided.",
+          "source_features": [
+            "fusion_ai_like_text"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q03"
+        }
+      ],
+      "followup_pattern": {
+        "schema": "followup_pattern.v1",
+        "status": "no_pattern",
+        "ai_assistance_probability": null,
+        "disclaimer": "Unvalidated review rule. It suggests where a follow-up question may help; it does not indicate that the candidate used AI.",
+        "conditions": [
+          {
+            "name": "delayed_start",
+            "required": true,
+            "status": "not_met",
+            "value": 0.4,
+            "threshold": ">= 2 s",
+            "explanation": "Answer started 0.40 s after the question ended.",
+            "timestamps": [
+              [
+                150.1,
+                150.5
+              ]
+            ]
+          },
+          {
+            "name": "look_away",
+            "required": true,
+            "status": "not_met",
+            "value": 0.0,
+            "threshold": "sustained (>= 2 s) head or gaze change >= 15 deg from own baseline",
+            "explanation": "No sustained head/gaze change between 150.1 s and 153.5 s.",
+            "timestamps": []
+          },
+          {
+            "name": "fluent_answer",
+            "required": true,
+            "status": "not_met",
+            "value": 30.77,
+            "threshold": "filler rate and long-pause rate both <= candidate's own median answer",
+            "explanation": "Fillers 30.8/100 words (own median 15.4); long pauses 18.7/min (own median 9.3).",
+            "timestamps": [
+              [
+                150.5,
+                169.8
+              ]
+            ]
+          },
+          {
+            "name": "read_like_delivery",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "Read-like delivery (audio model) score not provided.",
+            "timestamps": []
+          },
+          {
+            "name": "ai_like_text",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "AI-like text (transcript model) score not provided.",
+            "timestamps": []
+          }
+        ],
+        "reviewer_brief_status": "not_requested",
+        "reviewer_brief": null,
+        "brief_violations": []
+      },
+      "question_text": "Explain how consistent hashing works."
+    },
+    {
+      "recording_id": "DEMO-SYNTHETIC",
+      "question_id": "q04",
+      "question_end": 199.9,
+      "answer_start": 200.3,
+      "answer_end": 208.6,
+      "evidence_signals": [
+        {
+          "signal_name": "fusion_delayed_start",
+          "modality": "audio",
+          "value": 0.4,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              199.9,
+              200.3
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Answer started 0.40 s after the question ended.",
+          "source_features": [
+            "fusion_delayed_start"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q04"
+        },
+        {
+          "signal_name": "fusion_look_away",
+          "modality": "visual",
+          "value": 0.0,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "No sustained head/gaze change between 199.9 s and 203.3 s.",
+          "source_features": [
+            "fusion_look_away"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q04"
+        },
+        {
+          "signal_name": "fusion_fluent_answer",
+          "modality": "audio",
+          "value": 0.0,
+          "confidence": null,
+          "quality_status": "ok",
+          "supporting_timestamps": [
+            [
+              200.3,
+              208.6
+            ]
+          ],
+          "supporting_transcript_span": null,
+          "explanation": "Fillers 0.0/100 words (own median 15.4); long pauses 0.0/min (own median 9.3).",
+          "source_features": [
+            "fusion_fluent_answer"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q04"
+        },
+        {
+          "signal_name": "fusion_read_like_delivery",
+          "modality": "audio",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "Read-like delivery (audio model) score not provided.",
+          "source_features": [
+            "fusion_read_like_delivery"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q04"
+        },
+        {
+          "signal_name": "fusion_ai_like_text",
+          "modality": "transcript",
+          "value": null,
+          "confidence": null,
+          "quality_status": "unknown",
+          "supporting_timestamps": [],
+          "supporting_transcript_span": null,
+          "explanation": "AI-like text (transcript model) score not provided.",
+          "source_features": [
+            "fusion_ai_like_text"
+          ],
+          "sample_key": "DEMO-SYNTHETIC/q04"
+        }
+      ],
+      "followup_pattern": {
+        "schema": "followup_pattern.v1",
+        "status": "no_pattern",
+        "ai_assistance_probability": null,
+        "disclaimer": "Unvalidated review rule. It suggests where a follow-up question may help; it does not indicate that the candidate used AI.",
+        "conditions": [
+          {
+            "name": "delayed_start",
+            "required": true,
+            "status": "not_met",
+            "value": 0.4,
+            "threshold": ">= 2 s",
+            "explanation": "Answer started 0.40 s after the question ended.",
+            "timestamps": [
+              [
+                199.9,
+                200.3
+              ]
+            ]
+          },
+          {
+            "name": "look_away",
+            "required": true,
+            "status": "not_met",
+            "value": 0.0,
+            "threshold": "sustained (>= 2 s) head or gaze change >= 15 deg from own baseline",
+            "explanation": "No sustained head/gaze change between 199.9 s and 203.3 s.",
+            "timestamps": []
+          },
+          {
+            "name": "fluent_answer",
+            "required": true,
+            "status": "met",
+            "value": 0.0,
+            "threshold": "filler rate and long-pause rate both <= candidate's own median answer",
+            "explanation": "Fillers 0.0/100 words (own median 15.4); long pauses 0.0/min (own median 9.3).",
+            "timestamps": [
+              [
+                200.3,
+                208.6
+              ]
+            ]
+          },
+          {
+            "name": "read_like_delivery",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "Read-like delivery (audio model) score not provided.",
+            "timestamps": []
+          },
+          {
+            "name": "ai_like_text",
+            "required": false,
+            "status": "unmeasurable",
+            "value": null,
+            "threshold": ">= 0.5 (context only; model not trained on interviews)",
+            "explanation": "AI-like text (transcript model) score not provided.",
+            "timestamps": []
+          }
+        ],
+        "reviewer_brief_status": "not_requested",
+        "reviewer_brief": null,
+        "brief_violations": []
+      },
+      "question_text": "Why do you think we should hire you?"
+    }
+  ],
+  "analysis_type": "post_interview",
+  "created_at": "2026-11-28T00:00:00-0500",
+  "source": {
+    "video_filename": "synthetic-demo.mp4",
+    "transcript": "synthetic",
+    "sample_fps": 2.0,
+    "note": "Synthetic example generated from test fixtures; no real interview data."
+  },
+  "timing_source": "transcript_timestamps",
+  "answer_windows": 4,
+  "windows_with_reliable_timing": 4,
+  "settings": {
+    "min_latency_s": 2.0,
+    "look_window_into_answer_s": 3.0,
+    "min_visual_coverage": 0.5,
+    "sample_fps": 2.0,
+    "long_pause_s": 1.0,
+    "min_answer_words": 15,
+    "min_answers_for_self_baseline": 3,
+    "read_like_threshold": 0.5,
+    "ai_like_text_threshold": 0.5
+  },
+  "visual": {
+    "available": true,
+    "calibration_seconds": 30.0,
+    "head_baseline_available": true,
+    "gaze_baseline_available": true,
+    "angle_change_threshold_degrees": 15,
+    "minimum_event_seconds": 2,
+    "signal_coverage": null,
+    "events": [
+      {
+        "type": "relative_gaze_change",
+        "start_s": 43.5,
+        "end_s": 47.0,
+        "duration_s": 3.5
+      },
+      {
+        "type": "relative_head_change",
+        "start_s": 120.0,
+        "end_s": 123.0,
+        "duration_s": 3.0
+      },
+      {
+        "type": "no_face_detected",
+        "start_s": 160.0,
+        "end_s": 162.5,
+        "duration_s": 2.5
+      }
+    ],
+    "note": "Look-away events are changes from this candidate's own baseline, not evidence of AI use."
+  },
+  "reviewer_briefs": {
+    "requested": 1,
+    "accepted": 1,
+    "model": "example-model"
+  },
+  "ai_assistance_probability": null
+}

@@ -18,6 +18,47 @@ export interface EvidenceSignal {
   source_features: string[];
   sample_key: string;
 }
+export type FollowupStatus =
+  "suggest_followup" | "no_pattern" | "insufficient_evidence";
+export type ConditionStatus = "met" | "not_met" | "unmeasurable";
+export interface FollowupCondition {
+  name: string;
+  required: boolean;
+  status: ConditionStatus;
+  value: number | null;
+  threshold: string;
+  explanation: string;
+  timestamps: [number, number][];
+}
+export interface ReviewerBrief {
+  summary: string;
+  observations: { text: string; timestamps: [number, number][] }[];
+  alternative_explanations: string[];
+  suggested_followup_questions: string[];
+  limitations: string[];
+}
+/** Post-interview video/timing analysis for one answer (followup_pattern.v1). */
+export interface FollowupPattern {
+  status: FollowupStatus;
+  conditions: FollowupCondition[];
+  reviewerBriefStatus: "accepted" | "rejected" | "not_requested";
+  reviewerBrief: ReviewerBrief | null;
+}
+export interface LookAwayEvent {
+  type: string;
+  start: number;
+  end: number;
+}
+/** Recording-level video analysis attached to an imported interview. */
+export interface VideoAnalysis {
+  schema: string;
+  events: LookAwayEvent[];
+  calibrationSeconds: number | null;
+  available: boolean;
+  disclaimer: string;
+  sourceFile: string;
+  importedAt: string;
+}
 export interface Answer {
   id: string;
   question: string;
@@ -30,6 +71,7 @@ export interface Answer {
   latency: number | null;
   baselineRate: number | null;
   baselineLatency: number | null;
+  followup?: FollowupPattern;
 }
 export interface Interview {
   id: string;
@@ -44,6 +86,7 @@ export interface Interview {
   quality: "Good" | "Limited audio" | "Missing transcript";
   answers: Answer[];
   completedAt?: string | null;
+  videoAnalysis?: VideoAnalysis;
 }
 export interface Review {
   notes: string;
